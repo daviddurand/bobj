@@ -1433,7 +1433,4 @@ open .
   apply red at term .
   ***> should be: b
 close
-
-
-
-
+quit
