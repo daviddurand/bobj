@@ -1317,7 +1317,7 @@ public class Module extends Signature implements Serializable {
 		}
 
 		if (found) {
-		    cmod = cmod.changeParameterName(paraName, "M"+new Date().getTime());
+		    cmod = cmod.changeParameterName(paraName, "M"+Math.random());
 		}
 	    }
 	    
