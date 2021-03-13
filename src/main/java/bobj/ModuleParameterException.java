@@ -1,13 +1,16 @@
 
 package bobj;
 
-public class ModuleParameterException extends Exception {
+public class ModuleParameterException
+                                      extends
+                                      RuntimeException {
 
-   public ModuleParameterException() {
-      super();	
-   }
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-   public ModuleParameterException(String st) {
-      super(st);	
-   }
+    public ModuleParameterException(String st) {
+        super(st);
+    }
 }

@@ -1,14 +1,16 @@
 
 package bobj;
 
-public class SubstitutionException extends Exception {
+public class SubstitutionException
+                                   extends
+                                   Exception {
 
-   public SubstitutionException() {
-      super();
-   }
+    public SubstitutionException() {
+        super();
+    }
 
-   public SubstitutionException(String st) {
-      super(st);
-   }
+    public SubstitutionException(String st) {
+        super(st);
+    }
 
 }

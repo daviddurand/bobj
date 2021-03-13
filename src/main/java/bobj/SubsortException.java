@@ -1,12 +1,12 @@
 
 package bobj;
 
-import java.util.*;
+public class SubsortException
+                              extends
+                              Exception {
 
-public class SubsortException extends Exception {
-
-   public SubsortException(String st) {
-     super(st);
-   }
+    public SubsortException(String st) {
+        super(st);
+    }
 
 }

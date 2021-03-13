@@ -1,451 +1,343 @@
 
 package bobj;
 
-import java.util.*;
-import java.io.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
-public class Subsort  implements Serializable {
+public class Subsort
+                     implements Serializable {
 
-    protected Hashtable subsorts = new Hashtable();
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-    public void addSubsort(Sort parent, Sort child)
-	throws SubsortException {
+    protected Map<Sort, Vector<Sort>> subsorts = new HashMap<>();
 
-	// first get all subsorts for parent and child
+    public void addSubsort(Sort parent,
+                           Sort child)
+        throws SubsortException {
 
-	Vector pv = new Vector();
-	Vector cv = new Vector();
+        // first get all subsorts for parent and child
 
-	boolean p = false;
-	boolean c = false;
+        Vector<Sort> pv = new Vector<>();
+        Vector<Sort> cv = new Vector<>();
 
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements() && (!p || !c)) {
-	    Sort sort = (Sort)e.nextElement();
-	    if (sort.equals(parent)) {
-		pv = (Vector)subsorts.get(sort);
-		subsorts.remove(sort);
-		p = true;
-	    } else if (sort.equals(child)) {
-		cv = (Vector)subsorts.get(sort);
-		subsorts.remove(sort);
-		c = true;
-	    }
-	}
+        if (subsorts.containsKey(child)) {
+            cv = subsorts.get(child);
+            subsorts.remove(child);
+        }
+        if (subsorts.containsKey(parent)) {
+            pv = subsorts.get(parent);
+            subsorts.remove(parent);
+        }
 
-	// insert child into pv
+        // insert child into pv
+        if (!pv.contains(child))
+            pv.addElement(child);
 
-	e = pv.elements();
-	boolean found = false;
-	while (e.hasMoreElements() && !found) {
-	    Sort sort = (Sort)e.nextElement();
-	    if (sort.equals(child)) {
-		found = true;
-	    }
-	}
+        // insert all the elements of cv into pv
+        for (Sort aChild : cv) {
+            if (aChild.equals(parent))
+                throw new SubsortException("contradiction subsort: " + child + " and "
+                                           + parent.getName());
+            if (!pv.contains(aChild))
+                pv.addElement(aChild);
+        }
+        subsorts.put(parent, pv);
+        subsorts.put(child, cv);
 
-	if (!found) pv.addElement(child);
+        // insert child and all the elements in cv to all possible places
+        for (Sort sort : subsorts.keySet()) {
+            Vector<Sort> sv = subsorts.get(sort);
 
-	// insert all the elements of cv into pv
-
-	Enumeration ee = cv.elements();
-	while (ee.hasMoreElements()) {
-
-	    Sort tmp = (Sort)ee.nextElement();
-	    if (tmp.equals(parent)) {
-		throw new SubsortException("contradiction subsort: "+
-					   tmp.getName()+
-					   " and "+parent.getName());
-	    }
-
-	    e = pv.elements();
-	    found = false;
-	    while (e.hasMoreElements() && !found) {
-		Sort sort = (Sort)e.nextElement();
-		if (sort.equals(tmp)) {
-		    found = true;
-		}
-	    }
-	    if (!found) pv.addElement(tmp);
-
-	}
-
-	subsorts.put(parent,pv);
-	subsorts.put(child,cv);
-
-	// insert child and all the elements in cv to all possible places
-	ee = subsorts.keys();
-	while (ee.hasMoreElements()) {
-	    Sort sort = (Sort)ee.nextElement();
-	    Vector sv = (Vector)subsorts.get(sort);
-
-	    // if sv contains parent, then insert 
-	    boolean has = has(sv, parent);
-	    if (has) {
-		insert(sv, child);
-		for (int i=0; i<cv.size(); i++) {
-		    Sort tmp = (Sort)cv.elementAt(i);
-		    insert(sv, tmp);
-		}
-	    }
-	}
-
-	
-    }
-
-
-    private static void insert(Vector set, Sort sort) {
-	for (int i=0; i<set.size(); i++) {
-	    Sort tmp = (Sort)set.elementAt(i);
-	    if (tmp.equals(sort)) {
-		return;
-	    }
-	}
-	set.addElement(sort);
-    }
-
-
-    private static boolean has(Vector set, Sort sort) {
-
-	for (int i=0; i<set.size(); i++) {
-	    Sort tmp = (Sort)set.elementAt(i);
-	    if (tmp != null && tmp.equals(sort)) {
-		return true;
-	    }
-	}
-	return false;
-    }
-
-
-    public boolean isSubsort(Sort parent, Sort child) {
-       
-       
-	boolean result = false;
-
-	if (parent.getName().equals("Universal") &&
-	    parent.getInfo().equals("system-default")) {
-	    result = true;
-	} else {
-
-	    Enumeration e = subsorts.keys();
-	    Sort sort = null;
-
-	    while (e.hasMoreElements() && !result) {
-		sort = (Sort)e.nextElement();
-		if (sort.equals(parent)) {
-		    result = true;
-		}
-	    }
-	  
-	    if (result) {
-		Vector v = (Vector)subsorts.get(sort);
-		result = false;
-
-		e = v.elements();
-		while (e.hasMoreElements() && !result) {
-		    sort = (Sort)e.nextElement();
-		    if (sort.equals(child)) {
-			result = true;
-		    }           
-		}
-	    }
-	}
-
-	return result;
+            // if sv contains parent, then insert
+            if (sv.contains(parent)) {
+                insert(sv, child);
+                for (Sort tmp : cv) {
+                    insert(sv, tmp);
+                }
+            }
+        }
 
     }
 
+    private static void insert(Vector<Sort> set,
+                               Sort sort) {
+        if (!set.contains(sort))
+            set.addElement(sort);
+    }
 
+    public boolean isSubsort(Sort parent,
+                             Sort child) {
+
+        boolean result = false;
+
+        if (parent.getName()
+                  .equals("Universal")
+            && parent.getInfo()
+                     .equals("system-default")) {
+            result = true;
+        } else {
+            result = subsorts.keySet()
+                             .contains(parent);
+            if (result) {
+                Vector<Sort> v = subsorts.get(parent);
+                result = false;
+                if (v.contains(child)) {
+                    result = true;
+                }
+            }
+        }
+
+        return result;
+
+    }
+
+    @Override
     public String toString() {
 
-	String result = "";
-	Enumeration e = this.subsorts.keys();
-	while (e.hasMoreElements()) {
-	    Sort parent = (Sort)e.nextElement();
-	    Vector v = (Vector)this.subsorts.get(parent);
+        String result = "";
+        for (Sort parent : this.subsorts.keySet()) {
+            Vector<Sort> v = this.subsorts.get(parent);
 
-	    if (v != null && v.size() != 0) {
-		result += "  subsorts ";
-		for (int i=0; i<v.size(); i++) {
-		    Sort kid = (Sort)v.elementAt(i);
-		    result += kid.getName()+"."+kid.getModuleName()+" ";
-		}
-		result += "< "+parent.getName()+" .\n";
-	    }
-	}
+            if (v != null && v.size() != 0) {
+                result += "  subsorts ";
+                for (int i = 0; i < v.size(); i++ ) {
+                    Sort kid = v.elementAt(i);
+                    result += kid.getName() + "." + kid.getModuleName() + " ";
+                }
+                result += "< " + parent.getName() + " .\n";
+            }
+        }
 
-	return result;
+        return result;
     }
-
-
 
     public Sort[] getChildren(Sort parent) {
 
-	Vector kids = new Vector();
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements()) {
-	    Sort sort = (Sort)e.nextElement();
-	    if (sort.equals(parent)) {
-		kids = (Vector)subsorts.get(sort); 
-	    }
-	}
+        Vector<Sort> kids = new Vector<>();
+        for (Sort sort : this.subsorts.keySet()) {
+            if (sort.equals(parent)) {
+                kids = subsorts.get(sort);
+            }
+        }
 
-	Sort[] result = new Sort[kids.size()];
-	kids.copyInto(result);
-	return result;
+        Sort[] result = new Sort[kids.size()];
+        kids.copyInto(result);
+        return result;
     }
 
-    
-    protected Subsort changeModuleName(ModuleName olds, ModuleName news) {
-	
-	Subsort result = new Subsort();
+    protected Subsort changeModuleName(ModuleName olds,
+                                       ModuleName news) {
 
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements()) {
-	    
-	    Sort ps = (Sort)e.nextElement();
-	    Vector vec = (Vector)subsorts.get(ps);
-	    
-	    ps = ps.changeModuleName(olds, news);
-	   
-	    Vector res = new Vector();
-	    if (vec != null) {
-		for (int i=0; i<vec.size(); i++) {
-		    Sort tmp = (Sort)vec.elementAt(i);		
-		    tmp = tmp.changeModuleName(olds, news);
-		    res.addElement(tmp);
-		}
-	    }
+        Subsort result = new Subsort();
 
-	    result.subsorts.put(ps, res);
+        for (Sort ps : this.subsorts.keySet()) {
+            Vector<Sort> vec = subsorts.get(ps);
 
-	}
+            ps = ps.changeModuleName(olds, news);
 
-	return result;
+            Vector<Sort> res = new Vector<>();
+            if (vec != null) {
+                for (int i = 0; i < vec.size(); i++ ) {
+                    Sort tmp = vec.elementAt(i);
+                    tmp = tmp.changeModuleName(olds, news);
+                    res.addElement(tmp);
+                }
+            }
+
+            result.subsorts.put(ps, res);
+
+        }
+
+        return result;
 
     }
-
 
     protected Subsort changeAbsoluteModuleName(ModuleName olds,
-					       ModuleName news) {
-	
-	Subsort result = new Subsort();
+                                               ModuleName news) {
 
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements()) {
-	    
-	    Sort ps = (Sort)e.nextElement();
-	    Vector vec = (Vector)subsorts.get(ps);
-	    
-	    ps = ps.changeAbsoluteModuleName(olds, news);
-	   
-	    Vector res = new Vector();
-	    if (vec != null) {
-		for (int i=0; i<vec.size(); i++) {
-		    Sort tmp = (Sort)vec.elementAt(i);		
-		    tmp = tmp.changeAbsoluteModuleName(olds, news);
-		    res.addElement(tmp);
-		}
-	    }
+        Subsort result = new Subsort();
 
-	    result.subsorts.put(ps, res);
+        for (Sort ps : this.subsorts.keySet()) {
+            Vector<Sort> vec = subsorts.get(ps);
 
-	}
+            ps = ps.changeAbsoluteModuleName(olds, news);
 
-	return result;
+            Vector<Sort> res = new Vector<>();
+            if (vec != null) {
+                for (int i = 0; i < vec.size(); i++ ) {
+                    Sort tmp = vec.elementAt(i);
+                    tmp = tmp.changeAbsoluteModuleName(olds, news);
+                    res.addElement(tmp);
+                }
+            }
+
+            result.subsorts.put(ps, res);
+
+        }
+
+        return result;
 
     }
 
+    protected Subsort changeParameterName(String olds,
+                                          String news) {
 
-    protected Subsort changeParameterName(String olds, String news) {
-	
-	Subsort result = new Subsort();
+        Subsort result = new Subsort();
 
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements()) {
-	    
-	    Sort ps = (Sort)e.nextElement();
-	    Vector vec = (Vector)subsorts.get(ps);
-	    
-	    ps = ps.changeParameterName(olds, news);
-	   
-	    Vector res = new Vector();
-	    if (vec != null) {
-		for (int i=0; i<vec.size(); i++) {
-		    Sort tmp = (Sort)vec.elementAt(i);		
-		    tmp = tmp.changeParameterName(olds, news);
-		    res.addElement(tmp);
-		}
-	    }
+        for (Sort ps : this.subsorts.keySet()) {
+            Vector<Sort> vec = subsorts.get(ps);
 
-	    result.subsorts.put(ps, res);
+            ps = ps.changeParameterName(olds, news);
 
-	}
+            Vector<Sort> res = new Vector<>();
+            if (vec != null) {
+                for (int i = 0; i < vec.size(); i++ ) {
+                    Sort tmp = vec.elementAt(i);
+                    tmp = tmp.changeParameterName(olds, news);
+                    res.addElement(tmp);
+                }
+            }
 
-	return result;
+            result.subsorts.put(ps, res);
+
+        }
+
+        return result;
 
     }
 
-    
-    protected Subsort changeSort(Sort olds, Sort news) {
+    protected Subsort changeSort(Sort olds,
+                                 Sort news) {
 
-        	
-	Subsort tmp = new Subsort();
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements()) {
-	    Sort parent = (Sort)e.nextElement();
-	    Vector cv = (Vector)subsorts.get(parent);
+        Subsort tmp = new Subsort();
+        for (Sort parent : this.subsorts.keySet()) {
+            Vector<Sort> cv = subsorts.get(parent);
 
-	    if (parent.equals(olds)) {
-		parent = news;
-	    }
+            if (parent.equals(olds)) {
+                parent = news;
+            }
 
-	    for (int i=0; i<cv.size(); i++) {
-		Sort child  = (Sort)cv.elementAt(i);
-		if (child.equals(olds)) {
-		    child = news;
-		}
-		try {
-		    tmp.addSubsort(parent, child);
-		} catch (Exception ex) {}
-	    }
+            for (int i = 0; i < cv.size(); i++ ) {
+                Sort child = cv.elementAt(i);
+                if (child.equals(olds)) {
+                    child = news;
+                }
+                try {
+                    tmp.addSubsort(parent, child);
+                } catch (Exception ex) {
+                }
+            }
 
-	}
+        }
 
-	return tmp;
-	
+        return tmp;
+
     }
-    
 
-    protected Subsort addAnnotation(String name, Map env) {
+    protected Subsort addAnnotation(String name,
+                                    Map<ModuleName, Integer> env) {
 
-	Subsort result = new Subsort();
+        Subsort result = new Subsort();
 
-	Enumeration e = this.subsorts.keys();
-	while (e.hasMoreElements()) {
+        for (Sort ps : this.subsorts.keySet()) {
+            Vector<Sort> vec = subsorts.get(ps);
+            Sort sort = ps.addAnnotation(name, env);
 
-	    Sort ps = (Sort)e.nextElement();
-	    Vector vec = (Vector)subsorts.get(ps);
-	    Sort sort = ps.addAnnotation(name, env);
-
-	    for (int i=0; i<vec.size(); i++) {
-		Sort tmp = (Sort)vec.elementAt(i);
+            for (int i = 0; i < vec.size(); i++ ) {
+                Sort tmp = vec.elementAt(i);
                 tmp = tmp.addAnnotation(name, env);
-		try {
-		    result.addSubsort(sort, tmp);
-		} catch (Exception ex){
-		}
-	    }
+                try {
+                    result.addSubsort(sort, tmp);
+                } catch (Exception ex) {
+                }
+            }
 
-	}
+        }
 
-	return result;
+        return result;
 
     }
-
 
     protected Subsort removeAnnotation(String name) {
 
-	Subsort result = new Subsort();
+        Subsort result = new Subsort();
 
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements()) {
-	    
-	    Sort ps = (Sort)e.nextElement();
-	    Vector vec = (Vector)subsorts.get(ps);
-	    Vector res = new Vector();
-	    	    
-	    for (int i=0; i<vec.size(); i++) {
-		Sort tmp = (Sort)vec.elementAt(i);
+        for (Sort ps : this.subsorts.keySet()) {
+            Vector<Sort> vec = subsorts.get(ps);
+            Vector<Sort> res = new Vector<>();
+
+            for (int i = 0; i < vec.size(); i++ ) {
+                Sort tmp = vec.elementAt(i);
                 tmp = tmp.removeAnnotation(name);
-		res.addElement(tmp);
-		
-	    }
-	    ps = ps.removeAnnotation(name);
-	    result.subsorts.put(ps, res);
+                res.addElement(tmp);
 
-	}
+            }
+            ps = ps.removeAnnotation(name);
+            result.subsorts.put(ps, res);
 
-	return result;
+        }
+
+        return result;
 
     }
-
-
 
     public boolean contains(Subsort ss) {
-	boolean result = true;
+        boolean result = true;
 
-	Enumeration e = ss.subsorts.keys();
-	while (e.hasMoreElements()) {
-	    Sort parent = (Sort)e.nextElement();
-	    Vector v = (Vector)ss.subsorts.get(parent);
-	    for (int i=0; i<v.size(); i++) {
-		Sort kid = (Sort)v.elementAt(i);
-		result = isSubsort(parent, kid);
-		if (!result)  return false;
-	    }
-	}
+        for (Sort parent : ss.subsorts.keySet()) {
+            Vector<Sort> v = ss.subsorts.get(parent);
+            for (int i = 0; i < v.size(); i++ ) {
+                Sort kid = v.elementAt(i);
+                result = isSubsort(parent, kid);
+                if (!result)
+                    return false;
+            }
+        }
 
-	return result;
+        return result;
     }
 
+    public Sort canApply(Sort s1,
+                         Sort s2) {
 
-    public Sort canApply(Sort s1, Sort s2) {
+        Sort result = null;
 
-	Sort result = null;
+        Vector<Sort> kids = null;
+        for (Sort tmp : this.subsorts.keySet()) {
+            if (s2.equals(tmp)) {
+                kids = subsorts.get(tmp);
+                break;
+            }
+        }
 
-	Vector kids = null;
-	Enumeration e = subsorts.keys();
-	while (e.hasMoreElements()) {
-	    Sort tmp = (Sort)e.nextElement();
-	    if (s2.equals(tmp)) {
-		kids = (Vector)subsorts.get(tmp);
-		break;
-	    }
-	}
+        if (kids != null) {
+            for (int i = 0; i < kids.size(); i++ ) {
+                Sort tmp = kids.elementAt(i);
+                if (isSubsort(s1, tmp)) {
+                    return tmp;
+                }
+            }
+        }
 
-	if (kids != null) {
-	    for (int i=0; i<kids.size(); i++) {
-		Sort tmp = (Sort)kids.elementAt(i);
-		if (isSubsort(s1, tmp)) {
-		    return tmp;
-		}
-	    }
-	}
-
-	return result;
+        return result;
     }
 
-
+    @Override
     public Object clone() {
-	Subsort result = new Subsort();
-	Enumeration enum_ = this.subsorts.keys();
-	while (enum_.hasMoreElements()) {
-	    Sort sort = (Sort)enum_.nextElement();
-	    Vector vec = (Vector)this.subsorts.get(sort);
-	    vec = (Vector)vec.clone();
-	    result.subsorts.put(sort, vec);
-	}
-	
-	//result.subsorts = (Hashtable)subsorts.clone();
-	return result;
+        Subsort result = new Subsort();
+        for (Sort sort : this.subsorts.keySet()) {
+            Vector<Sort> vec = this.subsorts.get(sort);
+            vec = new Vector<>(vec);
+            result.subsorts.put(sort, vec);
+        }
+
+        //result.subsorts = (HashMap)subsorts.clone();
+        return result;
     }
 
-
-
-    
-    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

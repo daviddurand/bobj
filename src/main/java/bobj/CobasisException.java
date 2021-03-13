@@ -1,14 +1,16 @@
 
 package bobj;
 
-public class CobasisException extends Exception {
+public class CobasisException
+                              extends
+                              Exception {
 
-   public CobasisException() {
-      super();
-   }
+    public CobasisException() {
+        super();
+    }
 
-   public CobasisException(String st) {
-      super(st);
-   }
+    public CobasisException(String st) {
+        super(st);
+    }
 
 }

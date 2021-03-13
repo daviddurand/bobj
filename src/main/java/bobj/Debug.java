@@ -1,8 +1,7 @@
 
 package bobj;
 
-public class Debug 
-{
+public class Debug {
     static Module mod;
-    
+
 }

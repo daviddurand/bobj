@@ -1,7 +1,5 @@
 
-
 package bobj;
-
 
 /**
  * 
@@ -9,13 +7,15 @@ package bobj;
  * @version: %I% %G%
  * @see java.lang.Exception
  */
-public class CaseModuleException extends Exception {
+public class CaseModuleException
+                                 extends
+                                 Exception {
 
-  /**
-   * create a case module exception with the specified string.
-   */
-  public CaseModuleException(String str) {
-    super(str);
-  }
- 
+    /**
+     * create a case module exception with the specified string.
+     */
+    public CaseModuleException(String str) {
+        super(str);
+    }
+
 }
