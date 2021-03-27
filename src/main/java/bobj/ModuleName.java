@@ -405,6 +405,22 @@ public class ModuleName
 
     }
 
+    @Override
+    public int hashCode() {
+        switch (op) {
+            default:
+            case ATOM:
+                return atom.hashCode();
+            case ANNOTATE:
+            case SUM:
+            case INSTANCE:
+            case RENAMING:
+            case GENERAL_INSTANCE:
+                return subexps.hashCode() + ((atom == null) ? 0
+                                                            : atom.hashCode());
+        }
+    }
+
     public ModuleName changeAbsoluteModuleName(ModuleName from,
                                                ModuleName to) {
 

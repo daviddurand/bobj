@@ -83,6 +83,12 @@ public class Equation
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return left.hashCode() + right.hashCode() + (isConditional() ? condition.hashCode()
+                                                                     : 0);
+    }
+
     public Term getCondition() {
         return condition;
     }

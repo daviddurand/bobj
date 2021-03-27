@@ -724,6 +724,13 @@ public class Operation
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode() * 31 + resultSort.hashCode() + argumentSorts.hashCode()
+               + ((modName != null) ? modName.hashCode()
+                                    : 0);
+    }
+
     public boolean hasSameSignature(Operation op) {
 
         if (resultSort.equals(op.resultSort) && argumentSorts.length == op.argumentSorts.length) {

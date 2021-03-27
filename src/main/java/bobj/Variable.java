@@ -107,6 +107,11 @@ public class Variable
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return this.name.hashCode() + this.sort.hashCode();
+    }
+
     protected Variable changeSort(Sort olds,
                                   Sort news) {
         if (this.sort.equals(olds)) {

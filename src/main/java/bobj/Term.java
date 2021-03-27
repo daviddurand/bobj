@@ -286,6 +286,18 @@ public class Term
         return result;
     }
 
+    @Override
+    public int hashCode() {
+        if (this.isVariable()) {
+            return this.getVariable()
+                       .hashCode();
+        } else {
+            Operation op1 = this.getTopOperation();
+            return op1.hashCode() + this.getSubterms()
+                                        .hashCode();
+        }
+    }
+
     public boolean equals(Signature sig,
                           Term term) {
 
