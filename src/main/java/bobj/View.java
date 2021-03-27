@@ -890,17 +890,17 @@ public class View
         Module newTarget = this.getImage(view.target);
         View result = new View("", newSource, newTarget);
 
-        for (Sort from : sortMap.keySet()) {
+        for (Sort from : view.sortMap.keySet()) {
             Sort to = view.sortMap.get(from);
             result.addSortMap(getImage(from), getImage(to));
         }
 
-        for (Operation from : opMap.keySet()) {
+        for (Operation from : view.opMap.keySet()) {
             Operation to = view.opMap.get(from);
             result.addOperationMap(getImage(from), getImage(to));
         }
 
-        for (Term left : trans.keySet()) {
+        for (Term left : view.trans.keySet()) {
             Term right = view.trans.get(left);
             result.addTransformation(getImage(newSource, left), getImage(newTarget, right));
         }
