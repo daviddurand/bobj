@@ -1240,7 +1240,7 @@ public class Module
         throws ModuleInstanceException {
 
         // decide module name
-        List<Object> list = new ArrayList<>();
+        List<ViewRenamable> list = new ArrayList<>();
         for (Module mod : mods) {
             View view = (View) mod.getProperty("view");
             if (view == null) {
@@ -2106,8 +2106,7 @@ public class Module
                 case ModuleName.RENAMING:
                     name = (ModuleName) modName.subexps.get(0);
                     @SuppressWarnings("unchecked")
-                    Map<ViewRenamable, ViewRenamable> renaming =
-                        (Map<ViewRenamable, ViewRenamable>) modName.subexps.get(1);
+                    RenamingMap renaming = (RenamingMap) modName.subexps.get(1);
 
                     list.clear();
                     module = getModule(name, newenv, oldenv, list);
@@ -2173,7 +2172,7 @@ public class Module
 
     static public void getExtraViews(ModuleName m1,
                                      ModuleName m2,
-                                     Map<Object, Object> map) {
+                                     Map<ViewRenamable, ViewRenamable> map) {
 
         switch (m1.op) {
             case ModuleName.ANNOTATE:
@@ -2184,8 +2183,8 @@ public class Module
                     ModuleName main2 = (ModuleName) m2.subexps.get(0);
                     if (main1.equals(main2)) {
                         for (int i = 1; i < m1.subexps.size(); i++ ) {
-                            Object tmp1 = m1.subexps.get(i);
-                            Object tmp2 = m2.subexps.get(i);
+                            ViewRenamable tmp1 = m1.subexps.get(i);
+                            ViewRenamable tmp2 = m2.subexps.get(i);
                             if ((tmp1 instanceof ModuleName) && (tmp2 instanceof ModuleName)) {
                                 getExtraViews((ModuleName) tmp1, (ModuleName) tmp2, map);
                             } else {

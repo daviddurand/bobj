@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class View
-                  implements ModNameSubexp {
+                  implements ViewRenamable {
 
     boolean morphism = false;
 
@@ -973,7 +973,7 @@ public class View
 
         try {
 
-            List<Object> list = new ArrayList<>();
+            List<ViewRenamable> list = new ArrayList<>();
 
             // create new module name
             ModuleName[] modNames = new ModuleName[mods.length];
@@ -1236,9 +1236,9 @@ public class View
         Module resSource = this.source.clone();
         Module resTarget = this.target.clone();
 
-        Map<Object, Object> map1 = new HashMap<>();
-        Map<Object, Object> map2 = new HashMap<>();
-        Map<ViewRenamable, ViewRenamable> record = new HashMap<>();
+        RenamingMap map1 = new RenamingMap();
+        RenamingMap map2 = new RenamingMap();
+        RenamingMap record = new RenamingMap();
 
         for (ViewRenamable obj : map.keySet()) {
             if (obj instanceof Sort) {

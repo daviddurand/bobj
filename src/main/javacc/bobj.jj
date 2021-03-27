@@ -4713,7 +4713,7 @@ Module ModExpTerm(Module mod) :
                     "as parameter at line " + token.beginLine + ".";
                     throw new ParseException(msg);
                 }
-                Map map = new HashMap();
+                RenamingMap map = new RenamingMap();
             }
             "("
             (

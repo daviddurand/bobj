@@ -1,6 +1,6 @@
 package bobj;
 
-interface ModNameSubexp
-                        extends ViewRenamable {
-
+interface ModNameSubexp {
+    @Override
+    public int hashCode();
 }

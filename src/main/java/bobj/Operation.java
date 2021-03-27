@@ -18,7 +18,7 @@ import java.util.Vector;
  * @see Signature
  */
 public class Operation
-                       implements Serializable, ModNameSubexp {
+                       implements Serializable, ModNameSubexp, ViewRenamable {
 
     /**
      *
@@ -239,9 +239,9 @@ public class Operation
     /* create a constant with the specified name and sort.
      *
      * @param na the string of the name of this operation, which doesn't contain "_" .
-     * 
+     *
      * @param res the sort of result .
-     * 
+     *
      * @exception SignatureException if na contains "_" or na is empty string. */
     public Operation(String name,
                      Sort res,
@@ -843,13 +843,13 @@ public class Operation
                     result = true;
                 }
 
-            /* else if (resultSort.equals(op.resultSort)) { if (modName != null && op.modName !=
-             * null && modName.equals(op.modName)) { result = true; } else if (modName == null &&
-             * op.modName == null) { result = true; } } */
+                /* else if (resultSort.equals(op.resultSort)) { if (modName != null && op.modName !=
+                 * null && modName.equals(op.modName)) { result = true; } else if (modName == null
+                 * && op.modName == null) { result = true; } } */
+            }
         }
-    }
 
-    return result;
+        return result;
 
     }
 

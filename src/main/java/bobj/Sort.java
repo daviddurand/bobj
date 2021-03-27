@@ -14,7 +14,7 @@ import java.util.Map;
  */
 
 public class Sort
-                  implements ModNameSubexp, Serializable {
+                  implements ModNameSubexp, Serializable, ViewRenamable {
 
     /**
      * Indicates the name of this sort.

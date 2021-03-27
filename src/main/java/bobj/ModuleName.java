@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ModuleName
-                        implements ModNameSubexp {
+                        implements ModNameSubexp, ViewRenamable {
     final public static int ATOM = 0;
 
     final public static int INSTANCE = 1;
@@ -23,7 +23,7 @@ public class ModuleName
 
     String atom;
 
-    List<Object> subexps;
+    List<ViewRenamable> subexps;
 
     View view;
 
@@ -52,7 +52,7 @@ public class ModuleName
         return result;
     }
 
-    public ModuleName instance(List<Object> mods) {
+    public ModuleName instance(List<ViewRenamable> mods) {
         ModuleName result = new ModuleName();
         result.op = GENERAL_INSTANCE;
         result.subexps.add(this);
@@ -92,7 +92,7 @@ public class ModuleName
         return result;
     }
 
-    public ModuleName renaming(Map<Object, Object> map) {
+    public ModuleName renaming(RenamingMap map) {
 
         ModuleName result = new ModuleName();
         result.op = RENAMING;
@@ -208,8 +208,8 @@ public class ModuleName
                 boolean begin = true;
 
                 @SuppressWarnings("unchecked")
-                Map<Object, Object> map = (Map<Object, Object>) subexps.get(1);
-                for (Object obj : map.keySet()) {
+                RenamingMap map = (RenamingMap) subexps.get(1);
+                for (ViewRenamable obj : map.keySet()) {
                     if (obj instanceof Sort) {
                         Sort from = (Sort) obj;
                         Sort to = (Sort) map.get(from);
@@ -236,7 +236,7 @@ public class ModuleName
 
             break;
 
-                default:
+            default:
                 result += "???";
         }
 
@@ -286,7 +286,6 @@ public class ModuleName
                         return false;
                     }
                 case GENERAL_INSTANCE:
-
                     if (name.subexps.size() == this.subexps.size()) {
                         for (int i = 0; i < subexps.size(); i++ ) {
                             Object obj1 = this.subexps.get(i);
@@ -412,12 +411,22 @@ public class ModuleName
             case ATOM:
                 return atom.hashCode();
             case ANNOTATE:
+                return subexps.get(0)
+                              .hashCode()
+                       + ((atom == null) ? 0
+                                         : atom.hashCode());
             case SUM:
+                return subexps.get(0)
+                              .hashCode()
+                       + subexps.get(1)
+                                .hashCode();
             case INSTANCE:
+                return subexps.hashCode() + 53;
             case RENAMING:
+                return subexps.get(0)
+                              .hashCode();
             case GENERAL_INSTANCE:
-                return subexps.hashCode() + ((atom == null) ? 0
-                                                            : atom.hashCode());
+                return subexps.size() * 53;
         }
     }
 
@@ -464,15 +473,14 @@ public class ModuleName
                 ModuleName m0 = (ModuleName) subexps.get(0);
                 m0 = m0.changeModuleName(from, to);
 
-                List<Object> list = new ArrayList<>();
+                List<ViewRenamable> list = new ArrayList<>();
                 for (int i = 1; i < subexps.size(); i++ ) {
-                    Object obj = subexps.get(i);
+                    ViewRenamable obj = subexps.get(i);
                     if (obj instanceof ModuleName) {
                         ModuleName tmp = (ModuleName) obj;
                         tmp = tmp.changeModuleName(from, to);
                         list.add(tmp);
                     } else {
-
                         View view = (View) obj;
                         if (view.target.modName.toString()
                                                .equals(view.name)) {
@@ -503,7 +511,7 @@ public class ModuleName
                 m0 = (ModuleName) subexps.get(0);
                 m0 = m0.changeModuleName(from, to);
                 @SuppressWarnings("unchecked")
-                Map<Object, Object> map = (Map<Object, Object>) subexps.get(1);
+                RenamingMap map = (RenamingMap) subexps.get(1);
 
                 return m0.renaming(map);
 
@@ -550,9 +558,9 @@ public class ModuleName
                 ModuleName m0 = (ModuleName) subexps.get(0);
                 m0 = m0.changeParameterName(from, to);
 
-                List<Object> list = new ArrayList<>();
+                List<ViewRenamable> list = new ArrayList<>();
                 for (int i = 1; i < subexps.size(); i++ ) {
-                    Object obj = subexps.get(i);
+                    ViewRenamable obj = subexps.get(i);
                     if (obj instanceof ModuleName) {
                         ModuleName tmp = (ModuleName) obj;
                         tmp = tmp.changeParameterName(from, to);
@@ -579,7 +587,7 @@ public class ModuleName
                 m0 = (ModuleName) subexps.get(0);
                 m0 = m0.changeParameterName(from, to);
                 @SuppressWarnings("unchecked")
-                Map<Object, Object> map = (Map<Object, Object>) subexps.get(1);
+                RenamingMap map = (RenamingMap) subexps.get(1);
 
                 return m0.renaming(map);
 
