@@ -21,17 +21,17 @@ public class Equation
 
     public Equation(Term l,
                     Term r) {
-        left = l;
-        right = r;
+        this.left = l;
+        this.right = r;
         info = "";
     }
 
     public Equation(Term c,
                     Term l,
                     Term r) {
-        condition = c;
-        left = l;
-        right = r;
+        this.condition = c;
+        this.left = l;
+        this.right = r;
         info = "";
     }
 
@@ -44,6 +44,8 @@ public class Equation
         }
 
         if (!(obj instanceof Equation)) {
+            if (debug)
+                System.out.println(this + "     Nope!");
             return false;
         }
 
@@ -73,13 +75,14 @@ public class Equation
          * System.out.println("yes again. they are same again");
          * System.out.println("-------------------"); System.out.println(this.condition);
          * System.out.println(eq.condition); System.out.println(map); }
-         * 
+         *
          * if (isConditional() && eq.isConditional() && condition.equals(eq.condition, map)) {
-         * 
+         *
          * System.out.println("bbb: "+this+"  \n      "+eq );
-         * 
+         *
          * return true; } else if (!isConditional() && !eq.isConditional()) { return true; } } */
-
+        if (debug)
+            System.out.println(this + "     Nope!");
         return false;
     }
 
@@ -87,18 +90,6 @@ public class Equation
     public int hashCode() {
         return left.hashCode() + right.hashCode() + (isConditional() ? condition.hashCode()
                                                                      : 0);
-    }
-
-    public Term getCondition() {
-        return condition;
-    }
-
-    public Term getLeft() {
-        return left;
-    }
-
-    public Term getRight() {
-        return right;
     }
 
     public boolean isConditional() {
@@ -123,9 +114,9 @@ public class Equation
         }
 
         if (isConditional()) {
-            result += "cq " + getLeft() + " = " + getRight() + " if " + getCondition();
+            result += "cq " + left + " = " + right + " if " + condition;
         } else {
-            result += "eq " + getLeft() + " = " + getRight();
+            result += "eq " + left + " = " + right;
         }
 
         return result;

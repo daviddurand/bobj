@@ -39,7 +39,7 @@ public class Term
 
     boolean hasRetract = false;
 
-    static boolean debug = false;
+    static boolean debug = true;
 
     static boolean showRetract = true;
 
@@ -52,12 +52,8 @@ public class Term
 
         retract = new Sort[1];
         retract[0] = null;
-        sort = v.sort;
-        subterms = new Term[0];
-    }
-
-    public Sort getSort() {
-        return sort;
+        this.sort = v.sort;
+        this.subterms = new Term[0];
     }
 
     public Term(Signature sig,
@@ -75,7 +71,7 @@ public class Term
 
                 if (sig == null) {
 
-                    if (args[i].getSort()
+                    if (args[i].sort
                                .equals(s[i])) {
                         retract[i] = null;
                     } else {
@@ -83,18 +79,18 @@ public class Term
                                                 + " should be " + s[i].getName() + ".");
                     }
 
-                } else if (sig.isSubsort(args[i].getSort(), s[i])) {
+                } else if (sig.isSubsort(args[i].sort, s[i])) {
                     retract[i] = null;
-                } else if (sig.isSubsort(s[i], args[i].getSort())) {
+                } else if (sig.isSubsort(s[i], args[i].sort)) {
                     retract[i] = s[i];
                 } else {
-                    Sort tmp = sig.canApply(s[i], args[i].getSort());
+                    Sort tmp = sig.canApply(s[i], args[i].sort);
                     if (tmp != null) {
                         retract[i] = tmp;
                     } else {
 
                         Sort[] s1 = sig.getDirectSupersorts(s[i]);
-                        Sort[] s2 = sig.getDirectSupersorts(args[i].getSort());
+                        Sort[] s2 = sig.getDirectSupersorts(args[i].sort);
                         if (s1.length == 1 && s2.length == 1 && s1[0].equals(s1[0])) {
                             retract[i] = s[i];
                         } else {
@@ -109,15 +105,15 @@ public class Term
 
             }
 
-            operation = op;
-            subterms = args;
+            this.operation = op;
+            this.subterms = args;
             helper = new HashMap<>();
 
             for (int i = 0; i < args.length; i++ ) {
                 args[i].parent = this;
             }
 
-            sort = op.resultSort;
+            this.sort = op.resultSort;
 
             if (op.info.equals("system-retract")) {
                 hasRetract = true;
@@ -159,10 +155,6 @@ public class Term
                 return null;
             }
         }
-    }
-
-    public Term[] getSubterms() {
-        return subterms;
     }
 
     public Variable getVariable() {
@@ -268,8 +260,8 @@ public class Term
 
                 } else {
 
-                    Term[] tm1 = this.getSubterms();
-                    Term[] tm2 = term.getSubterms();
+                    Term[] tm1 = this.subterms;
+                    Term[] tm2 = term.subterms;
                     boolean same = true;
                     for (int i = 0; i < tm1.length; i++ ) {
                         same &= tm1[i].equals(tm2[i]);
@@ -293,8 +285,12 @@ public class Term
                        .hashCode();
         } else {
             Operation op1 = this.getTopOperation();
+<<<<<<< HEAD
             return op1.hashCode() + this.getSubterms()
                                         .hashCode();
+=======
+            return op1.hashCode() + this.subterms.length;
+>>>>>>> 34144a5... Fix: rewrite bugs from bad cache management changes
         }
     }
 
@@ -317,7 +313,8 @@ public class Term
                     if (sort.isHidden()) {
                         Term tmp = this.parent;
                         while (tmp != null) {
-                            if (tmp.operation.isBehavorial()) {
+                            if (tmp.operation
+                                   .isBehavorial()) {
                                 tmp = tmp.parent;
                             } else {
                                 okay = false;
@@ -362,7 +359,8 @@ public class Term
                     if (sort.isHidden()) {
                         Term tmp = this.parent;
                         while (tmp != null) {
-                            if (tmp.operation.isBehavorial()) {
+                            if (tmp.operation
+                                   .isBehavorial()) {
                                 tmp = tmp.parent;
                             } else {
                                 okay = false;
@@ -421,7 +419,8 @@ public class Term
                             Term tmp = this.parent;
                             while (tmp != null) {
 
-                                if (tmp.operation.isBehavorial()) {
+                                if (tmp.operation
+                                       .isBehavorial()) {
                                     tmp = tmp.parent;
                                 } else {
                                     okay = false;
@@ -438,8 +437,8 @@ public class Term
 
                 } else {
 
-                    Term[] tm1 = this.getSubterms();
-                    Term[] tm2 = term.getSubterms();
+                    Term[] tm1 = this.subterms;
+                    Term[] tm2 = term.subterms;
                     boolean same = true;
                     for (int i = 0; i < tm1.length; i++ ) {
                         same &= tm1[i].equals(sig, tm2[i]);
@@ -455,8 +454,10 @@ public class Term
 
         if (!result) {
 
-            if (sort.equals(BoolModule.boolSort) && term.sort.equals(BoolModule.boolSort)
-                && sort.isDefault() && term.sort.isDefault()) {
+            if (sort.equals(BoolModule.boolSort) && term.sort
+                                                             .equals(BoolModule.boolSort)
+                && sort.isDefault() && term.sort
+                                                .isDefault()) {
 
                 try {
 
@@ -537,15 +538,15 @@ public class Term
         } else if (operation.isMixNotation()) {
 
             if (operation.isAssociative() && operation.getName()
-                                                      .trim()
-                                                      .startsWith("_")
+                                                                .trim()
+                                                                .startsWith("_")
                 && operation.getName()
-                            .trim()
-                            .endsWith("_")) {
+                                 .trim()
+                                 .endsWith("_")) {
 
                 String mid = operation.getName()
-                                      .trim()
-                                      .substring(1);
+                                           .trim()
+                                           .substring(1);
                 mid = mid.substring(0, mid.length() - 1)
                          .trim();
 
@@ -558,7 +559,8 @@ public class Term
                     Term t = vec.elementAt(i);
                     String sub = t.toFullString()
                                   .trim();
-                    if (t.isComposite() && t.operation.isMixNotation()) {
+                    if (t.isComposite() && t.operation
+                                            .isMixNotation()) {
                         sub = "(" + sub + ")";
                     }
                     if (mid.length() == 0) {
@@ -591,7 +593,7 @@ public class Term
                         if (op.getCleanName()
                               .equals("and")
                             || operation.getCleanName()
-                                        .equals("==")) {
+                                             .equals("==")) {
                             //sub = "("+sub+")";    // Nov.23
                         } else if (operation.getPriority() > op.getPriority()) {
                             sub = "(" + sub + ")";    // Nov.23
@@ -658,7 +660,7 @@ public class Term
         } else if (operation.isMixNotation()) {
 
             if (operation.isAssociative() && operation.getName()
-                                                      .equals("_  _")) {
+                                                                .equals("_  _")) {
                 try {
                     Vector<Term> terms = getAssocSubterms(operation);
                     for (int i = 0; i < terms.size(); i++ ) {
@@ -677,7 +679,7 @@ public class Term
             }
 
             if (operation.isAssociative() && operation.getName()
-                                                      .equals("_ _")) {
+                                                                .equals("_ _")) {
                 try {
                     Vector<Term> terms = getAssocSubterms(operation);
                     for (int i = 0; i < terms.size(); i++ ) {
@@ -696,15 +698,15 @@ public class Term
             }
 
             if (operation.isAssociative() && operation.getName()
-                                                      .trim()
-                                                      .startsWith("_")
+                                                                .trim()
+                                                                .startsWith("_")
                 && operation.getName()
-                            .trim()
-                            .endsWith("_")) {
+                                 .trim()
+                                 .endsWith("_")) {
 
                 String mid = operation.getName()
-                                      .trim()
-                                      .substring(1);
+                                           .trim()
+                                           .substring(1);
                 mid = mid.substring(0, mid.length() - 1)
                          .trim();
 
@@ -718,7 +720,8 @@ public class Term
                     Term t = vec.elementAt(i);
                     String sub = t.toFullString()
                                   .trim();
-                    if (t.isComposite() && t.operation.isMixNotation()) {
+                    if (t.isComposite() && t.operation
+                                            .isMixNotation()) {
                         sub = "(" + sub + ")";
                     }
                     result += sub + " " + mid + " ";
@@ -736,7 +739,7 @@ public class Term
                 String sub = t.toFullString()
                               .trim();
                 if (showRetract && retract[count] != null) {
-                    sub = "r:" + t.getSort()
+                    sub = "r:" + t.sort
                                   .getName()
                           + ">" + retract[count].getName() + "(" + sub + ")";
                 }
@@ -749,7 +752,7 @@ public class Term
                         if ((op.getCleanName()
                                .equals("and")
                              || operation.getCleanName()
-                                         .equals("=="))
+                                              .equals("=="))
                             || (operation.getPriority() <= op.getPriority())) {
                             sub = "(" + sub + ")";    // Nov.23
                         } else {
@@ -795,9 +798,10 @@ public class Term
                 if (retract[i] == null || !showRetract) {
                     result += subterms[i].toFullString();
                 } else {
-                    result += "r:" + subterms[i].getSort()
-                                                .getName()
-                              + ">" + retract[i].getName() + "(" + subterms[i].toFullString() + ")";
+                    result += "r:" + subterms[i].sort
+                                                     .getName()
+                              + ">" + retract[i].getName() + "(" + subterms[i].toFullString()
+                              + ")";
                 }
                 if (i < subterms.length - 1) {
                     result += ", ";
@@ -820,7 +824,7 @@ public class Term
         } else {
 
             result += st + operation.toString()
-                                    .substring(2)
+                                         .substring(2)
                       + "   " + operation.modName + "\n";
             for (Term subterm : subterms) {
                 result += st + subterm.showStructure(st + "  ");
@@ -1093,54 +1097,55 @@ public class Term
             } else {
                 return false;
             }
-        } else if (this.operation.name.equals(term.operation.name)
-                   && this.operation.resultSort.equals(term.operation.resultSort)
-                   && this.operation.argumentSorts.length == term.operation.argumentSorts.length) {
+        } else
+            if (this.operation.name.equals(term.operation.name)
+                && this.operation.resultSort.equals(term.operation.resultSort)
+                && this.operation.argumentSorts.length == term.operation.argumentSorts.length) {
 
-                       for (int i = 0; i < this.operation.argumentSorts.length; i++ ) {
-                           if (!this.operation.argumentSorts[i].equals(term.operation.argumentSorts[i])) {
-                               return false;
-                           }
-                       }
+                    for (int i = 0; i < this.operation.argumentSorts.length; i++ ) {
+                        if (!this.operation.argumentSorts[i].equals(term.operation.argumentSorts[i])) {
+                            return false;
+                        }
+                    }
 
-                       if (module.modName.equals(this.operation.modName)
-                           && !module.modName.equals(term.operation.modName)) {
+                    if (module.modName.equals(this.operation.modName)
+                        && !module.modName.equals(term.operation.modName)) {
 
-                           for (int i = 0; i < this.operation.argumentSorts.length; i++ ) {
+                        for (int i = 0; i < this.operation.argumentSorts.length; i++ ) {
 
-                               if (this.subterms[i].laterThan(module, term.subterms[i])
-                                   || this.subterms[i].equals(term.subterms[i])) {
+                            if (this.subterms[i].laterThan(module, term.subterms[i])
+                                || this.subterms[i].equals(term.subterms[i])) {
 
-                               } else {
-                                   return false;
-                               }
-                           }
+                            } else {
+                                return false;
+                            }
+                        }
 
-                           return true;
+                        return true;
 
-                       } else if (operation.modName.equals(term.operation.modName)) {
+                    } else if (operation.modName.equals(term.operation.modName)) {
 
-                           boolean later = false;
-                           for (int i = 0; i < this.operation.argumentSorts.length; i++ ) {
+                        boolean later = false;
+                        for (int i = 0; i < this.operation.argumentSorts.length; i++ ) {
 
-                               if (this.subterms[i].laterThan(module, term.subterms[i])) {
-                                   later = true;
-                               } else if (this.subterms[i].equals(term.subterms[i])) {
+                            if (this.subterms[i].laterThan(module, term.subterms[i])) {
+                                later = true;
+                            } else if (this.subterms[i].equals(term.subterms[i])) {
 
-                               } else {
-                                   return false;
-                               }
-                           }
+                            } else {
+                                return false;
+                            }
+                        }
 
-                           return later;
+                        return later;
 
-                       } else {
-                           return false;
-                       }
+                    } else {
+                        return false;
+                    }
 
-                   } else {
-                       return false;
-                   }
+                } else {
+                    return false;
+                }
     }
 
     private static List<Term> checkDefaultIf(List<Term> list) {
@@ -1312,7 +1317,7 @@ public class Term
         } else {
             Operation o = this.getTopOperation();
             if (o.equals(op)) {
-                Term[] sub = this.getSubterms();
+                Term[] sub = this.subterms;
                 result = sub[0].getAssocSubterms(op);
                 Vector<Term> v = sub[1].getAssocSubterms(op);
                 for (int i = 0; i < v.size(); i++ ) {
@@ -1342,7 +1347,7 @@ public class Term
             Operation o = this.getTopOperation();
 
             if (o.equals(op) || o.less(sig, op) || op.less(sig, o)) {
-                Term[] sub = this.getSubterms();
+                Term[] sub = this.subterms;
                 result = sub[0].getAssocSubterms(sig, op);
                 Vector<Term> v = sub[1].getAssocSubterms(sig, op);
                 for (int i = 0; i < v.size(); i++ ) {
@@ -1578,24 +1583,37 @@ public class Term
 
                         return subsume(ntargets, nsamples, subst);
                     }
-                } else if (tar.operation != null && tar.operation.equals(sam.operation)) {
-                    int arity = tar.operation.getArity();
-                    int len = targets.length - 1 + arity;
-                    Term[] ntargets = new Term[len];
-                    Term[] nsamples = new Term[len];
+                } else if (tar.operation != null && tar.operation
+                                                            .equals(sam.operation)) {
+                                                                int arity = tar.operation
+                                                                               .getArity();
+                                                                int len =
+                                                                    targets.length - 1 + arity;
+                                                                Term[] ntargets = new Term[len];
+                                                                Term[] nsamples = new Term[len];
 
-                    if (tar.operation.getArity() > 0) {
-                        System.arraycopy(tar.subterms, 0, ntargets, 0, arity);
-                        System.arraycopy(sam.subterms, 0, nsamples, 0, arity);
-                    }
-                    System.arraycopy(targets, 1, ntargets, arity, targets.length - 1);
-                    System.arraycopy(samples, 1, nsamples, arity, samples.length - 1);
+                                                                if (tar.operation
+                                                                       .getArity() > 0) {
+                                                                    System.arraycopy(tar.subterms,
+                                                                                     0, ntargets, 0,
+                                                                                     arity);
+                                                                    System.arraycopy(sam.subterms,
+                                                                                     0, nsamples, 0,
+                                                                                     arity);
+                                                                }
+                                                                System.arraycopy(targets, 1,
+                                                                                 ntargets, arity,
+                                                                                 targets.length - 1);
+                                                                System.arraycopy(samples, 1,
+                                                                                 nsamples, arity,
+                                                                                 samples.length - 1);
 
-                    return subsume(ntargets, nsamples, subst);
+                                                                return subsume(ntargets, nsamples,
+                                                                               subst);
 
-                } else {
-                    return false;
-                }
+                                                            } else {
+                                                                return false;
+                                                            }
             }
         } catch (SubstitutionException e) {
             return false;
@@ -1694,24 +1712,35 @@ public class Term
                     return unify(ntargets, nsamples, subst);
                 }
 
-            } else if (tar.operation != null && tar.operation.equals(sam.operation)) {
+            } else if (tar.operation != null && tar.operation
+                                                        .equals(sam.operation)) {
 
-                int arity = tar.operation.getArity();
-                int len = targets.length - 1 + arity;
-                Term[] ntargets = new Term[len];
-                Term[] nsamples = new Term[len];
+                                                            int arity = tar.operation
+                                                                           .getArity();
+                                                            int len = targets.length - 1 + arity;
+                                                            Term[] ntargets = new Term[len];
+                                                            Term[] nsamples = new Term[len];
 
-                if (tar.operation.getArity() > 0) {
-                    System.arraycopy(tar.subterms, 0, ntargets, 0, arity);
-                    System.arraycopy(sam.subterms, 0, nsamples, 0, arity);
-                }
-                System.arraycopy(targets, 1, ntargets, arity, targets.length - 1);
-                System.arraycopy(samples, 1, nsamples, arity, samples.length - 1);
-                return unify(ntargets, nsamples, subst);
+                                                            if (tar.operation
+                                                                   .getArity() > 0) {
+                                                                System.arraycopy(tar.subterms,
+                                                                                 0, ntargets, 0,
+                                                                                 arity);
+                                                                System.arraycopy(sam.subterms,
+                                                                                 0, nsamples, 0,
+                                                                                 arity);
+                                                            }
+                                                            System.arraycopy(targets, 1, ntargets,
+                                                                             arity,
+                                                                             targets.length - 1);
+                                                            System.arraycopy(samples, 1, nsamples,
+                                                                             arity,
+                                                                             samples.length - 1);
+                                                            return unify(ntargets, nsamples, subst);
 
-            } else {
-                throw new NoUnifierException();
-            }
+                                                        } else {
+                                                            throw new NoUnifierException();
+                                                        }
         }
 
     }
@@ -1782,24 +1811,36 @@ public class Term
                     return unify(ntargets, nsamples, subst, sig);
                 }
 
-            } else if (tar.operation != null && tar.operation.equals(sam.operation)) {
+            } else if (tar.operation != null && tar.operation
+                                                        .equals(sam.operation)) {
 
-                int arity = tar.operation.getArity();
-                int len = targets.length - 1 + arity;
-                Term[] ntargets = new Term[len];
-                Term[] nsamples = new Term[len];
+                                                            int arity = tar.operation
+                                                                           .getArity();
+                                                            int len = targets.length - 1 + arity;
+                                                            Term[] ntargets = new Term[len];
+                                                            Term[] nsamples = new Term[len];
 
-                if (tar.operation.getArity() > 0) {
-                    System.arraycopy(tar.subterms, 0, ntargets, 0, arity);
-                    System.arraycopy(sam.subterms, 0, nsamples, 0, arity);
-                }
-                System.arraycopy(targets, 1, ntargets, arity, targets.length - 1);
-                System.arraycopy(samples, 1, nsamples, arity, samples.length - 1);
-                return unify(ntargets, nsamples, subst, sig);
+                                                            if (tar.operation
+                                                                   .getArity() > 0) {
+                                                                System.arraycopy(tar.subterms,
+                                                                                 0, ntargets, 0,
+                                                                                 arity);
+                                                                System.arraycopy(sam.subterms,
+                                                                                 0, nsamples, 0,
+                                                                                 arity);
+                                                            }
+                                                            System.arraycopy(targets, 1, ntargets,
+                                                                             arity,
+                                                                             targets.length - 1);
+                                                            System.arraycopy(samples, 1, nsamples,
+                                                                             arity,
+                                                                             samples.length - 1);
+                                                            return unify(ntargets, nsamples, subst,
+                                                                         sig);
 
-            } else {
-                throw new NoUnifierException();
-            }
+                                                        } else {
+                                                            throw new NoUnifierException();
+                                                        }
         }
 
     }
@@ -1930,7 +1971,7 @@ public class Term
 
         Term result = null;
 
-        if (getSort().getName()
+        if (sort.getName()
                      .equals("Bool")) {
             result = this;
         } else if (operation != null) {
@@ -2358,8 +2399,9 @@ public class Term
                                           } else {
 
                                               throw new Error("Sort casting error when cast "
-                                                              + result.sort.getName() + " to "
-                                                              + sorts[0].getName());
+                                                              + result.sort
+                                                                      .getName()
+                                                              + " to " + sorts[0].getName());
                                           }
 
                            } else {
@@ -2439,41 +2481,43 @@ public class Term
 
             return null;
 
-        } else if (this.operation.equals(pattern.operation)) {
+        } else if (this.operation
+                       .equals(pattern.operation)) {
 
-            Term[] subpatterns = pattern.subterms;
-            for (int i = 0; i < subterms.length; i++ ) {
-                Map<VarOrCode, Term> tmp = subterms[i].getMatch(subpatterns[i], sig);
+                           Term[] subpatterns = pattern.subterms;
+                           for (int i = 0; i < subterms.length; i++ ) {
+                               Map<VarOrCode, Term> tmp =
+                                   subterms[i].getMatch(subpatterns[i], sig);
 
-                if (tmp == null) {
-                    return null;
-                } else {
-                    for (VarOrCode v : tmp.keySet()) {
-                        if (v instanceof Variable) {
-                            var = (Variable) v;
-                            Term trm1 = tmp.get(var);
+                               if (tmp == null) {
+                                   return null;
+                               } else {
+                                   for (VarOrCode v : tmp.keySet()) {
+                                       if (v instanceof Variable) {
+                                           var = (Variable) v;
+                                           Term trm1 = tmp.get(var);
 
-                            Term trm2 = null;
-                            for (VarOrCode vtmp : result.keySet()) {
-                                if (vtmp.equals(var)) {
-                                    trm2 = result.get(vtmp);
-                                    break;
-                                }
-                            }
+                                           Term trm2 = null;
+                                           for (VarOrCode vtmp : result.keySet()) {
+                                               if (vtmp.equals(var)) {
+                                                   trm2 = result.get(vtmp);
+                                                   break;
+                                               }
+                                           }
 
-                            if (trm2 == null) {
-                                result.put(var, trm1);
-                            } else if (!trm1.equals(trm2)) {
-                                return null;
-                            }
-                        }
-                    }
-                }
-            }
+                                           if (trm2 == null) {
+                                               result.put(var, trm1);
+                                           } else if (!trm1.equals(trm2)) {
+                                               return null;
+                                           }
+                                       }
+                                   }
+                               }
+                           }
 
-        } else {
-            result = null;
-        }
+                       } else {
+                           result = null;
+                       }
 
         //System.out.println("return match result = "+result+"  "+
         //this+"  "+pattern);
@@ -2605,8 +2649,8 @@ public class Term
                         System.out.println("what happen: " + this + "  =?=  " + term);
                     }
 
-                    Term[] tm1 = this.getSubterms();
-                    Term[] tm2 = term.getSubterms();
+                    Term[] tm1 = this.subterms;
+                    Term[] tm2 = term.subterms;
 
                     HashMap<Variable, Variable> hm = new HashMap<>(map);
                     if (tm1[0].equals(tm2[0], hm) && tm1[1].equals(tm2[1], hm)) {
@@ -2624,8 +2668,8 @@ public class Term
 
                 } else {
 
-                    Term[] tm1 = this.getSubterms();
-                    Term[] tm2 = term.getSubterms();
+                    Term[] tm1 = this.subterms;
+                    Term[] tm2 = term.subterms;
                     boolean same = true;
                     for (int i = 0; i < tm1.length; i++ ) {
                         same &= tm1[i].equals(tm2[i], map);

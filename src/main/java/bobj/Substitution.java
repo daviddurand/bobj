@@ -25,7 +25,7 @@ public class Substitution
         throws SubstitutionException {
 
         if (!v.getSort()
-              .equals(t.getSort())) {
+              .equals(t.sort)) {
             throw new SubstitutionException();
         }
 
@@ -55,7 +55,7 @@ public class Substitution
                          Signature sig)
         throws SubstitutionException {
 
-        if (!sig.isSubsort(t.getSort(), v.getSort())) {
+        if (!sig.isSubsort(t.sort, v.getSort())) {
             throw new SubstitutionException();
         }
 

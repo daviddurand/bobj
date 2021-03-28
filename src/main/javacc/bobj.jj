@@ -55,11 +55,11 @@ public class BOBJ
 
     private boolean timeChecked = false;
 
-    protected HashMap<ModuleName, Module> modPool = new HashMap<ModuleName, Module>(); // all defined modules
+    protected HashMap < ModuleName, Module > modPool = new HashMap < ModuleName, Module > (); // all defined modules
 
     private Module lastModule;
 
-    private HashMap<String, View> viewPool = new HashMap<String, View>(); // all defined view
+    private HashMap < String, View > viewPool = new HashMap < String, View > (); // all defined view
 
     private HashMap paraPool;
 
@@ -113,7 +113,7 @@ public class BOBJ
     public Map getEnv()
     {
         Map map = new HashMap();
-        for (ModuleName modName: modPool.keySet())
+        for (ModuleName modName : modPool.keySet())
         {
             Module module = (Module) modPool.get(modName);
             map.put(modName, new Integer(module.type));
@@ -189,11 +189,11 @@ public class BOBJ
             // find module from previously defined modules
             ModuleName modName = new ModuleName(name);
             module = null;
-                if (modPool.containsKey(modName))
-                {
-                    module = (Module) modPool.get(modName);
-                    module = (Module) module.clone();
-                }
+            if (modPool.containsKey(modName))
+            {
+                module = (Module) modPool.get(modName);
+                module = (Module) module.clone();
+            }
         }
         else
         {
@@ -784,6 +784,10 @@ void Command() throws IOException :
             }
             if (engine != null)
             engine.cleanCache();
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
             FileInputStream fis = new FileInputStream(filename);
             String newline = "\n";
             ByteArrayInputStream bais =
@@ -880,7 +884,6 @@ void Command() throws IOException :
                 }
                 writer.flush();
                 e.printStackTrace();
-
             }
             // copy environment from the new parser
             modPool.putAll(bobj.modPool);
@@ -900,6 +903,10 @@ void Command() throws IOException :
             if (engine != null)
             {
                 engine.cleanCache();
+            }
+            else
+            {
+                RewriteEngine.cleanCache();
             }
             cobasisUpdated = true;
             client = this;
@@ -1084,6 +1091,10 @@ void Command() throws IOException :
             {
                 engine.cleanCache();
             }
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
             dynmaicModule = null;
             paraPool = new HashMap();
         }
@@ -1121,6 +1132,10 @@ void Command() throws IOException :
             {
                 engine.cleanCache();
             }
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
             dynmaicModule = null;
             paraPool = new HashMap();
         }
@@ -1156,6 +1171,10 @@ void Command() throws IOException :
             if (engine != null)
             {
                 engine.cleanCache();
+            }
+            else
+            {
+                RewriteEngine.cleanCache();
             }
             dynmaicModule = null;
             paraPool = new HashMap();
@@ -1193,6 +1212,10 @@ void Command() throws IOException :
             if (engine != null)
             {
                 engine.cleanCache();
+            }
+            else
+            {
+                RewriteEngine.cleanCache();
             }
             dynmaicModule = null;
             paraPool = new HashMap();
@@ -1542,6 +1565,10 @@ void Command() throws IOException :
             {
                 engine.cleanCache();
             }
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
             dynmaicModule = null;
             paraPool = new HashMap();
         }
@@ -1591,6 +1618,10 @@ void Command() throws IOException :
         {
             if (engine != null)
             engine.cleanCache();
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
         }
         (
             module = ModExpr(null)
@@ -1643,6 +1674,10 @@ void Command() throws IOException :
             {
                 engine.cleanCache();
             }
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
         }
         (
             module = ModExpr(null)
@@ -1686,6 +1721,10 @@ void Command() throws IOException :
             if (engine != null)
             {
                 engine.cleanCache();
+            }
+            else
+            {
+                RewriteEngine.cleanCache();
             }
             cobasisUpdated = true;
         }
@@ -1746,6 +1785,10 @@ void Command() throws IOException :
             {
                 engine.cleanCache();
             }
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
             if (currentModule == null)
             {
                 writer.write("Error: no last module\n");
@@ -1770,6 +1813,10 @@ void Command() throws IOException :
             if (engine != null)
             {
                 engine.cleanCache();
+            }
+            else
+            {
+                RewriteEngine.cleanCache();
             }
             if (currentModule == null)
             {
@@ -2103,6 +2150,10 @@ void Command() throws IOException :
             {
                 engine.cleanCache();
             }
+            else
+            {
+                RewriteEngine.cleanCache();
+            }
         }
         [
             LOOKAHEAD("in" [ < IDENTIFIER > "is" ] ModExpr() ":")
@@ -2126,6 +2177,10 @@ void Command() throws IOException :
                 if (engine != null)
                 {
                     engine.cleanCache();
+                }
+                else
+                {
+                    RewriteEngine.cleanCache();
                 }
                 dynmaicModule = module;
             }
@@ -2177,7 +2232,7 @@ void Command() throws IOException :
                     writer.flush();
                     return;
                 }
-                String sortName = term.getSort().getName();
+                String sortName = term.sort.getName();
                 int index = sortName.indexOf(".");
                 if (index != - 1)
                 {
@@ -2185,7 +2240,7 @@ void Command() throws IOException :
                 }
                 writer.write("result " + sortName + ": " +
                 format(term.toFullString(),
-                9 + term.getSort().getName().length()) +
+                9 + term.sort.getName().length()) +
                 "\n");
                 writer.write("rewrite time: " +
                 (new Date().getTime() - beginTime) + "ms");
@@ -2445,7 +2500,7 @@ void Command() throws IOException :
                             terms [ i ] =
                             Term.parse(module, tmp.substring(0, index));
                             cterm [ i ] = Term.parse(module, cond);
-                            if (!cterm [ i ].getSort().equals(BoolModule.boolSort))
+                            if (!cterm [ i ].sort.equals(BoolModule.boolSort))
                             {
                                 throw new TermException("expect a boolean term: " +
                                 cond);
@@ -2455,9 +2510,9 @@ void Command() throws IOException :
                         if (op.getName().equals("_ == _") &&
                         op.getInfo().equals("system-default"))
                         {
-                            lefts [ i ] = terms [ i ].getSubterms() [ 0 ];
-                            rights [ i ] = terms [ i ].getSubterms() [ 1 ];
-                            Sort lsort = lefts [ i ].getSort();
+                            lefts [ i ] = terms [ i ].subterms [ 0 ];
+                            rights [ i ] = terms [ i ].subterms [ 1 ];
+                            Sort lsort = lefts [ i ].sort;
                             if (lsort.isHidden())
                             {
                                 HiddenSort hsort = (HiddenSort) lsort;
@@ -2699,8 +2754,8 @@ void Command() throws IOException :
                 if (op.getName().equals("_ == _") &&
                 op.getInfo().equals("system-default"))
                 {
-                    Term left = term.getSubterms() [ 0 ];
-                    Term right = term.getSubterms() [ 1 ];
+                    Term left = term.subterms [ 0 ];
+                    Term right = term.subterms [ 1 ];
                     String deco = "";
                     if (cterm != null) deco = " if " + cterm.toString();
                     String modName = module.getModuleName().toString();
@@ -2778,9 +2833,9 @@ void Command() throws IOException :
                         }
                     }
                     if (cobasisUpdated &&
-                    left.getSort().isHidden())
+                    left.sort.isHidden())
                     {
-                        Operation [ ] ops = module.getCobasisFor(left.getSort());
+                        Operation [ ] ops = module.getCobasisFor(left.sort);
                         if (ops != null && ops.length > 0)
                         {
                             writer.write("using cobasis for " +
@@ -2991,6 +3046,10 @@ void Command() throws IOException :
                     if (engine != null)
                     {
                         engine.setTrace(false);
+                    }
+                    else
+                    {
+                        RewriteEngine.cleanCache();
                     }
                 }
             )
@@ -4070,6 +4129,10 @@ void DynamicDecl(Module module) :
     {
         if (engine != null)
         engine.cleanCache();
+        else
+        {
+            RewriteEngine.cleanCache();
+        }
     }
     EquationDecl(module)
 |
@@ -4565,10 +4628,10 @@ Module ModExpTerm(Module mod) :
                 // find module from previously defined modules
                 ModuleName modName = new ModuleName(name);
                 module = null;
-                    if (modPool.containsKey(modName))
-                    {
-                        module = modPool.get(modName).clone();
-                    }
+                if (modPool.containsKey(modName))
+                {
+                    module = modPool.get(modName).clone();
+                }
             }
             else
             {
@@ -5932,7 +5995,7 @@ Module ModExpTerm(Module mod) :
     }
 }
 
-Module RenameElt(ModuleName modName, Module mod, Map map) :
+Module RenameElt(ModuleName modName, Module mod, RenamingMap map) :
 {
     Token token;
     Sort sourceSort, targetSort;
@@ -6644,10 +6707,10 @@ void VarImport(Module module) :
             if (name != null)
             {
                 ModuleName modName = new ModuleName(name);
-                    if (modPool.containsKey(modName))
-                    {
-                        tmp =  modPool.get(modName);
-                    }
+                if (modPool.containsKey(modName))
+                {
+                    tmp = modPool.get(modName);
+                }
                 if (dynmaicModule != null && mode == FILE_INPUT)
                 {
                     writer.write("=====================" +
@@ -8250,7 +8313,7 @@ void LetDecl(Module module) :
             Term term = Term.parse(module, st);
             Operation op = new Operation(t1.image,
             new Sort [ 0 ],
-            term.getSort(),
+            term.sort,
             module.getModuleName());
             module.addOperation(op);
             module.addEquation(new Equation(new Term(module, op, new Term [ 0 ]),
@@ -8417,7 +8480,7 @@ void MembershipDecl(Module module) :
             }
         }
         // check subSort < superSort
-        Sort superSort = term.getSort();
+        Sort superSort = term.sort;
         Sort subSort = sorts [ 0 ];
         if (!wrong && !module.less(subSort, superSort) &&
         !subSort.equals(superSort))
@@ -8661,7 +8724,7 @@ Equation EquationDecl(Module module) :
         }
         try
         {
-            rterm = Term.parse(module, right, lterm.getSort());
+            rterm = Term.parse(module, right, lterm.sort);
         }
         catch (TermException e)
         {

@@ -24,24 +24,25 @@ public class RewriteEngine {
 
     static boolean trace = false;
 
-    public boolean turnoff2Eq = false;
+    public static boolean turnoff2Eq = false;
 
-    public boolean turnoff3Eq = false;
+    public static boolean turnoff3Eq = false;
 
-    static boolean debug = false;
+    static boolean debug = true;
 
-    HashMap<String, Term> cache = new HashMap<>();
+    static HashMap<String, Term> cache = new HashMap<>();
 
-    Vector<String> hit = new Vector<>();
+    static List<String> hit = new ArrayList<String>();
 
-    long size = 0;
+    static long size = 0;
 
-    Map<String, String> map = new HashMap<>();
+    static Map<String, String> map = new HashMap<>();
 
     boolean nontermination = false;
 
     public RewriteEngine(Module module) {
-
+        if (debug)
+            System.err.println("Created new Engine for " + module.getModuleName());
         this.sig = module;
         this.retracts = new ArrayList<>();
         this.varRules = new ArrayList<>();
@@ -54,7 +55,7 @@ public class RewriteEngine {
                 continue;
             }
 
-            Term left = eq.getLeft();
+            Term left = eq.left;
             Operation op = left.getTopOperation();
             if (op != null) {
                 String opName = op.getName();
@@ -80,7 +81,9 @@ public class RewriteEngine {
 
     }
 
-    public void cleanCache() {
+    public static void cleanCache() {
+        if (debug)
+            System.err.println("Cleared cache.");
         cache = new HashMap<>();
         hit = new Vector<>();
         size = 0;
@@ -113,10 +116,12 @@ public class RewriteEngine {
                 Term pattern = retEq.left.subterms[0];
                 Map<VarOrCode, Term> ht = getMatch(input, pattern);
 
-                Term cond = retEq.condition.subst(ht, sig);
+                Term cond = retEq.condition
+                                 .subst(ht, sig);
                 cond = reduce(cond);
 
-                if (cond.operation.equals(BoolModule.trueOp)) {
+                if (cond.operation
+                        .equals(BoolModule.trueOp)) {
                     input.sort = s2[0];
                 }
             }
@@ -129,16 +134,17 @@ public class RewriteEngine {
         Term result = term;
         String index = term.toString();
         boolean flag = false;
+        if (debug)
+            System.err.println("Reduce: " + term);
 
         if (cache.containsKey(index)) {
             result = cache.get(index);
 
-            Sort s1 = result.getSort();
-            Sort s2 = term.getSort();
+            Sort s1 = result.sort;
+            Sort s2 = term.sort;
             if (s1.equals(s2) || sig.less(s1, s2) || sig.less(s2, s1)) {
-
-                hit.removeElement(index);
-                hit.addElement(index);
+                hit.remove(index);
+                hit.add(index);
                 result.parent = null;
 
             } else {
@@ -191,10 +197,10 @@ public class RewriteEngine {
             if (size > 100000) {
                 // remove the first 100 elements
                 for (int i = 0; i < 100 && i < hit.size(); i++ ) {
-                    String key = hit.elementAt(0);
+                    String key = hit.get(0);
                     Term element = cache.get(key);
                     cache.remove(key);
-                    hit.removeElementAt(0);
+                    hit.remove(0);
                     size = size - element.toString()
                                          .length();
                 }
@@ -202,11 +208,13 @@ public class RewriteEngine {
 
             if (index.length() < 300) {
                 cache.put(index, result);
-                hit.insertElementAt(index, 0);
+                hit.add(0, index);
                 size += result.toString()
                               .length();
             }
         }
+        if (debug)
+            System.err.println("Reduced " + term + " ==>  " + result);
 
         return result;
     }
@@ -252,7 +260,8 @@ public class RewriteEngine {
 
                     return simplifyFloat(term, index, terms);
 
-                } else if (term.operation.equals(QidlModule.lessOp)
+                } else if (term.operation
+                               .equals(QidlModule.lessOp)
                            && term.operation.info.equals("system-default")) {
 
                                if (terms[0].isConstant() && terms[1].isConstant()) {
@@ -1019,7 +1028,8 @@ public class RewriteEngine {
             return null;
         }
 
-        if (input.operation.equals(metaEq)) {
+        if (input.operation
+                 .equals(metaEq)) {
 
             Term term0 = input.subterms[0];
             term0 = localCopy(term0);
@@ -1039,42 +1049,22 @@ public class RewriteEngine {
                     result = new Redex(input, new Term(f, new Term[0]));
                     left = term0;
                     right = term1;
-                } else if (term0.sort.equals(bool)) {
-                    if (turnoff3Eq) {
-                        return null;
-                    } else {
-                        result = new Redex(input, new Term(f));
-                    }
+                } else if (term0.sort
+                                .equals(bool)) {
+                                    if (turnoff3Eq) {
+                                        return null;
+                                    } else {
+                                        result = new Redex(input, new Term(f));
+                                    }
 
-                } else if (term0.equals(input.subterms[0]) && term1.equals(input.subterms[1])) {
-                    return null;
-                } else {
-                    result = new Redex(input, new Term(sig, input.operation, term0, term1));
-                }
-
-                result.position = pos;
-                return result;
-
-            } catch (Exception e) {
-            }
-
-        } else if (input.operation.equals(metaNeq)) {
-
-            Term term0 = localCopy(input.subterms[0]);
-            term0 = reduce(term0);
-            Term term1 = localCopy(input.subterms[1]);
-            term1 = reduce(term1);
-            try {
-
-                if (term0.equals(term1)) {
-                    result = new Redex(input, new Term(f));
-                } else if (!turnoff2Eq || (term0.isGround() && term1.isGround())) {
-
-                    result = new Redex(input, new Term(t));
-
-                } else {
-                    return null;
-                }
+                                } else
+                    if (term0.equals(input.subterms[0])
+                        && term1.equals(input.subterms[1])) {
+                            return null;
+                        } else {
+                            result =
+                                new Redex(input, new Term(sig, input.operation, term0, term1));
+                        }
 
                 result.position = pos;
                 return result;
@@ -1082,102 +1072,143 @@ public class RewriteEngine {
             } catch (Exception e) {
             }
 
-        } else if (input.operation.equals(IdenticalModule.eqOp)) {
+        } else if (input.operation
+                        .equals(metaNeq)) {
 
-            try {
-                if (input.subterms[0].equals(input.subterms[1])) {
-                    result = new Redex(input, new Term(t));
-                } else {
-                    result = new Redex(input, new Term(f));
-                }
-                result.position = pos;
-                return result;
-            } catch (Exception e) {
-            }
+                            Term term0 = localCopy(input.subterms[0]);
+                            term0 = reduce(term0);
+                            Term term1 = localCopy(input.subterms[1]);
+                            term1 = reduce(term1);
+                            try {
 
-        } else if (input.operation.equals(IdenticalModule.neqOp)) {
+                                if (term0.equals(term1)) {
+                                    result = new Redex(input, new Term(f));
+                                } else if (!turnoff2Eq || (term0.isGround() && term1.isGround())) {
 
-            try {
-                if (input.subterms[0].equals(input.subterms[1])) {
-                    result = new Redex(input, new Term(f));
-                } else {
-                    result = new Redex(input, new Term(t));
-                }
-                result.position = pos;
-                return result;
-            } catch (Exception e) {
-            }
+                                    result = new Redex(input, new Term(t));
 
-        } else if (input.operation.equals(BOBJModule.getSortOperation())
-                   && input.operation.info.equals("system-default")) {
+                                } else {
+                                    return null;
+                                }
 
-                       try {
+                                result.position = pos;
+                                return result;
 
-                           Operation op =
-                               new Operation("'" + input.subterms[0].sort.getName(),
-                                             QidlModule.idSort, QidlModule.idSort.getModuleName());
+                            } catch (Exception e) {
+                            }
 
-                           Term res = new Term(op);
-                           result = new Redex(input, res);
-                           result.position = pos;
-                           return result;
-                       } catch (Exception e) {
-                       }
+                        } else
+            if (input.operation
+                     .equals(IdenticalModule.eqOp)) {
 
-                   } else
-            if (input.operation.equals(BOBJModule.getFinalSortOperation())
-                && input.operation.info.equals("system-default")) {
+                         try {
+                             if (input.subterms[0].equals(input.subterms[1])) {
+                                 result = new Redex(input, new Term(t));
+                             } else {
+                                 result = new Redex(input, new Term(f));
+                             }
+                             result.position = pos;
+                             return result;
+                         } catch (Exception e) {
+                         }
 
-                    try {
+                     } else
+                if (input.operation
+                         .equals(IdenticalModule.neqOp)) {
 
-                        Term tmp = input.subterms[0];
-                        tmp = reduce(tmp);
-                        Operation op = new Operation("'" + tmp.sort.getName(), QidlModule.idSort,
-                                                     QidlModule.idSort.getModuleName());
+                             try {
+                                 if (input.subterms[0].equals(input.subterms[1])) {
+                                     result = new Redex(input, new Term(f));
+                                 } else {
+                                     result = new Redex(input, new Term(t));
+                                 }
+                                 result.position = pos;
+                                 return result;
+                             } catch (Exception e) {
+                             }
 
-                        Term res = new Term(op);
-                        result = new Redex(input, res);
-                        result.position = pos;
-                        return result;
-                    } catch (Exception e) {
-                    }
+                         } else
+                    if (input.operation
+                             .equals(BOBJModule.getSortOperation())
+                        && input.operation.info.equals("system-default")) {
 
-                } else if (input.operation.equals(BOBJModule.getSetsortOperation())
-                           && input.operation.info.equals("system-default")) {
+                            try {
 
-                               try {
+                                Operation op = new Operation("'" + input.subterms[0].sort
+                                                                                         .getName(),
+                                                             QidlModule.idSort,
+                                                             QidlModule.idSort.getModuleName());
 
-                                   Term[] tmp = input.subterms;
-                                   Term res = tmp[1].copy();
+                                Term res = new Term(op);
+                                result = new Redex(input, res);
+                                result.position = pos;
+                                return result;
+                            } catch (Exception e) {
+                            }
 
-                                   String sortName = tmp[0].operation.name;
-                                   Sort[] sorts = sig.getSortsByName(sortName);
+                        } else if (input.operation
+                                        .equals(BOBJModule.getFinalSortOperation())
+                                   && input.operation.info.equals("system-default")) {
 
-                                   if (sorts.length > 0) {
-                                       // sorts[0] must be a part of result.sort
-                                       if (sig.isSubsort(res.sort, sorts[0])) {
-                                           // do nothing
-                                       } else if (sig.isSubsort(sorts[0], res.sort)
-                                                  || (sig.canApply(sorts[0], res.sort) != null)
-                                                  || sig.hasCommonSupersort(sorts[0], res.sort)) {
-                                                      res.sort = sorts[0];
-                                                  }
-                                   }
+                                       try {
 
-                                   result = new Redex(input, res);
-                                   result.position = pos;
-                                   return result;
+                                           Term tmp = input.subterms[0];
+                                           tmp = reduce(tmp);
+                                           Operation op = new Operation("'" + tmp.sort
+                                                                                 .getName(),
+                                                                        QidlModule.idSort,
+                                                                        QidlModule.idSort.getModuleName());
 
-                               } catch (Exception e) {
-                               }
+                                           Term res = new Term(op);
+                                           result = new Redex(input, res);
+                                           result.position = pos;
+                                           return result;
+                                       } catch (Exception e) {
+                                       }
 
-                           }
+                                   } else
+                            if (input.operation
+                                     .equals(BOBJModule.getSetsortOperation())
+                                && input.operation.info.equals("system-default")) {
 
-        if (input.sort.isHidden()) {
+                                    try {
+
+                                        Term[] tmp = input.subterms;
+                                        Term res = tmp[1].copy();
+
+                                        String sortName = tmp[0].operation.name;
+                                        Sort[] sorts = sig.getSortsByName(sortName);
+
+                                        if (sorts.length > 0) {
+                                            // sorts[0] must be a part of result.sort
+                                            if (sig.isSubsort(res.sort, sorts[0])) {
+                                                // do nothing
+                                            } else if (sig.isSubsort(sorts[0], res.sort)
+                                                       || (sig.canApply(sorts[0],
+                                                                        res.sort) != null)
+                                                       || sig.hasCommonSupersort(sorts[0],
+                                                                                 res.sort)) {
+                                                                                     res.sort = sorts[0];
+                                                                                 }
+                                        }
+
+                                        result = new Redex(input, res);
+                                        result.position = pos;
+                                        return result;
+
+                                    } catch (Exception e) {
+                                    }
+
+                                }
+
+        if (input.sort
+                 .isHidden()) {
 
             Term term = input.parent;
-            while (term != null && term.sort.isHidden()) {
-                if (term.operation.isBehavorial()) {
+            while (term != null && term.sort
+                                       .isHidden()) {
+                if (term.operation
+                        .isBehavorial()) {
                     term = term.parent;
                 } else {
                     for (int i = 0; i < input.subterms.length && result == null; i++ ) {
@@ -1209,23 +1240,25 @@ public class RewriteEngine {
                     ahead = true;
                     break;
 
-                } else if (position < input.operation.getArity()) {
+                } else if (position < input.operation
+                                           .getArity()) {
 
-                    if (input.subterms[position].var == null) {
+                                               if (input.subterms[position].var == null) {
 
-                        // for unknown reason, add the next line
-                        input.subterms[position].parent = input;
-                        result = getRedex(input.subterms[position], position);
+                                                   // for unknown reason, add the next line
+                                                   input.subterms[position].parent = input;
+                                                   result = getRedex(input.subterms[position],
+                                                                     position);
 
-                        if (result != null) {
-                            return result;
-                        }
+                                                   if (result != null) {
+                                                       return result;
+                                                   }
 
-                    }
+                                               }
 
-                } else {
-                    // ignore it
-                }
+                                           } else {
+                                               // ignore it
+                                           }
             }
 
         }
@@ -1236,7 +1269,8 @@ public class RewriteEngine {
 
         Vector<Equation> conside = new Vector<>();
         if (input.operation != null) {
-            conside = op2eq.get(input.operation.getName());
+            conside = op2eq.get(input.operation
+                                     .getName());
         }
 
         if (conside == null) {
@@ -1250,7 +1284,8 @@ public class RewriteEngine {
 
             Equation eq = conside.elementAt(i);
             Term left = eq.left;
-            Term right = eq.right.copy(sig);
+            Term right = eq.right
+                           .copy(sig);
             Term cond = eq.condition;
             Map<VarOrCode, Term> var2term = getMatch(input, left);
 
@@ -1286,7 +1321,8 @@ public class RewriteEngine {
                             right = new Term(sig, tmp.operation, tmp.subterms);
                         }
 
-                        if (sig.isSubsort(sort, right.sort) || !sig.isSubsort(right.sort, sort)) {
+                        if (sig.isSubsort(sort, right.sort)
+                            || !sig.isSubsort(right.sort, sort)) {
                             right.sort = sort;
                         }
 
@@ -1294,7 +1330,8 @@ public class RewriteEngine {
                     }
                 }
 
-                if (right.equals(input) && right.sort.equals(input.sort)) {
+                if (right.equals(input) && right.sort
+                                                .equals(input.sort)) {
 
                     nontermination = true;
                     if (!turnoff2Eq && trace) {
@@ -1422,16 +1459,21 @@ public class RewriteEngine {
         Operation not = BoolModule.not;
 
         if (input.var == null) {
-            if (input.operation.isConstant() && input.operation.info.equals("system-default")) {
-                if (input.operation.equals(t)) {
+            if (input.operation
+                     .isConstant()
+                && input.operation.info.equals("system-default")) {
+                if (input.operation
+                         .equals(t)) {
                     return 1;
-                } else if (input.operation.equals(f)) {
-                    return 0;
-                } else {
-                    return -1;
-                }
+                } else if (input.operation
+                                .equals(f)) {
+                                    return 0;
+                                } else {
+                                    return -1;
+                                }
             } else if (input.operation.info.equals("system-default")) {
-                if (input.operation.equals(and)) {
+                if (input.operation
+                         .equals(and)) {
 
                     int res1 = boolValue(input.subterms[0]);
                     if (res1 == 0) {
@@ -1440,27 +1482,30 @@ public class RewriteEngine {
                         return boolValue(input.subterms[1]);
                     }
 
-                } else if (input.operation.equals(or)) {
+                } else if (input.operation
+                                .equals(or)) {
 
-                    int res1 = boolValue(input.subterms[0]);
-                    if (res1 == 1) {
-                        return 1;
-                    }
-                    if (res1 == 0) {
-                        return boolValue(input.subterms[1]);
-                    }
+                                    int res1 = boolValue(input.subterms[0]);
+                                    if (res1 == 1) {
+                                        return 1;
+                                    }
+                                    if (res1 == 0) {
+                                        return boolValue(input.subterms[1]);
+                                    }
 
-                } else if (input.operation.equals(not)) {
+                                } else
+                    if (input.operation
+                             .equals(not)) {
 
-                    int res1 = boolValue(input.subterms[0]);
-                    if (res1 == 1) {
-                        return 0;
-                    }
-                    if (res1 == 0) {
-                        return 1;
-                    }
+                                 int res1 = boolValue(input.subterms[0]);
+                                 if (res1 == 1) {
+                                     return 0;
+                                 }
+                                 if (res1 == 0) {
+                                     return 1;
+                                 }
 
-                }
+                             }
             }
 
         }
@@ -1492,7 +1537,7 @@ public class RewriteEngine {
     public Term reduce(Term input,
                        Redex redex) {
 
-        if (trace && !turnoff2Eq) {
+        if (debug || trace && !turnoff2Eq) {
             System.out.println("rewrite target: " + input);
             System.out.println("rewrite point: " + redex.point);
         }
@@ -1502,7 +1547,7 @@ public class RewriteEngine {
         term.nocheck = true;
 
         if (point.parent == null) {
-            if (trace && !turnoff2Eq) {
+            if (debug || trace && !turnoff2Eq) {
                 System.out.println("result: " + term);
                 System.out.println("................................");
             }
@@ -1527,7 +1572,7 @@ public class RewriteEngine {
                             }
                         }
                     } else {
-                        if (trace && !turnoff2Eq) {
+                        if (debug || trace && !turnoff2Eq) {
                             System.out.println("result: " + res);
                             System.out.println("................................");
                         }
@@ -1535,7 +1580,7 @@ public class RewriteEngine {
                     }
                     tmp = tmp.parent;
                 } else {
-                    if (trace && !turnoff2Eq) {
+                    if (debug || trace && !turnoff2Eq) {
                         System.out.println("result: " + input);
                         System.out.println("................................");
                     }
@@ -1545,7 +1590,7 @@ public class RewriteEngine {
 
         }
 
-        if (trace && !turnoff2Eq) {
+        if (debug || trace && !turnoff2Eq) {
             System.out.println("result: " + input);
             System.out.println("................................");
         }
@@ -1554,6 +1599,8 @@ public class RewriteEngine {
 
     public Map<VarOrCode, Term> getMatch(Term input,
                                          Term pattern) {
+        if (debug)
+            System.err.println("Getting one match for " + input + " to " + pattern);
 
 //        System.err.println("\n------ match  -------");
 //        System.err.println("this = "+input);
@@ -1591,6 +1638,8 @@ public class RewriteEngine {
 //        */
 
             if (!okay) {
+                if (debug)
+                    System.err.println("No match found.");
                 return null;
             }
 
@@ -1604,6 +1653,10 @@ public class RewriteEngine {
                         } catch (Exception e) {
                         }
                     } else {
+                        if (debug)
+                            System.err.println("No match found.");
+                        if (debug)
+                            System.err.println("No match found.");
                         return null;
                     }
                 } else {
@@ -1634,301 +1687,345 @@ public class RewriteEngine {
             }
 
         } else if (input.operation == null) {
-
+            if (debug)
+                System.err.println("No match found.");
             return null;
 
-        } else if (input.operation.equals(pattern.operation)
-                   || input.operation.less(sig, pattern.operation)) {
+        } else if (input.operation
+                        .equals(pattern.operation)
+                   || input.operation
+                           .less(sig, pattern.operation)) {
 
-                       boolean okay = true;
-                       if (input.operation.resultSort.isHidden()) {
-                           Term tmp = pattern.parent;
-                           while (tmp != null) {
-                               if (tmp.operation.isBehavorial()) {
-                                   tmp = tmp.parent;
-                               } else {
-                                   okay = false;
-                                   break;
-                               }
-                           }
-                       }
-
-                       if (okay && input.operation.isAssociative
-                           && !input.operation.isCommutative) {
-
-                           try {
-
-                               Vector<Term> data = input.getAssocSubterms(sig, input.operation);
-                               Vector<Term> pats = pattern.getAssocSubterms(sig, pattern.operation);
-                               Vector<Vector<Term>> possible =
-                                   getAMatchPossibles(data, pats, input.operation);
-
-                               for (int i = 0; i < possible.size(); i++ ) {
-
-                                   Vector<Term> tmp = possible.elementAt(i);
-                                   Map<VarOrCode, Term> res = new HashMap<>();
-
-                                   for (int j = 0; j < pats.size(); j++ ) {
-                                       Term pat = pats.elementAt(j);
-                                       Term term = tmp.elementAt(j);
-
-                                       if (pat.var != null) {
-
-                                           if (sig.isSubsort(term.sort, pat.sort)) {
-
-                                               Term target = res.get(pat.var);
-                                               if (target == null) {
-                                                   res.put(pat.var, term);
-                                               } else if (target.equals(sig, term)) {
-                                                   // do nothing
-                                               } else {
-                                                   res = null;
-                                                   break;
-                                               }
-                                           } else {
-                                               res = null;
-                                               break;
-                                           }
+                               boolean okay = true;
+                               if (input.operation.resultSort.isHidden()) {
+                                   Term tmp = pattern.parent;
+                                   while (tmp != null) {
+                                       if (tmp.operation
+                                              .isBehavorial()) {
+                                           tmp = tmp.parent;
                                        } else {
+                                           okay = false;
+                                           break;
+                                       }
+                                   }
+                               }
 
-                                           Map<VarOrCode, Term> sub = getMatch(term, pat);
-                                           if (sub == null) {
-                                               res = null;
-                                               break;
-                                           }
+                               if (okay && input.operation.isAssociative
+                                   && !input.operation.isCommutative) {
 
-                                           for (VarOrCode var : sub.keySet()) {
-                                               Term trm1 = sub.get(var);
-                                               Term trm2 = res.get(var);
+                                   try {
 
-                                               if (trm2 == null) {
-                                                   res.put(var, trm1);
-                                               } else if (trm1.equals(sig, trm2)) {
-                                                   // do nothing
+                                       Vector<Term> data =
+                                           input.getAssocSubterms(sig, input.operation);
+                                       Vector<Term> pats =
+                                           pattern.getAssocSubterms(sig, pattern.operation);
+                                       Vector<Vector<Term>> possible =
+                                           getAMatchPossibles(data, pats, input.operation);
+
+                                       for (int i = 0; i < possible.size(); i++ ) {
+
+                                           Vector<Term> tmp = possible.elementAt(i);
+                                           Map<VarOrCode, Term> res = new HashMap<>();
+
+                                           for (int j = 0; j < pats.size(); j++ ) {
+                                               Term pat = pats.elementAt(j);
+                                               Term term = tmp.elementAt(j);
+
+                                               if (pat.var != null) {
+
+                                                   if (sig.isSubsort(term.sort,
+                                                                     pat.sort)) {
+
+                                                       Term target = res.get(pat.var);
+                                                       if (target == null) {
+                                                           res.put(pat.var, term);
+                                                       } else if (target.equals(sig, term)) {
+                                                           // do nothing
+                                                       } else {
+                                                           res = null;
+                                                           break;
+                                                       }
+                                                   } else {
+                                                       res = null;
+                                                       break;
+                                                   }
                                                } else {
-                                                   res = null;
+
+                                                   Map<VarOrCode, Term> sub = getMatch(term, pat);
+                                                   if (sub == null) {
+                                                       res = null;
+                                                       break;
+                                                   }
+
+                                                   for (VarOrCode var : sub.keySet()) {
+                                                       Term trm1 = sub.get(var);
+                                                       Term trm2 = res.get(var);
+
+                                                       if (trm2 == null) {
+                                                           res.put(var, trm1);
+                                                       } else if (trm1.equals(sig, trm2)) {
+                                                           // do nothing
+                                                       } else {
+                                                           res = null;
+                                                           break;
+                                                       }
+                                                   }
+                                               }
+
+                                               if (res == null) {
                                                    break;
                                                }
+
+                                           }
+
+                                           if (res != null) {
+                                               if (debug)
+                                                   System.err.println("Found: " + res);
+                                               return res;
+                                           }
+
+                                       }
+
+                                   } catch (Exception e) {
+                                   }
+                                   if (debug)
+                                       System.err.println("No match found.");
+                                   return null;
+
+                               } else if (okay && input.operation.isAssociative
+                                          && input.operation.isCommutative) {
+
+                                              // this part is added on 12/5/2000
+                                              Term[] subpatterns = pattern.subterms;
+                                              for (int i =
+                                                  0; i < input.subterms.length; i++ ) {
+
+                                                  Map<VarOrCode, Term> tmp =
+                                                      getMatch(input.subterms[i],
+                                                               subpatterns[i]);
+
+                                                  if (tmp == null) {
+                                                      result = null;
+                                                      break;
+                                                  } else {
+                                                      for (VarOrCode var : tmp.keySet()) {
+                                                          Term trm1 = tmp.get(var);
+                                                          Term trm2 = result.get(var);
+                                                          if (trm2 == null) {
+                                                              result.put(var, trm1);
+                                                          } else if (!trm1.equals(trm2)) {
+                                                              result = null;
+                                                              break;
+                                                          }
+                                                      }
+                                                  }
+                                              }
+
+                                              if (result != null) {
+                                                  if (debug)
+                                                      System.err.println("Found: " + result);
+                                                  return result;
+                                              }
+                                              //end of adding
+
+                                              try {
+
+                                                  Vector<Term> data =
+                                                      input.getAssocSubterms(sig,
+                                                                             input.operation);
+                                                  Vector<Term> pats =
+                                                      pattern.getAssocSubterms(sig,
+                                                                               pattern.operation);
+
+                                                  Map<VarOrCode, Term> res =
+                                                      getACOptimizedMatch(data, pats,
+                                                                          input.operation);
+
+                                                  // modify 11.21.2000
+                                                  if (res == null) {
+                                                      if (debug)
+                                                          System.err.println("No Match found.");
+                                                      return null;
+                                                  }
+                                                  Vector<Term> rest = getCodeValue(res, "ac-rest");
+                                                  if (rest != null && rest.size() > 0) {
+                                                      removeCodeValue(res, "ac-rest");
+                                                      if (debug)
+                                                          System.err.println("No Match found.");
+                                                      return null;
+                                                  }
+                                                  if (debug)
+                                                      System.err.println("Found: " + res);
+
+                                                  return res;
+                                              } catch (Exception ex) {
+                                              }
+                                              if (debug)
+                                                  System.err.println("No Match found.");
+                                              return null;
+
+                                          } else
+                                   if (okay && input.operation.isCommutative) {
+
+                                       Term data1 = input.subterms[0];
+                                       Term data2 = input.subterms[1];
+                                       Term pat1 = pattern.subterms[0];
+                                       Term pat2 = pattern.subterms[1];
+
+                                       Map<VarOrCode, Term> tab1 = getMatch(data1, pat1);
+
+                                       Map<VarOrCode, Term> res = null;
+                                       if (tab1 != null) {
+                                           Map<VarOrCode, Term> tab2 = getMatch(data2, pat2);
+                                           if (tab2 != null) {
+                                               res = combineSubst(tab1, tab2);
                                            }
                                        }
 
                                        if (res == null) {
-                                           break;
-                                       }
-
-                                   }
-
-                                   if (res != null) {
-                                       return res;
-                                   }
-
-                               }
-
-                           } catch (Exception e) {
-                           }
-                           return null;
-
-                       } else if (okay && input.operation.isAssociative
-                                  && input.operation.isCommutative) {
-
-                                      // this part is added on 12/5/2000
-                                      Term[] subpatterns = pattern.subterms;
-                                      for (int i = 0; i < input.subterms.length; i++ ) {
-
-                                          Map<VarOrCode, Term> tmp =
-                                              getMatch(input.subterms[i], subpatterns[i]);
-
-                                          if (tmp == null) {
-                                              result = null;
-                                              break;
-                                          } else {
-                                              for (VarOrCode var : tmp.keySet()) {
-                                                  Term trm1 = tmp.get(var);
-                                                  Term trm2 = result.get(var);
-                                                  if (trm2 == null) {
-                                                      result.put(var, trm1);
-                                                  } else if (!trm1.equals(trm2)) {
-                                                      result = null;
-                                                      break;
-                                                  }
-                                              }
-                                          }
-                                      }
-
-                                      if (result != null)
-                                          return result;
-
-                                      //end of adding
-
-                                      try {
-
-                                          Vector<Term> data =
-                                              input.getAssocSubterms(sig, input.operation);
-                                          Vector<Term> pats =
-                                              pattern.getAssocSubterms(sig, pattern.operation);
-
-                                          Map<VarOrCode, Term> res =
-                                              getACOptimizedMatch(data, pats, input.operation);
-
-                                          // modify 11.21.2000
-                                          if (res == null)
-                                              return null;
-
-                                          Vector<Term> rest = getCodeValue(res, "ac-rest");
-                                          if (rest != null && rest.size() > 0) {
-                                              removeCodeValue(res, "ac-rest");
-                                              return null;
-                                          }
-
-                                          return res;
-                                      } catch (Exception ex) {
-                                      }
-                                      return null;
-
-                                  } else
-                           if (okay && input.operation.isCommutative) {
-
-                               Term data1 = input.subterms[0];
-                               Term data2 = input.subterms[1];
-                               Term pat1 = pattern.subterms[0];
-                               Term pat2 = pattern.subterms[1];
-
-                               Map<VarOrCode, Term> tab1 = getMatch(data1, pat1);
-
-                               Map<VarOrCode, Term> res = null;
-                               if (tab1 != null) {
-                                   Map<VarOrCode, Term> tab2 = getMatch(data2, pat2);
-                                   if (tab2 != null) {
-                                       res = combineSubst(tab1, tab2);
-                                   }
-                               }
-
-                               if (res == null) {
-                                   tab1 = getMatch(data1, pat2);
-                                   if (tab1 != null) {
-                                       Map<VarOrCode, Term> tab2 = getMatch(data2, pat1);
-                                       if (tab2 != null)
-                                           res = combineSubst(tab1, tab2);
-                                   }
-                               }
-
-                               return res;
-
-                           } else {
-
-                               /* it seems that this method only works for linear pattern or
-                                * nonlinear pattern with depth 1. two counterexamples are given as
-                                * follows: M + N > M = true M + N > M + K = true if N > K
-                                *
-                                * actually it is very hard to fix this bug, many methods in
-                                * rewriting engine should be rewritten.
-                                *
-                                * the most important idea is: given a term t and a pattern pat,
-                                * t.getMatch(p, sig) should return a substitution set not a single
-                                * substitution. */
-
-                               Term[] subpatterns = pattern.subterms;
-
-                               for (int i = 0; i < input.subterms.length; i++ ) {
-                                   Map<VarOrCode, Term> tmp =
-                                       getMatch(input.subterms[i], subpatterns[i]);
-
-                                   /* if (tmp == null && input.operation.strategy != null &&
-                                    * input.operation.strategy[i] < -1) { Term term =
-                                    * reduce(input.subterms[i]); tmp = getMatch(term,
-                                    * subpatterns[i]); } */
-
-                                   if (tmp == null && input.operation.strategy != null) {
-
-                                       for (int element : input.operation.strategy) {
-                                           if (element == -i) {
-                                               Term term = reduce(input.subterms[i]);
-                                               tmp = getMatch(term, subpatterns[i]);
-                                               break;
+                                           tab1 = getMatch(data1, pat2);
+                                           if (tab1 != null) {
+                                               Map<VarOrCode, Term> tab2 = getMatch(data2, pat1);
+                                               if (tab2 != null)
+                                                   res = combineSubst(tab1, tab2);
                                            }
                                        }
-                                   }
+                                       if (debug)
+                                           System.err.println("Found: " + res);
+                                       return res;
 
-                                   if (tmp == null) {
-                                       Vector<Map<VarOrCode, Term>> matchSet =
-                                           getAllMatches(input, pattern);
-                                       if (!matchSet.isEmpty()) {
-                                           return matchSet.elementAt(0);
-                                       }
-
-                                       return null;
                                    } else {
 
-                                       for (VarOrCode var : tmp.keySet()) {
-                                           Term trm1 = tmp.get(var);
-                                           Term trm2 = null;
-                                           for (VarOrCode vtmp : result.keySet()) {
-                                               if (vtmp.equals(var)) {
-                                                   trm2 = result.get(vtmp);
-                                                   break;
+                                       /* it seems that this method only works for linear pattern or
+                                        * nonlinear pattern with depth 1. two counterexamples are
+                                        * given as follows: M + N > M = true M + N > M + K = true if
+                                        * N > K
+                                        *
+                                        * actually it is very hard to fix this bug, many methods in
+                                        * rewriting engine should be rewritten.
+                                        *
+                                        * the most important idea is: given a term t and a pattern
+                                        * pat, t.getMatch(p, sig) should return a substitution set
+                                        * not a single substitution. */
+
+                                       Term[] subpatterns = pattern.subterms;
+
+                                       for (int i = 0; i < input.subterms.length; i++ ) {
+                                           Map<VarOrCode, Term> tmp =
+                                               getMatch(input.subterms[i], subpatterns[i]);
+
+                                           /* if (tmp == null && input.operation.strategy != null &&
+                                            * input.operation.strategy[i] < -1) { Term term =
+                                            * reduce(input.subterms[i]); tmp = getMatch(term,
+                                            * subpatterns[i]); } */
+
+                                           if (tmp == null
+                                               && input.operation.strategy != null) {
+
+                                               for (int element : input.operation.strategy) {
+                                                   if (element == -i) {
+                                                       Term term = reduce(input.subterms[i]);
+                                                       tmp = getMatch(term, subpatterns[i]);
+                                                       break;
+                                                   }
                                                }
                                            }
-                                           if (trm2 == null) {
-                                               result.put(var, trm1);
-                                           } else if (!trm1.equals(trm2)) {
 
+                                           if (tmp == null) {
                                                Vector<Map<VarOrCode, Term>> matchSet =
                                                    getAllMatches(input, pattern);
                                                if (!matchSet.isEmpty()) {
+                                                   if (debug)
+                                                       System.err.println("Found: "
+                                                                          + matchSet.elementAt(0));
                                                    return matchSet.elementAt(0);
                                                }
+                                               if (debug)
+                                                   System.err.println("No match found.");
                                                return null;
+                                           } else {
+
+                                               for (VarOrCode var : tmp.keySet()) {
+                                                   Term trm1 = tmp.get(var);
+                                                   Term trm2 = null;
+                                                   for (VarOrCode vtmp : result.keySet()) {
+                                                       if (vtmp.equals(var)) {
+                                                           trm2 = result.get(vtmp);
+                                                           break;
+                                                       }
+                                                   }
+                                                   if (trm2 == null) {
+                                                       result.put(var, trm1);
+                                                   } else if (!trm1.equals(trm2)) {
+
+                                                       Vector<Map<VarOrCode, Term>> matchSet =
+                                                           getAllMatches(input, pattern);
+                                                       if (!matchSet.isEmpty()) {
+                                                           if (debug)
+                                                               System.err.println("Found: "
+                                                                                  + matchSet.elementAt(0));
+                                                           return matchSet.elementAt(0);
+                                                       }
+                                                       if (debug)
+                                                           System.err.println("No match found.");
+                                                       return null;
+                                                   }
+
+                                               }
                                            }
-
                                        }
+
                                    }
-                               }
 
-                           }
+                           } else
+            if (pattern.operation != null
+                && pattern.operation.info.equals("system-retract")) {
 
-                   } else
-            if (pattern.operation != null && pattern.operation.info.equals("system-retract")) {
+                    if (sig.isSubsort(input.sort, pattern.operation.resultSort)) {
 
-                if (sig.isSubsort(input.sort, pattern.operation.resultSort)) {
+                        // change at 09/27/2002
+                        if (input.sort
+                                 .equals(pattern.operation.resultSort)) {
+                            result = null;
+                        } else {
+                            result = getMatch(input, pattern.subterms[0]);
+                        }
+                        //result = getMatch(input, pattern.subterms[0]);
+                        // end change
 
-                    // change at 09/27/2002
-                    if (input.sort.equals(pattern.operation.resultSort)) {
-                        result = null;
                     } else {
-                        result = getMatch(input, pattern.subterms[0]);
-                    }
-                    //result = getMatch(input, pattern.subterms[0]);
-                    // end change
+                        if (sig.isSubsort(input.sort, pattern.operation.argumentSorts[0])
+                            && input.parent != null) {
 
-                } else {
-                    if (sig.isSubsort(input.sort, pattern.operation.argumentSorts[0])
-                        && input.parent != null) {
+                            for (int i = 0; i < input.parent.subterms.length; i++ ) {
+                                if (input == input.parent.subterms[i]) {
 
-                        for (int i = 0; i < input.parent.subterms.length; i++ ) {
-                            if (input == input.parent.subterms[i]) {
+                                    if (input.parent.retract[i] != null
+                                        && sig.isSubsort(pattern.operation.resultSort,
+                                                         input.parent.retract[i])) {
+                                        result = getMatch(input, pattern.subterms[0]);
+                                        if (result != null) {
+                                            if (debug)
+                                                System.err.println("Found: " + result);
+                                            return result;
+                                        }
 
-                                if (input.parent.retract[i] != null
-                                    && sig.isSubsort(pattern.operation.resultSort,
-                                                     input.parent.retract[i])) {
-                                    result = getMatch(input, pattern.subterms[0]);
-                                    if (result != null) {
-                                        return result;
                                     }
+                                    break;
 
                                 }
-                                break;
-
                             }
+
                         }
 
+                        result = null;
                     }
 
+                } else {
                     result = null;
                 }
-
-            } else {
-                result = null;
-            }
+        if (debug)
+            System.err.println("Found: " + result);
 
         return result;
     }
@@ -1943,8 +2040,10 @@ public class RewriteEngine {
      *            <code>Signature</code>
      *
      */
-    public Vector<Map<VarOrCode, Term>> getAllMatches(Term input,
-                                                      Term pattern) {
+    private Vector<Map<VarOrCode, Term>> getAllMatches(Term input,
+                                                       Term pattern) {
+        if (debug)
+            System.err.println("Getting matches for " + input + " to " + pattern);
 
         // a vector containing all found matches
         Vector<Map<VarOrCode, Term>> matchSet = new Vector<>();
@@ -1983,6 +2082,8 @@ public class RewriteEngine {
                         } catch (Exception e) {
                         }
                     } else {
+                        if (debug)
+                            System.err.println("Returning " + matchSet);
                         return matchSet;
                     }
                 } else {
@@ -2006,187 +2107,202 @@ public class RewriteEngine {
             }
 
             matchSet.addElement(match);
+            if (debug)
+                System.err.println("Returning " + matchSet);
             return matchSet;
 
         } else if (input.operation == null) {
-
+            if (debug)
+                System.err.println("Returning " + matchSet);
             return matchSet;
 
-        } else if (input.operation.equals(pattern.operation)
-                   || input.operation.less(sig, pattern.operation)) {
+        } else if (input.operation
+                        .equals(pattern.operation)
+                   || input.operation
+                           .less(sig, pattern.operation)) {
 
-                       // the top operations of this term and pattern are matched
-                       // check the validation of behavioral rewriting
+                               // the top operations of this term and pattern are matched
+                               // check the validation of behavioral rewriting
 
-                       boolean okay = true;
-                       if (input.operation.resultSort.isHidden()) {
-                           Term tmp = pattern.parent;
-                           while (tmp != null) {
-                               // all parent operations should be
-                               // congruent until visible sort
-                               if (tmp.operation.isBehavorial()) {
-                                   tmp = tmp.parent;
-                               } else {
-                                   okay = false;
-                                   break;
-                               }
-                           }
-                       }
-
-                       // case analysis according to the top operation ofthe pattern
-
-                       if (okay && input.operation.isAssociative
-                           && !input.operation.isCommutative) {
-
-                           // the top operation is associative but not commutative
-                           try {
-
-                               // get all the direct subterms of this term
-                               Vector<Term> data = input.getAssocSubterms(sig, input.operation);
-
-                               // get all the direct subterms of this pattern
-                               Vector<Term> pats = pattern.getAssocSubterms(sig, pattern.operation);
-
-                               // get all associative matches
-                               Vector<Vector<Term>> possible =
-                                   getAMatchPossibles(data, pats, input.operation);
-
-                               // handle it one by one
-                               for (int i = 0; i < possible.size(); i++ ) {
-
-                                   Vector<Term> tmp = possible.elementAt(i);
-
-                                   // all matches for tmp
-                                   @SuppressWarnings("unchecked")
-                                   Vector<Map<VarOrCode, Term>>[] resForTmp =
-                                       new Vector[pats.size()];
-                                   boolean impossible = false;
-
-                                   for (int j = 0; j < pats.size(); j++ ) {
-
-                                       Term pat = pats.elementAt(j);
-                                       Term term = tmp.elementAt(j);
-                                       resForTmp[j] = getAllMatches(term, pat);
-
-                                       if (resForTmp[j].isEmpty()) {
-
-                                           // it is impossible to find a match
-                                           impossible = true;
+                               boolean okay = true;
+                               if (input.operation.resultSort.isHidden()) {
+                                   Term tmp = pattern.parent;
+                                   while (tmp != null) {
+                                       // all parent operations should be
+                                       // congruent until visible sort
+                                       if (tmp.operation
+                                              .isBehavorial()) {
+                                           tmp = tmp.parent;
+                                       } else {
+                                           okay = false;
                                            break;
                                        }
                                    }
+                               }
 
-                                   if (!impossible) {
-                                       // try to combine all substitutions in resForall
-                                       // save them into matchSet
-                                       combine(matchSet, resForTmp);
+                               // case analysis according to the top operation ofthe pattern
+
+                               if (okay && input.operation.isAssociative
+                                   && !input.operation.isCommutative) {
+
+                                   // the top operation is associative but not commutative
+                                   try {
+
+                                       // get all the direct subterms of this term
+                                       Vector<Term> data =
+                                           input.getAssocSubterms(sig, input.operation);
+
+                                       // get all the direct subterms of this pattern
+                                       Vector<Term> pats =
+                                           pattern.getAssocSubterms(sig, pattern.operation);
+
+                                       // get all associative matches
+                                       Vector<Vector<Term>> possible =
+                                           getAMatchPossibles(data, pats, input.operation);
+
+                                       // handle it one by one
+                                       for (int i = 0; i < possible.size(); i++ ) {
+
+                                           Vector<Term> tmp = possible.elementAt(i);
+
+                                           // all matches for tmp
+                                           @SuppressWarnings("unchecked")
+                                           Vector<Map<VarOrCode, Term>>[] resForTmp =
+                                               new Vector[pats.size()];
+                                           boolean impossible = false;
+
+                                           for (int j = 0; j < pats.size(); j++ ) {
+
+                                               Term pat = pats.elementAt(j);
+                                               Term term = tmp.elementAt(j);
+                                               resForTmp[j] = getAllMatches(term, pat);
+
+                                               if (resForTmp[j].isEmpty()) {
+
+                                                   // it is impossible to find a match
+                                                   impossible = true;
+                                                   break;
+                                               }
+                                           }
+
+                                           if (!impossible) {
+                                               // try to combine all substitutions in resForall
+                                               // save them into matchSet
+                                               combine(matchSet, resForTmp);
+                                           }
+                                       }
+
+                                   } catch (Exception e) {
                                    }
-                               }
+                                   if (debug)
+                                       System.err.println("Returning " + matchSet);
+                                   return matchSet;
 
-                           } catch (Exception e) {
-                           }
+                               } else if (okay && input.operation.isAssociative
+                                          && input.operation.isCommutative) {
 
-                           return matchSet;
+                                              // the most important case: op is assoc and comm
+                                              try {
+                                                  // get all direct subterms of this term
+                                                  Vector<Term> data =
+                                                      input.getAssocSubterms(sig,
+                                                                             input.operation);
 
-                       } else if (okay && input.operation.isAssociative
-                                  && input.operation.isCommutative) {
+                                                  // get all direct subterms of the pattern
+                                                  Vector<Term> pats =
+                                                      pattern.getAssocSubterms(sig,
+                                                                               pattern.operation);
 
-                                      // the most important case: op is assoc and comm
-                                      try {
-                                          // get all direct subterms of this term
-                                          Vector<Term> data =
-                                              input.getAssocSubterms(sig, input.operation);
+                                                  // get all possible ac-match case
+                                                  Vector<Vector<Term>> possible =
+                                                      getACMatchPossibles(data, pats,
+                                                                          input.operation);
 
-                                          // get all direct subterms of the pattern
-                                          Vector<Term> pats =
-                                              pattern.getAssocSubterms(sig, pattern.operation);
+                                                  // handle it one by one
+                                                  for (int i = 0; i < possible.size(); i++ ) {
 
-                                          // get all possible ac-match case
-                                          Vector<Vector<Term>> possible =
-                                              getACMatchPossibles(data, pats, input.operation);
+                                                      Vector<Term> tmp = possible.elementAt(i);
 
-                                          // handle it one by one
-                                          for (int i = 0; i < possible.size(); i++ ) {
+                                                      // all matches for tmp
+                                                      @SuppressWarnings("unchecked")
+                                                      Vector<Map<VarOrCode, Term>>[] resForTmp =
+                                                          new Vector[pats.size()];
+                                                      boolean impossible = false;
 
-                                              Vector<Term> tmp = possible.elementAt(i);
+                                                      for (int j = 0; j < pats.size(); j++ ) {
 
-                                              // all matches for tmp
-                                              @SuppressWarnings("unchecked")
-                                              Vector<Map<VarOrCode, Term>>[] resForTmp =
-                                                  new Vector[pats.size()];
-                                              boolean impossible = false;
+                                                          Term pat = pats.elementAt(j);
+                                                          Term term = tmp.elementAt(j);
+                                                          resForTmp[j] = getAllMatches(term, pat);
 
-                                              for (int j = 0; j < pats.size(); j++ ) {
+                                                          if (resForTmp[j].isEmpty()) {
 
-                                                  Term pat = pats.elementAt(j);
-                                                  Term term = tmp.elementAt(j);
-                                                  resForTmp[j] = getAllMatches(term, pat);
+                                                              // it is impossible to find a match
+                                                              impossible = true;
+                                                              break;
 
-                                                  if (resForTmp[j].isEmpty()) {
+                                                          }
+                                                      }
 
-                                                      // it is impossible to find a match
-                                                      impossible = true;
-                                                      break;
+                                                      if (!impossible) {
 
+                                                          // try to combine all substitutions in resForall
+                                                          // save them into matchSet
+                                                          combine(matchSet, resForTmp);
+                                                      }
                                                   }
+
+                                              } catch (Exception ex) {
+                                                  ex.printStackTrace();
                                               }
+                                              if (debug)
+                                                  System.err.println("Returning " + matchSet);
+                                              return matchSet;
 
-                                              if (!impossible) {
+                                          } else
+                                   if (okay && input.operation.isCommutative) {
 
-                                                  // try to combine all substitutions in resForall
-                                                  // save them into matchSet
-                                                  combine(matchSet, resForTmp);
-                                              }
-                                          }
+                                       // this is a simple case to handle
+                                       // let pats=<p1, p2> and data=<t1, t2>
+                                       // two possible: p1<->t1 and p2<->t2
+                                       //               p1<->t2 and p2<->t1
 
-                                      } catch (Exception ex) {
-                                          ex.printStackTrace();
-                                      }
+                                       @SuppressWarnings("unchecked")
+                                       Vector<Map<VarOrCode, Term>>[] res = new Vector[2];
 
-                                      return matchSet;
+                                       Term pat0 = pattern.subterms[0];
+                                       Term data0 = input.subterms[0];
+                                       res[0] = getAllMatches(data0, pat0);
 
-                                  } else
-                           if (okay && input.operation.isCommutative) {
+                                       Term pat1 = pattern.subterms[1];
+                                       Term data1 = input.subterms[1];
+                                       res[1] = getAllMatches(data1, pat1);
 
-                               // this is a simple case to handle
-                               // let pats=<p1, p2> and data=<t1, t2>
-                               // two possible: p1<->t1 and p2<->t2
-                               //               p1<->t2 and p2<->t1
+                                       combine(matchSet, res);
 
-                               @SuppressWarnings("unchecked")
-                               Vector<Map<VarOrCode, Term>>[] res = new Vector[2];
+                                       res[0] = getAllMatches(data0, pat1);
+                                       res[1] = getAllMatches(data1, pat0);
+                                       combine(matchSet, res);
+                                       if (debug)
+                                           System.err.println("Returning " + matchSet);
+                                       return matchSet;
 
-                               Term pat0 = pattern.subterms[0];
-                               Term data0 = input.subterms[0];
-                               res[0] = getAllMatches(data0, pat0);
+                                   } else if (pattern.subterms.length == 0) {
+                                       matchSet.addElement(new HashMap<VarOrCode, Term>());
+                                   } else {
+                                       // check all subterms
+                                       Term[] pats = pattern.subterms;
+                                       @SuppressWarnings("unchecked")
+                                       Vector<Map<VarOrCode, Term>>[] res = new Vector[pats.length];
 
-                               Term pat1 = pattern.subterms[1];
-                               Term data1 = input.subterms[1];
-                               res[1] = getAllMatches(data1, pat1);
-
-                               combine(matchSet, res);
-
-                               res[0] = getAllMatches(data0, pat1);
-                               res[1] = getAllMatches(data1, pat0);
-                               combine(matchSet, res);
-
-                               return matchSet;
-
-                           } else if (pattern.subterms.length == 0) {
-                               matchSet.addElement(new HashMap<VarOrCode, Term>());
-                           } else {
-                               // check all subterms
-                               Term[] pats = pattern.subterms;
-                               @SuppressWarnings("unchecked")
-                               Vector<Map<VarOrCode, Term>>[] res = new Vector[pats.length];
-
-                               for (int i = 0; i < input.subterms.length; i++ ) {
-                                   res[i] = getAllMatches(input.subterms[i], pats[i]);
-                               }
-                               combine(matchSet, res);
+                                       for (int i = 0; i < input.subterms.length; i++ ) {
+                                           res[i] = getAllMatches(input.subterms[i], pats[i]);
+                                       }
+                                       combine(matchSet, res);
+                                   }
                            }
-                   }
-
+        if (debug)
+            System.err.println("Returning " + matchSet);
         return matchSet;
     }
 
@@ -3005,8 +3121,8 @@ public class RewriteEngine {
         return result;
     }
 
-    public Term subst(Term input,
-                      Map<VarOrCode, Term> ht) {
+    private Term subst(Term input,
+                       Map<VarOrCode, Term> ht) {
 
         Term result = null;
 
@@ -3056,8 +3172,8 @@ public class RewriteEngine {
         return result;
     }
 
-    public Redex getSpecialRedex(Term input,
-                                 int pos) {
+    private Redex getSpecialRedex(Term input,
+                                  int pos) {
 
         Redex result = null;
 
@@ -3065,10 +3181,13 @@ public class RewriteEngine {
             return null;
         }
 
-        if (input.sort.isHidden()) {
+        if (input.sort
+                 .isHidden()) {
             Term term = input.parent;
-            while (term != null && term.sort.isHidden()) {
-                if (term.operation.isBehavorial()) {
+            while (term != null && term.sort
+                                       .isHidden()) {
+                if (term.operation
+                        .isBehavorial()) {
                     term = term.parent;
                 } else {
                     for (int i = 0; i < input.subterms.length && result == null; i++ ) {
@@ -3090,7 +3209,8 @@ public class RewriteEngine {
 
         Vector<Equation> conside = null;
         if (input.operation != null) {
-            conside = op2eq.get(input.operation.getName());
+            conside = op2eq.get(input.operation
+                                     .getName());
         }
         if (conside == null) {
             conside = new Vector<>();
@@ -3339,7 +3459,8 @@ public class RewriteEngine {
 
         Map<VarOrCode, Term> result = new HashMap<>();
 
-        if (input.operation.equals(pattern.operation)) {
+        if (input.operation
+                 .equals(pattern.operation)) {
 
             Term subpat0 = pattern.subterms[0];
             Term subpat1 = pattern.subterms[1];
@@ -3357,14 +3478,14 @@ public class RewriteEngine {
                     Term trm1 = ht1.get(var);
                     Term trm2 = null;
                     if (var1 != null && var1.isVariable()) {
-                        trm2 =  result.get(var1.var);
+                        trm2 = result.get(var1.var);
                     }
                     if (trm2 == null) {
                         result.put(var, trm1);
                     } else if (!trm1.equals(trm2)) {
                         return null;
                     }
-               }
+                }
             } else {
                 result = null;
             }
@@ -3380,7 +3501,8 @@ public class RewriteEngine {
 
         Map<VarOrCode, Term> result = null;
 
-        if (input.operation.equals(pattern.operation)) {
+        if (input.operation
+                 .equals(pattern.operation)) {
 
             try {
                 Vector<Term> dterms = input.getAssocSubterms(sig, input.operation);
@@ -3643,8 +3765,10 @@ public class RewriteEngine {
 
         Map<VarOrCode, Term> result = null;
 
-        if (input.operation.equals(pattern.operation)
-            || input.operation.less(sig, pattern.operation)) {
+        if (input.operation
+                 .equals(pattern.operation)
+            || input.operation
+                    .less(sig, pattern.operation)) {
 
             try {
                 Vector<Term> dterms = input.getAssocSubterms(sig, input.operation);
@@ -4045,6 +4169,9 @@ public class RewriteEngine {
                       Map<VarOrCode, Term> map2)
         throws EquationApplyException {
 
+        if (debug)
+            System.err.println("Applying " + eq + " to " + input);
+
         SelectedTerm result = select(input, select);
         Term left, right, cond, shift = null;
         if (reverse) {
@@ -4056,7 +4183,9 @@ public class RewriteEngine {
         }
 
         if (eq.condition != null) {
-            cond = subst(eq.condition.copy(sig), map2);
+            cond = subst(eq.condition
+                           .copy(sig),
+                         map2);
         } else {
             cond = null;
         }
@@ -4064,15 +4193,18 @@ public class RewriteEngine {
         if (result != null) {
 
             // check behavorial condition
-            if (result.selected.sort.isHidden()) {
+            if (result.selected.sort
+                               .isHidden()) {
                 Term t = result.selected.parent;
-                while (t != null && t.sort.isHidden()) {
-                    if (t.operation.isBehavorial()) {
+                while (t != null && t.sort
+                                     .isHidden()) {
+                    if (t.operation
+                         .isBehavorial()) {
                         t = t.parent;
                     } else {
                         throw new EquationApplyException("the equation can't be applied at the specified "
-                                                         + "position since "
-                                                         + t.operation.getCleanName()
+                                                         + "position since " + t.operation
+                                                                                .getCleanName()
                                                          + " is not congruent");
                     }
                 }
@@ -4120,6 +4252,8 @@ public class RewriteEngine {
                     if (shift != null) {
                         output.setProperty("cond", shift);
                     }
+                    if (debug)
+                        System.err.println("result " + output);
 
                     return output;
                 } else {
@@ -4128,182 +4262,210 @@ public class RewriteEngine {
                     if (shift != null) {
                         output.setProperty("cond", shift);
                     }
+                    if (debug)
+                        System.err.println("Result " + output);
 
                     return output;
                 }
 
-            } else
-                if (result.selected.operation != null && result.selected.operation.isAssociative()
-                    && result.selected.operation.isCommutative()) {
+            } else if (result.selected.operation != null && result.selected.operation
+                                                                                .isAssociative()
+                       && result.selected.operation
+                                         .isCommutative()) {
 
-                        var2term = getACMatch(result.selected, left);
-                        if (var2term != null) {
+                                             var2term = getACMatch(result.selected, left);
+                                             if (var2term != null) {
 
-                            Vector<Term> secret = getCodeValue(var2term, "secret");
-                            removeCodeValue(var2term, "secret");
+                                                 Vector<Term> secret =
+                                                     getCodeValue(var2term, "secret");
+                                                 removeCodeValue(var2term, "secret");
 
-                            if (cond != null) {
-                                Term tmp = cond.subst(var2term, sig);
-                                //tmp = reduce(tmp);
+                                                 if (cond != null) {
+                                                     Term tmp = cond.subst(var2term, sig);
+                                                     //tmp = reduce(tmp);
 
-                                int res = boolValue(tmp);
-                                if (res != 1) {
-                                    shift = tmp;
-                                }
+                                                     int res = boolValue(tmp);
+                                                     if (res != 1) {
+                                                         shift = tmp;
+                                                     }
 
-                            }
+                                                 }
 
-                            right = right.subst(var2term, sig);
-                            if (right.operation != null) {
-                                try {
-                                    Term tmp = right;
-                                    right = getMinimumTerm(sig, right.operation, right.subterms);
-                                    if (right == null) {
-                                        right = new Term(sig, tmp.operation, tmp.subterms);
-                                    }
+                                                 right = right.subst(var2term, sig);
+                                                 if (right.operation != null) {
+                                                     try {
+                                                         Term tmp = right;
+                                                         right =
+                                                             getMinimumTerm(sig,
+                                                                            right.operation,
+                                                                            right.subterms);
+                                                         if (right == null) {
+                                                             right =
+                                                                 new Term(sig, tmp.operation,
+                                                                          tmp.subterms);
+                                                         }
 
-                                } catch (Exception ex) {
-                                }
-                            }
+                                                     } catch (Exception ex) {
+                                                     }
+                                                 }
 
-                            try {
+                                                 try {
 
-                                for (int i = 0; i < secret.size(); i++ ) {
-                                    Term tmp = secret.elementAt(i);
-                                    right = new Term(sig, result.selected.operation, right, tmp);
-                                }
-                            } catch (Exception ex) {
-                                throw new EquationApplyException(ex.getMessage());
-                            }
+                                                     for (int i = 0; i < secret.size(); i++ ) {
+                                                         Term tmp = secret.elementAt(i);
+                                                         right =
+                                                             new Term(sig,
+                                                                      result.selected.operation,
+                                                                      right, tmp);
+                                                     }
+                                                 } catch (Exception ex) {
+                                                     throw new EquationApplyException(ex.getMessage());
+                                                 }
 
-                            if (result.position != -1) {
+                                                 if (result.position != -1) {
 
-                                result.selected.parent.subterms[result.position] = right;
-                                right.parent = result.selected.parent;
+                                                     result.selected.parent.subterms[result.position] =
+                                                         right;
+                                                     right.parent = result.selected.parent;
 
-                                if (sig.isSubsort(right.sort,
-                                                  result.selected.parent.operation.argumentSorts[result.position])) {
+                                                     if (sig.isSubsort(right.sort,
+                                                                       result.selected.parent.operation.argumentSorts[result.position])) {
 
-                                } else
-                                    if (sig.isSubsort(result.selected.parent.operation.argumentSorts[result.position],
-                                                      right.sort)) {
-                                                          result.selected.parent.retract[result.position] =
-                                                              result.selected.parent.operation.argumentSorts[result.position];
-                                                      }
+                                                     } else
+                                                         if (sig.isSubsort(result.selected.parent.operation.argumentSorts[result.position],
+                                                                           right.sort)) {
+                                                                               result.selected.parent.retract[result.position] =
+                                                                                   result.selected.parent.operation.argumentSorts[result.position];
+                                                                           }
 
-                                Term output = result.top;
-                                if (shift != null) {
-                                    output.setProperty("cond", shift);
-                                }
+                                                     Term output = result.top;
+                                                     if (shift != null) {
+                                                         output.setProperty("cond", shift);
+                                                     }
+                                                     if (debug)
+                                                         System.err.println("Result " + output);
+                                                     return output;
+                                                 } else {
 
-                                return output;
-                            } else {
+                                                     Term output = right;
+                                                     if (shift != null) {
+                                                         output.setProperty("cond", shift);
+                                                     }
+                                                     if (debug)
+                                                         System.err.println("Result " + output);
+                                                     return output;
+                                                 }
 
-                                Term output = right;
-                                if (shift != null) {
-                                    output.setProperty("cond", shift);
-                                }
+                                             } else {
+                                                 throw new EquationApplyException("the equation can't be "
+                                                                                  + "applied at the "
+                                                                                  + "specified position");
+                                             }
 
-                                return output;
-                            }
+                                         } else
+                if (result.selected.operation != null && result.selected.operation
+                                                                             .isAssociative()
+                    && !result.selected.operation
+                                       .isCommutative()) {
 
-                        } else {
-                            throw new EquationApplyException("the equation can't be "
-                                                             + "applied at the "
-                                                             + "specified position");
-                        }
+                                           var2term = getAMatch(result.selected, left);
+                                           if (var2term != null) {
 
-                    } else if (result.selected.operation != null
-                               && result.selected.operation.isAssociative()
-                               && !result.selected.operation.isCommutative()) {
+                                               Term bterm = getCodeValue(var2term, "bterm");
+                                               Term eterm = getCodeValue(var2term, "eterm");
 
-                                   var2term = getAMatch(result.selected, left);
-                                   if (var2term != null) {
+                                               if (cond != null) {
+                                                   Term tmp = cond.subst(var2term, sig);
 
-                                       Term bterm = getCodeValue(var2term, "bterm");
-                                       Term eterm = getCodeValue(var2term, "eterm");
+                                                   int res = boolValue(tmp);
+                                                   if (res != 1) {
+                                                       shift = tmp;
+                                                   }
 
-                                       if (cond != null) {
-                                           Term tmp = cond.subst(var2term, sig);
-
-                                           int res = boolValue(tmp);
-                                           if (res != 1) {
-                                               shift = tmp;
-                                           }
-
-                                       }
-
-                                       right = right.subst(var2term, sig);
-                                       if (right.operation != null) {
-                                           try {
-                                               Term tmp = right;
-                                               right = getMinimumTerm(sig, right.operation,
-                                                                      right.subterms);
-                                               if (right == null) {
-                                                   right =
-                                                       new Term(sig, tmp.operation, tmp.subterms);
                                                }
 
-                                           } catch (Exception ex) {
+                                               right = right.subst(var2term, sig);
+                                               if (right.operation != null) {
+                                                   try {
+                                                       Term tmp = right;
+                                                       right =
+                                                           getMinimumTerm(sig, right.operation,
+                                                                          right.subterms);
+                                                       if (right == null) {
+                                                           right = new Term(sig, tmp.operation,
+                                                                            tmp.subterms);
+                                                       }
+
+                                                   } catch (Exception ex) {
+                                                   }
+                                               }
+
+                                               try {
+                                                   if (bterm != null) {
+                                                       right =
+                                                           new Term(sig,
+                                                                    result.selected.operation,
+                                                                    bterm, right);
+                                                   }
+
+                                                   if (eterm != null) {
+                                                       right =
+                                                           new Term(sig,
+                                                                    result.selected.operation,
+                                                                    right, eterm);
+                                                   }
+
+                                               } catch (Exception ex) {
+                                                   throw new EquationApplyException(ex.getMessage());
+                                               }
+
+                                               if (result.position != -1) {
+                                                   result.selected.parent.subterms[result.position] =
+                                                       right;
+                                                   right.parent = result.selected.parent;
+
+                                                   if (sig.isSubsort(right.sort,
+                                                                     result.selected.parent.operation.argumentSorts[result.position])) {
+
+                                                   } else
+                                                       if (sig.isSubsort(result.selected.parent.operation.argumentSorts[result.position],
+                                                                         right.sort)) {
+                                                                             result.selected.parent.retract[result.position] =
+                                                                                 result.selected.parent.operation.argumentSorts[result.position];
+                                                                         }
+
+                                                   Term output = result.top;
+                                                   if (shift != null) {
+                                                       output.setProperty("cond", shift);
+                                                   }
+                                                   if (debug)
+                                                       System.err.println("Result " + output);
+                                                   return output;
+                                               } else {
+
+                                                   Term output = right;
+                                                   if (shift != null) {
+                                                       output.setProperty("cond", shift);
+                                                   }
+                                                   if (debug)
+                                                       System.err.println("Result " + output);
+                                                   return output;
+                                               }
+
+                                           } else {
+                                               throw new EquationApplyException("the equation can't be "
+                                                                                + "applied at the "
+                                                                                + "specified position");
                                            }
+
                                        }
-
-                                       try {
-                                           if (bterm != null) {
-                                               right = new Term(sig, result.selected.operation,
-                                                                bterm, right);
-                                           }
-
-                                           if (eterm != null) {
-                                               right = new Term(sig, result.selected.operation,
-                                                                right, eterm);
-                                           }
-
-                                       } catch (Exception ex) {
-                                           throw new EquationApplyException(ex.getMessage());
-                                       }
-
-                                       if (result.position != -1) {
-                                           result.selected.parent.subterms[result.position] = right;
-                                           right.parent = result.selected.parent;
-
-                                           if (sig.isSubsort(right.sort,
-                                                             result.selected.parent.operation.argumentSorts[result.position])) {
-
-                                           } else
-                                               if (sig.isSubsort(result.selected.parent.operation.argumentSorts[result.position],
-                                                                 right.sort)) {
-                                                                     result.selected.parent.retract[result.position] =
-                                                                         result.selected.parent.operation.argumentSorts[result.position];
-                                                                 }
-
-                                           Term output = result.top;
-                                           if (shift != null) {
-                                               output.setProperty("cond", shift);
-                                           }
-
-                                           return output;
-                                       } else {
-
-                                           Term output = right;
-                                           if (shift != null) {
-                                               output.setProperty("cond", shift);
-                                           }
-
-                                           return output;
-                                       }
-
-                                   } else {
-                                       throw new EquationApplyException("the equation can't be "
-                                                                        + "applied at the "
-                                                                        + "specified position");
-                                   }
-
-                               }
 
         } else if (select.kind == TermSelection.WITHIN) {
 
             Term term = reduceBy(input, left, right, cond);
+            if (debug)
+                System.err.println("Result " + term);
+
             return term;
 
         }
@@ -4319,14 +4481,18 @@ public class RewriteEngine {
         throws EquationApplyException {
 
         // check behavorial rewrite condition
-        if (input.sort.isHidden()) {
+        if (input.sort
+                 .isHidden()) {
             Term t = input.parent;
-            while (t != null && t.sort.isHidden()) {
-                if (t.operation.isBehavorial()) {
+            while (t != null && t.sort
+                                 .isHidden()) {
+                if (t.operation
+                     .isBehavorial()) {
                     t = t.parent;
                 } else {
                     throw new EquationApplyException("the term can't be reduce since "
-                                                     + t.operation.getCleanName()
+                                                     + t.operation
+                                                        .getCleanName()
                                                      + " is not congruent");
                 }
             }
@@ -4365,113 +4531,121 @@ public class RewriteEngine {
                 return right;
             }
 
-        } else if (input.operation != null && input.operation.isAssociative()
-                   && input.operation.isCommutative()) {
+        } else if (input.operation != null && input.operation
+                                                        .isAssociative()
+                   && input.operation
+                           .isCommutative()) {
 
-                       // try AC match
-                       var2term = getACMatch(input, left);
-                       if (var2term != null) {
+                               // try AC match
+                               var2term = getACMatch(input, left);
+                               if (var2term != null) {
 
-                           Vector<Term> secret = getCodeValue(var2term, "secret");
-                           removeCodeValue(var2term, "secret");
+                                   Vector<Term> secret = getCodeValue(var2term, "secret");
+                                   removeCodeValue(var2term, "secret");
 
-                           if (cond != null) {
-                               Term tmp = cond.subst(var2term, sig);
+                                   if (cond != null) {
+                                       Term tmp = cond.subst(var2term, sig);
 
-                               int res = boolValue(tmp);
-                               if (res != 1) {
-                                   shift = tmp;
-                               }
+                                       int res = boolValue(tmp);
+                                       if (res != 1) {
+                                           shift = tmp;
+                                       }
 
-                           }
-
-                           right = right.subst(var2term, sig);
-                           if (right.operation != null) {
-                               try {
-                                   Term tmp = right;
-                                   right = getMinimumTerm(sig, right.operation, right.subterms);
-                                   if (right == null) {
-                                       right = new Term(sig, tmp.operation, tmp.subterms);
                                    }
 
-                               } catch (Exception ex) {
+                                   right = right.subst(var2term, sig);
+                                   if (right.operation != null) {
+                                       try {
+                                           Term tmp = right;
+                                           right = getMinimumTerm(sig, right.operation,
+                                                                  right.subterms);
+                                           if (right == null) {
+                                               right = new Term(sig, tmp.operation,
+                                                                tmp.subterms);
+                                           }
+
+                                       } catch (Exception ex) {
+                                       }
+                                   }
+
+                                   try {
+
+                                       for (int i = 0; i < secret.size(); i++ ) {
+                                           Term tmp = secret.elementAt(i);
+                                           right = new Term(sig, input.operation, right, tmp);
+                                       }
+                                   } catch (Exception ex) {
+                                       throw new EquationApplyException(ex.getMessage());
+                                   }
+
+                                   if (shift != null) {
+                                       right.setProperty("cond", shift);
+                                   }
+
+                                   return right;
+
                                }
-                           }
 
-                           try {
+                           } else
+            if (input.operation != null && input.operation
+                                                     .isAssociative()
+                && !input.operation
+                         .isCommutative()) {
 
-                               for (int i = 0; i < secret.size(); i++ ) {
-                                   Term tmp = secret.elementAt(i);
-                                   right = new Term(sig, input.operation, right, tmp);
-                               }
-                           } catch (Exception ex) {
-                               throw new EquationApplyException(ex.getMessage());
-                           }
+                             // try A match
+                             var2term = getAMatch(input, left);
+                             if (var2term != null) {
 
-                           if (shift != null) {
-                               right.setProperty("cond", shift);
-                           }
+                                 Term bterm = getCodeValue(var2term, "bterm");
+                                 Term eterm = getCodeValue(var2term, "eterm");
 
-                           return right;
+                                 if (cond != null) {
+                                     Term tmp = cond.subst(var2term, sig);
 
-                       }
+                                     int res = boolValue(tmp);
+                                     if (res != 1) {
+                                         shift = tmp;
+                                     }
 
-                   } else
-            if (input.operation != null && input.operation.isAssociative()
-                && !input.operation.isCommutative()) {
+                                 }
 
-                    // try A match
-                    var2term = getAMatch(input, left);
-                    if (var2term != null) {
+                                 right = right.subst(var2term, sig);
+                                 if (right.operation != null) {
+                                     try {
+                                         Term tmp = right;
+                                         right = getMinimumTerm(sig, right.operation,
+                                                                right.subterms);
+                                         if (right == null) {
+                                             right = new Term(sig, tmp.operation,
+                                                              tmp.subterms);
+                                         }
 
-                        Term bterm = getCodeValue(var2term, "bterm");
-                        Term eterm = getCodeValue(var2term, "eterm");
+                                     } catch (Exception ex) {
+                                     }
+                                 }
 
-                        if (cond != null) {
-                            Term tmp = cond.subst(var2term, sig);
+                                 try {
+                                     if (bterm != null) {
+                                         right = new Term(sig, input.operation, bterm, right);
+                                     }
 
-                            int res = boolValue(tmp);
-                            if (res != 1) {
-                                shift = tmp;
-                            }
+                                     if (eterm != null) {
+                                         right = new Term(sig, input.operation, right, eterm);
+                                     }
 
-                        }
+                                 } catch (Exception ex) {
+                                     throw new EquationApplyException(ex.getMessage());
+                                 }
 
-                        right = right.subst(var2term, sig);
-                        if (right.operation != null) {
-                            try {
-                                Term tmp = right;
-                                right = getMinimumTerm(sig, right.operation, right.subterms);
-                                if (right == null) {
-                                    right = new Term(sig, tmp.operation, tmp.subterms);
-                                }
+                                 if (shift != null) {
+                                     right.setProperty("cond", shift);
+                                 }
 
-                            } catch (Exception ex) {
-                            }
-                        }
+                                 return right;
 
-                        try {
-                            if (bterm != null) {
-                                right = new Term(sig, input.operation, bterm, right);
-                            }
+                             }
 
-                            if (eterm != null) {
-                                right = new Term(sig, input.operation, right, eterm);
-                            }
-
-                        } catch (Exception ex) {
-                            throw new EquationApplyException(ex.getMessage());
-                        }
-
-                        if (shift != null) {
-                            right.setProperty("cond", shift);
-                        }
-
-                        return right;
-
-                    }
-
-                }
+                         }
 
         if (input.operation != null) {
 
@@ -4568,7 +4742,8 @@ public class RewriteEngine {
 
                 try {
 
-                    if (term.operation != null && term.operation.isAssociative()) {
+                    if (term.operation != null && term.operation
+                                                           .isAssociative()) {
 
                         Vector<Term> data = term.getAssocSubterms(sig, term.operation);
                         Term[] terms = new Term[select.end - select.begin + 1];
@@ -4630,14 +4805,17 @@ public class RewriteEngine {
 
                         }
 
-                    } else if (!term.operation.isAssociative()) {
-                        throw new EquationApplyException("expect an associative operator, "
-                                                         + "but found "
-                                                         + term.operation.getCleanName());
-                    } else {
-                        throw new EquationApplyException("expect an associative operator, "
-                                                         + "but found a variable " + term.var);
-                    }
+                    } else if (!term.operation
+                                    .isAssociative()) {
+                                        throw new EquationApplyException("expect an associative operator, "
+                                                                         + "but found "
+                                                                         + term.operation
+                                                                               .getCleanName());
+                                    } else {
+                                        throw new EquationApplyException("expect an associative operator, "
+                                                                         + "but found a variable "
+                                                                         + term.var);
+                                    }
                 } catch (TermException e) {
                     throw new EquationApplyException("the equation can't be applied");
                 }
@@ -4650,7 +4828,8 @@ public class RewriteEngine {
                 selectedTerm = term;
                 for (int element : select.seq) {
                     if (selectedTerm.operation != null
-                        && element <= selectedTerm.operation.getArity()) {
+                        && element <= selectedTerm.operation
+                                                  .getArity()) {
                         selectedTerm = selectedTerm.subterms[element - 1];
                     } else {
                         throw new EquationApplyException("can't select specified term");
@@ -4673,8 +4852,10 @@ public class RewriteEngine {
                     List<Term> terms = new ArrayList<>();
                     List<Term> rest = new ArrayList<>();
 
-                    if (term.operation != null && term.operation.isAssociative()
-                        && term.operation.isCommutative()) {
+                    if (term.operation != null && term.operation
+                                                           .isAssociative()
+                        && term.operation
+                               .isCommutative()) {
 
                         Vector<Term> data = term.getAssocSubterms(sig, term.operation);
                         for (int element : select.seq) {
@@ -4716,15 +4897,21 @@ public class RewriteEngine {
                             result = new SelectedTerm(topTerm, selectedTerm, 0);
                         }
 
-                    } else if (!term.operation.isAssociative() || !term.operation.isCommutative()) {
-                        throw new EquationApplyException("expect an associative and "
-                                                         + "commutative operator, " + "but found "
-                                                         + term.operation.getCleanName());
-                    } else {
-                        throw new EquationApplyException("expect an associative and "
-                                                         + "commutative operator, "
-                                                         + "but found a variable " + term.var);
-                    }
+                    } else if (!term.operation
+                                    .isAssociative()
+                               || !term.operation
+                                       .isCommutative()) {
+                                           throw new EquationApplyException("expect an associative and "
+                                                                            + "commutative operator, "
+                                                                            + "but found "
+                                                                            + term.operation
+                                                                                  .getCleanName());
+                                       } else {
+                                           throw new EquationApplyException("expect an associative and "
+                                                                            + "commutative operator, "
+                                                                            + "but found a variable "
+                                                                            + term.var);
+                                       }
 
                 } catch (TermException e) {
                     throw new EquationApplyException("the equation can't be applied");

@@ -2860,9 +2860,9 @@ public class Module
         RewriteEngine engine = new RewriteEngine(this);
         engine.turnoff2Eq = true;
 
-        Term left = eq.getLeft();
-        Term right = eq.getRight();
-        Term cond = eq.getCondition();
+        Term left = eq.left;
+        Term right = eq.right;
+        Term cond = eq.condition;
         Vector<Map<Variable, Operation>> vars = getIdentityCompletionVariables(left);
 
         if (vars.size() > 0) {
@@ -3055,12 +3055,12 @@ public class Module
             Operation id = op.getIdentity();
 
             if (id != null) {
-                Term[] subterms = term.getSubterms();
+                Term[] subterms = term.subterms;
                 if (subterms[0].isVariable()) {
 
-                    if (subterms[0].getSort()
+                    if (subterms[0].sort
                                    .equals(id.getResultSort())
-                        || this.less(id.getResultSort(), subterms[0].getSort())) {
+                        || this.less(id.getResultSort(), subterms[0].sort)) {
                         Hashtable<Variable, Operation> tab = new Hashtable<>();
                         tab.put(subterms[0].getVariable(), id);
                         addElement(result, tab);
@@ -3075,9 +3075,9 @@ public class Module
                 }
 
                 if (subterms[1].isVariable()) {
-                    if (subterms[1].getSort()
+                    if (subterms[1].sort
                                    .equals(id.getResultSort())
-                        || this.less(id.getResultSort(), subterms[1].getSort())) {
+                        || this.less(id.getResultSort(), subterms[1].sort)) {
                         Map<Variable, Operation> tab = new Hashtable<>();
                         tab.put(subterms[1].getVariable(), id);
                         addElement(result, tab);
@@ -3091,7 +3091,7 @@ public class Module
                     }
                 }
             } else {
-                Term[] subterms = term.getSubterms();
+                Term[] subterms = term.subterms;
                 for (Term subterm : subterms) {
                     Vector<Map<Variable, Operation>> mid = getIdentityCompletionVariables(subterm);
                     for (int j = 0; j < mid.size(); j++ ) {
@@ -3701,7 +3701,7 @@ public class Module
                     return false;
                 }
 
-                if (subterm.getSort()
+                if (subterm.sort
                            .isHidden()) {
                     found = true;
                     break;

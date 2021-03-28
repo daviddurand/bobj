@@ -27,10 +27,10 @@ public class ReducedTerm {
         this.module = module;
 
         operation = term.getTopOperation();
-        if (term.getSubterms() != null) {
-            subterms = new ReducedTerm[term.getSubterms().length];
+        if (term.subterms != null) {
+            subterms = new ReducedTerm[term.subterms.length];
             for (int i = 0; i < subterms.length; i++ ) {
-                subterms[i] = new ReducedTerm((term.getSubterms())[i], module);
+                subterms[i] = new ReducedTerm((term.subterms)[i], module);
                 subterms[i].parent = this;
             }
         }
@@ -42,7 +42,7 @@ public class ReducedTerm {
         HashMap<String, Vector<Equation>> op2eq = new HashMap<>();
 
         for (Equation eq : eqs) {
-            Term left = eq.getLeft();
+            Term left = eq.left;
             if (left.getTopOperation() != null) {
                 Vector<Equation> tmp = op2eq.get(left.getTopOperation()
                                                      .getName());
@@ -68,9 +68,9 @@ public class ReducedTerm {
 
         for (int i = 0; i < conside.size(); i++ ) {
             Equation eq = conside.elementAt(i);
-            Term left = eq.getLeft();
-            Term right = eq.getRight();
-            Term cond = eq.getCondition();
+            Term left = eq.left;
+            Term right = eq.right;
+            Term cond = eq.condition;
 
             HashMap<VarOrCode, Term> var2term = getMatch(term, left);
 
@@ -106,8 +106,8 @@ public class ReducedTerm {
             return null;
         } else if (term.getTopOperation()
                        .equals(pattern.getTopOperation())) {
-                           Term[] subterms = term.getSubterms();
-                           Term[] subpatterns = pattern.getSubterms();
+                           Term[] subterms = term.subterms;
+                           Term[] subpatterns = pattern.subterms;
                            for (int i = 0; i < subterms.length; i++ ) {
                                Map<VarOrCode, Term> tmp = getMatch(subterms[i], subpatterns[i]);
                                if (tmp == null) {
@@ -297,7 +297,7 @@ public class ReducedTerm {
             HashMap<String, Vector<Equation>> op2eq = new HashMap<>();
 
             for (Equation eq : eqs) {
-                Term left = eq.getLeft();
+                Term left = eq.left;
                 if (left.getTopOperation() != null) {
                     Vector<Equation> tmp = op2eq.get(left.getTopOperation()
                                                          .getName());
@@ -324,9 +324,9 @@ public class ReducedTerm {
 
             for (int i = 0; i < conside.size(); i++ ) {
                 Equation eq = conside.elementAt(i);
-                Term left = eq.getLeft();
-                Term right = eq.getRight();
-                Term cond = eq.getCondition();
+                Term left = eq.left;
+                Term right = eq.right;
+                Term cond = eq.condition;
 
                 HashMap<VarOrCode, Term> var2term = getMatch(this.toTerm(), left);
 

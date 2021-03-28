@@ -643,7 +643,7 @@ public class FastTermParser {
                         }
 
                         try {
-                            Term[] terms = term.getSubterms();
+                            Term[] terms = term.subterms;
                             for (Operation o : l) {
                                 Term t = new Term(sig, o, terms);
                                 dest.add(t);
@@ -913,9 +913,9 @@ public class FastTermParser {
             }
             term = tmp;
 
-            if ((sig.isSubsort(term.getSort(), sort) || sig.isSubsort(sort, term.getSort())
-                 || sig.hasCommonSupersort(term.getSort(), sort))
-                || (sig.canApply(sort, term.getSort()) != null)) {
+            if ((sig.isSubsort(term.sort, sort) || sig.isSubsort(sort, term.sort)
+                 || sig.hasCommonSupersort(term.sort, sort))
+                || (sig.canApply(sort, term.sort) != null)) {
 
                 result.add(term);
             }
