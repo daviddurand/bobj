@@ -69,6 +69,8 @@ public class BOBJ
 
     private RewriteEngine engine;
 
+    private static boolean timing = true;
+
     private boolean cobasisUpdated = true;
 
     private boolean trace = false;
@@ -211,6 +213,10 @@ public class BOBJ
     public static void main(String args [])
     {
         //BOBJ client = new BOBJ(System.in);
+        for (String arg: args) {
+        	if ("--no-timing".equals(arg) || "--test".equals(arg))
+        	   timing = false;
+        }
         client = new BOBJ(System.in);
         try
         {
@@ -880,10 +886,9 @@ void Command() throws IOException :
                 else
                 {
                     writer.write("BOBJ system error\n");
-                    //e.printStackTrace();
+                    e.printStackTrace();
                 }
                 writer.flush();
-                e.printStackTrace();
             }
             // copy environment from the new parser
             modPool.putAll(bobj.modPool);
@@ -1900,7 +1905,8 @@ void Command() throws IOException :
                 long beginTime = new Date().getTime();
                 Term term = Term.parse(module, string);
                 long parseTime = new Date().getTime() - beginTime;
-                writer.write("time: " + parseTime + "ms\n");
+                if (timing)
+                	writer.write("time: " + parseTime + "ms\n");
                 writer.write("result:\n");
                 writer.write(term.showStructure(module) + "\n");
                 writer.flush();
@@ -2242,9 +2248,11 @@ void Command() throws IOException :
                 format(term.toFullString(),
                 9 + term.sort.getName().length()) +
                 "\n");
-                writer.write("rewrite time: " +
+                if (timing)
+                	writer.write("rewrite time: " +
                 (new Date().getTime() - beginTime) + "ms");
-                writer.write("       parse time: " + parseTime + "ms\n");
+                if (timing)
+                	writer.write("       parse time: " + parseTime + "ms\n");
                 if (engine.nontermination)
                 {
                     writer.write("Warning: non-termination corrected\n");
@@ -2623,9 +2631,11 @@ void Command() throws IOException :
                             {
                                 writer.write("result: false\n");
                             }
-                            writer.write("c-rewrite time: " +
+                            if (timing)
+                				writer.write("c-rewrite time: " +
                             (new Date().getTime() - b) + "ms");
-                            writer.write("     parse time: " + b1 + "ms\n");
+                            if (timing)
+                				writer.write("     parse time: " + b1 + "ms\n");
                             writer.flush();
                             return;
                         }
@@ -2674,9 +2684,11 @@ void Command() throws IOException :
                     {
                         writer.write("result: false\n");
                     }
-                    writer.write("c-rewrite time: " +
+                    if (timing)
+                		writer.write("c-rewrite time: " +
                     (new Date().getTime() - b) + "ms");
-                    writer.write("     parse time: " + b1 + "ms\n");
+                    if (timing)
+                		writer.write("     parse time: " + b1 + "ms\n");
                     writer.flush();
                     return;
                 }
@@ -2818,9 +2830,11 @@ void Command() throws IOException :
                                 {
                                     writer.write("result: false\n");
                                 }
-                                writer.write("c-rewrite time: " +
+                                if (timing)
+                					writer.write("c-rewrite time: " +
                                 (new Date().getTime() - b) + "ms");
-                                writer.write("     parse time: " + b1 + "ms\n");
+                                if (timing)
+                					writer.write("     parse time: " + b1 + "ms\n");
                                 writer.flush();
                                 return;
                             }
@@ -2860,9 +2874,11 @@ void Command() throws IOException :
                     {
                         writer.write("result: false\n");
                     }
-                    writer.write("c-rewrite time: " +
+                    if (timing)
+                		writer.write("c-rewrite time: " +
                     (new Date().getTime() - b) + "ms");
-                    writer.write("     parse time: " + b1 + "ms\n");
+                    if (timing)
+                		writer.write("     parse time: " + b1 + "ms\n");
                     writer.flush();
                 }
                 else
@@ -3775,7 +3791,8 @@ void Command() throws IOException :
                 writer.write("start: " +
                 format(currentTerm.toString(), 13) +
                 "\n");
-                writer.write("parse time: " + parseTime + "ms\n");
+                if (timing)
+                	writer.write("parse time: " + parseTime + "ms\n");
                 writer.flush();
                 termStack = new Stack();
             }
