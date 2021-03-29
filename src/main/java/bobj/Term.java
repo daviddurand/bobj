@@ -2437,19 +2437,18 @@ public class Term
                 } else {
                     for (VarOrCode v : tmp.keySet()) {
                         if (v instanceof Variable) {
-                            var = (Variable) v;
-                            Term trm1 = tmp.get(var);
+                            Term trm1 = tmp.get(v);
 
                             Term trm2 = null;
                             for (VarOrCode vtmp : result.keySet()) {
-                                if (vtmp.equals(var)) {
+                                if (vtmp.equals(v)) {
                                     trm2 = result.get(vtmp);
                                     break;
                                 }
                             }
 
                             if (trm2 == null) {
-                                result.put(var, trm1);
+                                result.put(v, trm1);
                             } else if (!trm1.equals(trm2)) {
                                 return null;
                             }
@@ -2457,7 +2456,6 @@ public class Term
                     }
                 }
             }
-
         } else {
             result = null;
         }

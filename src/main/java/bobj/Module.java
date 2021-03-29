@@ -3057,8 +3057,7 @@ public class Module
                 Term[] subterms = term.subterms;
                 if (subterms[0].isVariable()) {
 
-                    if (subterms[0].sort
-                                   .equals(id.getResultSort())
+                    if (subterms[0].sort.equals(id.getResultSort())
                         || this.less(id.getResultSort(), subterms[0].sort)) {
                         Hashtable<Variable, Operation> tab = new Hashtable<>();
                         tab.put(subterms[0].getVariable(), id);
@@ -3074,8 +3073,7 @@ public class Module
                 }
 
                 if (subterms[1].isVariable()) {
-                    if (subterms[1].sort
-                                   .equals(id.getResultSort())
+                    if (subterms[1].sort.equals(id.getResultSort())
                         || this.less(id.getResultSort(), subterms[1].sort)) {
                         Map<Variable, Operation> tab = new Hashtable<>();
                         tab.put(subterms[1].getVariable(), id);
@@ -3700,8 +3698,7 @@ public class Module
                     return false;
                 }
 
-                if (subterm.sort
-                           .isHidden()) {
+                if (subterm.sort.isHidden()) {
                     found = true;
                     break;
                 }
