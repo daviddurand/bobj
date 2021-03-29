@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -540,7 +541,7 @@ public class Module
             if (tmp.info.equals("system-default") || tmp.info.equals("system-introduced")) {
                 continue;
             }
-            result += "   general " + tmp + " .\n";
+            result += " general  " + tmp + " .\n";
         }
 
         result += "end\n";
@@ -3030,7 +3031,19 @@ public class Module
 
                     eq.info = "system-introduced";
                     if (!equations.contains(eq)) {
-                        equations.add(eq);
+//                        HashSet<Variable> leftvars =
+//                            new HashSet(Arrays.asList(eq.left.getVariables()));
+//                        HashSet<Variable> rightVars =
+//                            new HashSet(Arrays.asList(eq.right.getVariables()));
+//                        if (leftvars.containsAll(rightVars)) {
+                            equations.add(eq);
+//                        } else if (rightVars.containsAll(leftvars)) {
+//                            Term t = eq.left;
+//                            eq.left = eq.right;
+//                            eq.right = t;
+//                        } else {
+//                            generalEquations.add(eq);
+//                        }
                     }
 
                 }

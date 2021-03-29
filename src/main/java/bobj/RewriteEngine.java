@@ -29,10 +29,11 @@ public class RewriteEngine {
     public static boolean turnoff3Eq = false;
 
     static boolean debug = true;
+    static boolean debug_match = true;
 
     static HashMap<String, Term> cache = new HashMap<>();
 
-    static List<String> hit = new ArrayList<String>();
+    static Vector<String> hit = new Vector<>();
 
     static long size = 0;
 
@@ -143,8 +144,9 @@ public class RewriteEngine {
             Sort s1 = result.sort;
             Sort s2 = term.sort;
             if (s1.equals(s2) || sig.less(s1, s2) || sig.less(s2, s1)) {
-                hit.remove(index);
-                hit.add(index);
+
+                hit.removeElement(index);
+                hit.addElement(index);
                 result.parent = null;
 
             } else {
@@ -197,10 +199,10 @@ public class RewriteEngine {
             if (size > 100000) {
                 // remove the first 100 elements
                 for (int i = 0; i < 100 && i < hit.size(); i++ ) {
-                    String key = hit.get(0);
+                    String key = hit.elementAt(0);
                     Term element = cache.get(key);
                     cache.remove(key);
-                    hit.remove(0);
+                    hit.removeElementAt(0);
                     size = size - element.toString()
                                          .length();
                 }
@@ -208,7 +210,7 @@ public class RewriteEngine {
 
             if (index.length() < 300) {
                 cache.put(index, result);
-                hit.add(0, index);
+                hit.insertElementAt(index, 0);
                 size += result.toString()
                               .length();
             }
@@ -1599,7 +1601,7 @@ public class RewriteEngine {
 
     public Map<VarOrCode, Term> getMatch(Term input,
                                          Term pattern) {
-        if (debug)
+        if (debug_match)
             System.err.println("Getting one match for " + input + " to " + pattern);
 
 //        System.err.println("\n------ match  -------");
@@ -1638,7 +1640,7 @@ public class RewriteEngine {
 //        */
 
             if (!okay) {
-                if (debug)
+                if (debug_match)
                     System.err.println("No match found.");
                 return null;
             }
