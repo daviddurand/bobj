@@ -22,7 +22,7 @@ public class ViewException
     }
 
     public View getView() {
-        return view;
+        return this.view;
     }
 
 }

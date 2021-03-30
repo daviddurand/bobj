@@ -30,20 +30,20 @@ class Redex {
     }
 
     public Term getPoint() {
-        return point;
+        return this.point;
     }
 
     public Term getTerm() {
-        return term;
+        return this.term;
     }
 
     @Override
     public String toString() {
         String result = "";
-        result += "term = " + term + "\n";
-        result += "point = " + point + "\n";
-        result += "next = " + next + "\n";
-        result += "eq " + eq + "\n";
+        result += "term = " + this.term + "\n";
+        result += "point = " + this.point + "\n";
+        result += "next = " + this.next + "\n";
+        result += "eq " + this.eq + "\n";
         return result;
 
     }

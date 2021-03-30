@@ -75,7 +75,7 @@ public class ModuleName
 
     private boolean hasSameRoot(String name) {
         if (this.op == GENERAL_INSTANCE) {
-            ModuleName mname = (ModuleName) subexps.get(0);
+            ModuleName mname = (ModuleName) this.subexps.get(0);
             if (mname.op == ANNOTATE && mname.atom.equals(name)) {
                 return true;
             }
@@ -103,24 +103,24 @@ public class ModuleName
     }
 
     public boolean hasNotation() {
-        return op == ANNOTATE;
+        return this.op == ANNOTATE;
 
     }
 
     public boolean hasNotation(String name) {
 
-        if (op == ANNOTATE && atom.equals(name)) {
+        if (this.op == ANNOTATE && this.atom.equals(name)) {
             return true;
-        } else if (op == GENERAL_INSTANCE) {
+        } else if (this.op == GENERAL_INSTANCE) {
 
-            ModuleName mname = (ModuleName) subexps.get(0);
+            ModuleName mname = (ModuleName) this.subexps.get(0);
             if (mname.atom.equals(name)) {
                 return true;
             }
 
             // for bug fix 2002-6-10
-            for (int i = 1; i < subexps.size(); i++ ) {
-                Object obj = subexps.get(i);
+            for (int i = 1; i < this.subexps.size(); i++ ) {
+                Object obj = this.subexps.get(i);
                 if (obj instanceof ModuleName) {
                     mname = (ModuleName) obj;
                     if (mname.hasNotation(name)) {
@@ -150,8 +150,8 @@ public class ModuleName
     }
 
     public ModuleName getOriginModuleName() {
-        if (op == ANNOTATE) {
-            return (ModuleName) subexps.get(0);
+        if (this.op == ANNOTATE) {
+            return (ModuleName) this.subexps.get(0);
         } else {
             return this;
         }
@@ -161,54 +161,54 @@ public class ModuleName
     public String toString() {
         String result = "";
 
-        switch (op) {
+        switch (this.op) {
             case ATOM:
-                result += atom;
+                result += this.atom;
             break;
             case ANNOTATE:
-                result += "(" + atom + ":" + subexps.get(0) + ")";
+                result += "(" + this.atom + ":" + this.subexps.get(0) + ")";
             break;
             case SUM:
-                result += subexps.get(0) + " + " + subexps.get(1);
+                result += this.subexps.get(0) + " + " + this.subexps.get(1);
             break;
             case INSTANCE:
-                result += subexps.get(0);
+                result += this.subexps.get(0);
                 result += "[";
-                for (int i = 1; i < subexps.size(); i++ ) {
+                for (int i = 1; i < this.subexps.size(); i++ ) {
                     if (i > 1) {
                         result += ", ";
                     }
 
-                    result += subexps.get(i);
+                    result += this.subexps.get(i);
                 }
                 result += "]";
             break;
             case GENERAL_INSTANCE:
-                result += subexps.get(0);
+                result += this.subexps.get(0);
                 result += "[";
-                for (int i = 1; i < subexps.size(); i++ ) {
+                for (int i = 1; i < this.subexps.size(); i++ ) {
                     if (i > 1) {
                         result += ", ";
                     }
 
-                    Object obj = subexps.get(i);
+                    Object obj = this.subexps.get(i);
                     if (obj instanceof View) {
                         result += ((View) obj).name;
                     } else {
-                        result += subexps.get(i);
+                        result += this.subexps.get(i);
                     }
 
                 }
                 result += "]";
             break;
             case RENAMING:
-                result += "(" + subexps.get(0) + ")";
+                result += "(" + this.subexps.get(0) + ")";
                 result += " * (";
 
                 boolean begin = true;
 
                 @SuppressWarnings("unchecked")
-                RenamingMap map = (RenamingMap) subexps.get(1);
+                RenamingMap map = (RenamingMap) this.subexps.get(1);
                 for (ViewRenamable obj : map.keySet()) {
                     if (obj instanceof Sort) {
                         Sort from = (Sort) obj;
@@ -227,7 +227,7 @@ public class ModuleName
                         } else {
                             begin = false;
                         }
-                        result += "sort " + from.getName() + " to " + to.getName();
+                        result += "operation " + from.getName() + " to " + to.getName();
                     }
 
                 }
@@ -252,7 +252,7 @@ public class ModuleName
         ModuleName name = (ModuleName) object;
 
         if (name.op == this.op) {
-            switch (op) {
+            switch (this.op) {
                 case ATOM:
                     if (name.atom.equals(this.atom)) {
                         return true;
@@ -260,24 +260,24 @@ public class ModuleName
                 break;
                 case ANNOTATE:
 
-                    if (name.atom.equals(this.atom) && subexps.get(0)
-                                                              .equals(name.subexps.get(0))) {
+                    if (name.atom.equals(this.atom) && this.subexps.get(0)
+                                                                   .equals(name.subexps.get(0))) {
                         return true;
                     }
                 break;
                 case SUM:
-                    if (subexps.get(0)
-                               .equals(name.subexps.get(0))
-                        && subexps.get(1)
-                                  .equals(name.subexps.get(1))) {
+                    if (this.subexps.get(0)
+                                    .equals(name.subexps.get(0))
+                        && this.subexps.get(1)
+                                       .equals(name.subexps.get(1))) {
                         return true;
                     }
                 break;
                 case INSTANCE:
                     if (name.subexps.size() == this.subexps.size()) {
-                        for (int i = 0; i < subexps.size(); i++ ) {
+                        for (int i = 0; i < this.subexps.size(); i++ ) {
                             if (!name.subexps.get(i)
-                                             .equals(subexps.get(i))) {
+                                             .equals(this.subexps.get(i))) {
                                 return false;
                             }
                         }
@@ -287,7 +287,7 @@ public class ModuleName
                     }
                 case GENERAL_INSTANCE:
                     if (name.subexps.size() == this.subexps.size()) {
-                        for (int i = 0; i < subexps.size(); i++ ) {
+                        for (int i = 0; i < this.subexps.size(); i++ ) {
                             Object obj1 = this.subexps.get(i);
                             Object obj2 = name.subexps.get(i);
 
@@ -337,19 +337,21 @@ public class ModuleName
                     }
                 case RENAMING:
 
-                    if (subexps.get(0)
-                               .equals(name.subexps.get(0))) {
+                    if (this.subexps.get(0)
+                                    .equals(name.subexps.get(0))) {
 
                         @SuppressWarnings("unchecked")
-                        Map<Object, Object> map1 = (Map<Object, Object>) this.subexps.get(1);
+                        Map<ViewRenamable, ViewRenamable> map1 =
+                            (Map<ViewRenamable, ViewRenamable>) this.subexps.get(1);
                         @SuppressWarnings("unchecked")
-                        Map<Object, Object> map2 = (Map<Object, Object>) name.subexps.get(1);
+                        Map<ViewRenamable, ViewRenamable> map2 =
+                            (Map<ViewRenamable, ViewRenamable>) name.subexps.get(1);
 
                         if (map1.size() != map2.size()) {
                             return false;
                         }
 
-                        for (Object obj : map1.keySet()) {
+                        for (ViewRenamable obj : map1.keySet()) {
                             if (obj instanceof Sort) {
                                 Sort from = (Sort) obj;
                                 Sort to = (Sort) map1.get(from);
@@ -386,7 +388,6 @@ public class ModuleName
 
                                 if (!found)
                                     return false;
-
                             }
                         }
                         return true;
@@ -406,27 +407,25 @@ public class ModuleName
 
     @Override
     public int hashCode() {
-        switch (op) {
+        switch (this.op) {
             default:
             case ATOM:
-                return atom.hashCode();
+                return this.atom.hashCode();
             case ANNOTATE:
-                return subexps.get(0)
-                              .hashCode()
-                       + ((atom == null) ? 0
-                                         : atom.hashCode());
-            case SUM:
-                return subexps.get(0)
-                              .hashCode()
-                       + subexps.get(1)
-                                .hashCode();
-            case INSTANCE:
-                return subexps.hashCode() + 53;
+                return this.subexps.get(0)
+                                   .hashCode()
+                       + ((this.atom == null) ? 0
+                                              : this.atom.hashCode());
             case RENAMING:
-                return subexps.get(0)
-                              .hashCode();
+            case SUM:
+                return this.subexps.get(0)
+                                   .hashCode()
+                       + this.subexps.get(1)
+                                     .hashCode();
+            case INSTANCE:
+                return this.subexps.hashCode() + 53;
             case GENERAL_INSTANCE:
-                return subexps.size() * 53;
+                return this.subexps.size() * 53;
         }
     }
 
@@ -451,16 +450,16 @@ public class ModuleName
             case ATOM:
                 return this;
             case ANNOTATE:
-                ModuleName m = (ModuleName) subexps.get(0);
+                ModuleName m = (ModuleName) this.subexps.get(0);
                 m = m.changeModuleName(from, to);
-                m = m.addAnnotation(atom);
+                m = m.addAnnotation(this.atom);
                 return m;
 
             case SUM:
-                ModuleName m1 = (ModuleName) subexps.get(0);
+                ModuleName m1 = (ModuleName) this.subexps.get(0);
                 m1 = m1.changeModuleName(from, to);
 
-                ModuleName m2 = (ModuleName) subexps.get(1);
+                ModuleName m2 = (ModuleName) this.subexps.get(1);
                 m2 = m2.changeModuleName(from, to);
 
                 return m1.sum(m2);
@@ -470,12 +469,12 @@ public class ModuleName
 
             case GENERAL_INSTANCE:
 
-                ModuleName m0 = (ModuleName) subexps.get(0);
+                ModuleName m0 = (ModuleName) this.subexps.get(0);
                 m0 = m0.changeModuleName(from, to);
 
                 List<ViewRenamable> list = new ArrayList<>();
-                for (int i = 1; i < subexps.size(); i++ ) {
-                    ViewRenamable obj = subexps.get(i);
+                for (int i = 1; i < this.subexps.size(); i++ ) {
+                    ViewRenamable obj = this.subexps.get(i);
                     if (obj instanceof ModuleName) {
                         ModuleName tmp = (ModuleName) obj;
                         tmp = tmp.changeModuleName(from, to);
@@ -508,10 +507,10 @@ public class ModuleName
                 return m0.instance(list);
 
             case RENAMING:
-                m0 = (ModuleName) subexps.get(0);
+                m0 = (ModuleName) this.subexps.get(0);
                 m0 = m0.changeModuleName(from, to);
                 @SuppressWarnings("unchecked")
-                RenamingMap map = (RenamingMap) subexps.get(1);
+                RenamingMap map = (RenamingMap) this.subexps.get(1);
 
                 return m0.renaming(map);
 
@@ -530,21 +529,21 @@ public class ModuleName
                 return this;
             case ANNOTATE:
 
-                ModuleName m = (ModuleName) subexps.get(0);
-                if (atom.equals(from)) {
+                ModuleName m = (ModuleName) this.subexps.get(0);
+                if (this.atom.equals(from)) {
                     return m.addAnnotation(to);
                 } else {
                     m = m.changeParameterName(from, to);
-                    m = m.addAnnotation(atom);
+                    m = m.addAnnotation(this.atom);
                     return m;
                 }
 
             case SUM:
 
-                ModuleName m1 = (ModuleName) subexps.get(0);
+                ModuleName m1 = (ModuleName) this.subexps.get(0);
                 m1 = m1.changeParameterName(from, to);
 
-                ModuleName m2 = (ModuleName) subexps.get(1);
+                ModuleName m2 = (ModuleName) this.subexps.get(1);
                 m2 = m2.changeParameterName(from, to);
 
                 return m1.sum(m2);
@@ -555,12 +554,12 @@ public class ModuleName
 
             case GENERAL_INSTANCE:
 
-                ModuleName m0 = (ModuleName) subexps.get(0);
+                ModuleName m0 = (ModuleName) this.subexps.get(0);
                 m0 = m0.changeParameterName(from, to);
 
                 List<ViewRenamable> list = new ArrayList<>();
-                for (int i = 1; i < subexps.size(); i++ ) {
-                    ViewRenamable obj = subexps.get(i);
+                for (int i = 1; i < this.subexps.size(); i++ ) {
+                    ViewRenamable obj = this.subexps.get(i);
                     if (obj instanceof ModuleName) {
                         ModuleName tmp = (ModuleName) obj;
                         tmp = tmp.changeParameterName(from, to);
@@ -584,10 +583,10 @@ public class ModuleName
 
             case RENAMING:
 
-                m0 = (ModuleName) subexps.get(0);
+                m0 = (ModuleName) this.subexps.get(0);
                 m0 = m0.changeParameterName(from, to);
                 @SuppressWarnings("unchecked")
-                RenamingMap map = (RenamingMap) subexps.get(1);
+                RenamingMap map = (RenamingMap) this.subexps.get(1);
 
                 return m0.renaming(map);
 
@@ -599,24 +598,24 @@ public class ModuleName
     }
 
     public boolean containsToken(String string) {
-        switch (op) {
+        switch (this.op) {
             case ATOM:
-                return atom.equals(string);
+                return this.atom.equals(string);
             case ANNOTATE:
-                return atom.equals(string) || subexps.get(0)
-                                                     .equals(string);
+                return this.atom.equals(string) || this.subexps.get(0)
+                                                               .equals(string);
             case SUM:
-                ModuleName m1 = (ModuleName) subexps.get(0);
-                ModuleName m2 = (ModuleName) subexps.get(1);
+                ModuleName m1 = (ModuleName) this.subexps.get(0);
+                ModuleName m2 = (ModuleName) this.subexps.get(1);
                 return m1.containsToken(string) || m2.containsToken(string);
             case INSTANCE:
-                m1 = (ModuleName) subexps.get(0);
+                m1 = (ModuleName) this.subexps.get(0);
                 if (m1.containsToken(string)) {
                     return true;
                 }
                 return false;
             case GENERAL_INSTANCE:
-                m1 = (ModuleName) subexps.get(0);
+                m1 = (ModuleName) this.subexps.get(0);
                 if (m1.containsToken(string)) {
                     return true;
                 }

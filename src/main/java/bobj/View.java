@@ -28,26 +28,26 @@ public class View
 
     boolean allowSortDef = true;
 
-    ArrayList<View> views = new ArrayList<View>();
+    ArrayList<View> views = new ArrayList<>();
 
     Map<Object, Object> record = new HashMap<>();
 
     boolean debug = false;
 
     public void setAsMorphism() {
-        morphism = true;
+        this.morphism = true;
     }
 
     public void record() {
-        record.putAll(sortMap);
-        record.putAll(opMap);
-        record.putAll(varMap);
-        record.putAll(trans);
+        this.record.putAll(this.sortMap);
+        this.record.putAll(this.opMap);
+        this.record.putAll(this.varMap);
+        this.record.putAll(this.trans);
     }
 
     public View copy(String newName) {
 
-        View result = new View(newName, source, target);
+        View result = new View(newName, this.source, this.target);
         result.main = this.main;
         result.smodule = this.smodule;
         result.smodule = this.smodule;
@@ -89,8 +89,8 @@ public class View
         this.tmodule = new Module(target.type, target.modName);
 
         try {
-            smodule.importModule(source);
-            tmodule.importModule(target);
+            this.smodule.importModule(source);
+            this.tmodule.importModule(target);
         } catch (SignatureException e) {
         }
 
@@ -101,29 +101,29 @@ public class View
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public Module getSource() {
-        return source;
+        return this.source;
     }
 
     public Module getTarget() {
-        return target;
+        return this.target;
     }
 
     public Module getEnrichedSource() {
-        return smodule;
+        return this.smodule;
     }
 
     public Module getEnrichedTarget() {
-        return tmodule;
+        return this.tmodule;
     }
 
     public Sort getTarget(Sort sort) {
-        for (Sort tmp : sortMap.keySet()) {
+        for (Sort tmp : this.sortMap.keySet()) {
             if (sort.equals(tmp)) {
-                return sortMap.get(tmp);
+                return this.sortMap.get(tmp);
             }
         }
 
@@ -131,9 +131,9 @@ public class View
     }
 
     public Operation getTarget(Operation op) {
-        for (Operation oper : opMap.keySet()) {
+        for (Operation oper : this.opMap.keySet()) {
             if (op.equals(oper)) {
-                return opMap.get(oper);
+                return this.opMap.get(oper);
             }
         }
 
@@ -143,7 +143,7 @@ public class View
     public void addVariable(Variable var) throws ViewException {
 
         try {
-            smodule.addVariable(var);
+            this.smodule.addVariable(var);
 
             Sort sort = var.getSort();
             sort = getTarget(sort);
@@ -153,26 +153,26 @@ public class View
                 // there is a mapping in sortMap
                 Variable targetVar = new Variable(var.getName(), sort);
                 try {
-                    tmodule.addVariable(targetVar);
-                    varMap.put(var, targetVar);
+                    this.tmodule.addVariable(targetVar);
+                    this.varMap.put(var, targetVar);
                 } catch (SignatureException e) {
                 }
 
-            } else if (tmodule.containsSort(var.sort)) {
+            } else if (this.tmodule.containsSort(var.sort)) {
 
                 // no mapping, but sort is contained in target
-                tmodule.addVariable(var);
-                varMap.put(var, var);
+                this.tmodule.addVariable(var);
+                this.varMap.put(var, var);
 
-            } else if (smodule.getPrincipalSort()
-                              .equals(var.sort)
-                       && sortMap.size() == 0) {
+            } else if (this.smodule.getPrincipalSort()
+                                   .equals(var.sort)
+                       && this.sortMap.size() == 0) {
 
                            // use the mapping between the principle sorts
-                           sort = tmodule.getPrincipalSort();
+                           sort = this.tmodule.getPrincipalSort();
                            Variable tvar = new Variable(var.name, sort);
-                           tmodule.addVariable(tvar);
-                           varMap.put(var, tvar);
+                           this.tmodule.addVariable(tvar);
+                           this.varMap.put(var, tvar);
                        }
 
         } catch (SignatureException e) {
@@ -186,14 +186,14 @@ public class View
 
         Sort sort = getTarget(from);
         if (sort != null) {
-            return target.isSubsort(to, sort);
+            return this.target.isSubsort(to, sort);
         } else if (from.equals(to)) {
             return true;
         } else {
             // not defined yet for sort mapping of from
-            sort = target.getSort(from);
+            sort = this.target.getSort(from);
             if (sort != null) {
-                return target.isSubsort(to, sort) || target.isSubsort(sort, to);
+                return this.target.isSubsort(to, sort) || this.target.isSubsort(sort, to);
             } else {
                 return from.equals(to);
             }
@@ -205,19 +205,19 @@ public class View
                            Sort to)
         throws ViewException {
 
-        if (!allowSortDef) {
+        if (!this.allowSortDef) {
             String msg =
                 "A default mapping is defined alreday, no more " + " sort mapping can be defined";
             throw new ViewException(msg);
         }
 
-        if (!source.containsSort(from)) {
-            String msg = "Sort " + from.getName() + " not in source " + source.getModuleName();
+        if (!this.source.containsSort(from)) {
+            String msg = "Sort " + from.getName() + " not in source " + this.source.getModuleName();
             throw new ViewException(msg);
         }
 
-        if (!target.containsSort(to)) {
-            String msg = "Sort " + to.getName() + " not in target " + target.getModuleName();
+        if (!this.target.containsSort(to)) {
+            String msg = "Sort " + to.getName() + " not in target " + this.target.getModuleName();
             throw new ViewException(msg);
         }
 
@@ -227,7 +227,7 @@ public class View
                 throw new ViewException("A mapping for " + from.getName() + " already exists");
             }
         } else {
-            sortMap.put(from, to);
+            this.sortMap.put(from, to);
         }
 
     }
@@ -236,15 +236,15 @@ public class View
                                 Operation to)
         throws ViewException {
 
-        if (!source.containsOperation(from)) {
+        if (!this.source.containsOperation(from)) {
             String msg =
-                "Operation " + from.getName() + " not in the source " + source.getModuleName();
+                "Operation " + from.getName() + " not in the source " + this.source.getModuleName();
             throw new ViewException(msg);
         }
 
-        if (!target.containsOperation(to)) {
+        if (!this.target.containsOperation(to)) {
             String msg =
-                "Operation " + to.getName() + " not in the target " + target.getModuleName();
+                "Operation " + to.getName() + " not in the target " + this.target.getModuleName();
             throw new ViewException(msg);
         }
 
@@ -254,15 +254,16 @@ public class View
                 throw new ViewException("A mapping for " + from.getName() + " already exists");
             }
         } else {
-            if (sortMap.isEmpty()) {
+            if (this.sortMap.isEmpty()) {
 
                 // use the mapping between the principal sorts
-                if (allowSortDef) {
+                if (this.allowSortDef) {
 
-                    allowSortDef = false;
+                    this.allowSortDef = false;
 
                     // set sort mapping here
-                    sortMap.put(source.getPrincipalSort(), target.getPrincipalSort());
+                    this.sortMap.put(this.source.getPrincipalSort(),
+                                     this.target.getPrincipalSort());
 
                 }
 
@@ -280,7 +281,7 @@ public class View
                     Sort sort1 = args1[i];
                     Sort sort2 = args2[i];
                     if (!isMapTo(sort1, sort2)) {
-                        sortMap.put(sort1, sort2);
+                        this.sortMap.put(sort1, sort2);
                         /* throw new ViewException("Sort "+sort1.getName()+
                          * " is not mapped into "+sort2.getName()); */
                     }
@@ -296,50 +297,50 @@ public class View
                      *
                      * throw new ViewException(to.getCleanName()+
                      * " is not of sort "+resSort1.getName()+"    "+resSort1.getModuleName()); */
-                    sortMap.put(resSort1, resSort2);
+                    this.sortMap.put(resSort1, resSort2);
                 }
             }
-            opMap.put(from, to);
+            this.opMap.put(from, to);
         }
 
     }
 
     public void addTransformation(Term left,
                                   Term right) {
-        trans.put(left, right);
+        this.trans.put(left, right);
     }
 
     @Override
     public String toString() {
         String result = "";
 
-        String sname = source.getModuleName()
-                             .toString();
-        String tname = target.getModuleName()
-                             .toString();
+        String sname = this.source.getModuleName()
+                                  .toString();
+        String tname = this.target.getModuleName()
+                                  .toString();
 
-        if (name == null) {
-            name = "";
+        if (this.name == null) {
+            this.name = "";
         }
 
-        String header = morphism ? "   morph "
-                                 : "   view ";
+        String header = this.morphism ? "   morph "
+                                      : "   view ";
 
-        if (sname.length() + tname.length() + name.length() + 12 > 80) {
-            result +=
-                header + name + "\n" + "         from " + sname + "\n" + "         to " + tname;
-        } else if (name.length() > 0) {
-            result += header + name + " from " + sname + " to " + tname;
+        if (sname.length() + tname.length() + this.name.length() + 12 > 80) {
+            result += header + this.name + "\n" + "         from " + sname + "\n" + "         to "
+                      + tname;
+        } else if (this.name.length() > 0) {
+            result += header + this.name + " from " + sname + " to " + tname;
         } else {
             result += header + "from " + sname + " to " + tname;
         }
 
         result += " is \n";
 
-        if (views.size() > 0 && morphism) {
+        if (this.views.size() > 0 && this.morphism) {
 
             result += "      [ \n";
-            for (Object view : views) {
+            for (Object view : this.views) {
                 View v = (View) view;
 
                 String str = v.toString();
@@ -352,27 +353,27 @@ public class View
             result += "      ]\n";
         }
 
-        if (record.size() != 0) {
+        if (this.record.size() != 0) {
 
-            Iterator<Object> itor = record.keySet()
-                                          .iterator();
+            Iterator<Object> itor = this.record.keySet()
+                                               .iterator();
             while (itor.hasNext()) {
                 Object key = itor.next();
-                Object val = record.get(key);
+                Object val = this.record.get(key);
                 if (key instanceof Sort) {
 
                     Sort from = (Sort) key;
                     Sort to = (Sort) val;
-                    result += "      sort " + source.toString(from) + " to " + target.toString(to)
-                              + " .\n";
+                    result += "      sort " + this.source.toString(from) + " to "
+                              + this.target.toString(to) + " .\n";
                 }
             }
 
-            itor = record.keySet()
-                         .iterator();
+            itor = this.record.keySet()
+                              .iterator();
             while (itor.hasNext()) {
                 Object key = itor.next();
-                Object val = record.get(key);
+                Object val = this.record.get(key);
                 if (key instanceof Operation) {
                     Operation from = (Operation) key;
                     Operation to = (Operation) val;
@@ -380,11 +381,11 @@ public class View
                 }
             }
 
-            itor = record.keySet()
-                         .iterator();
+            itor = this.record.keySet()
+                              .iterator();
             while (itor.hasNext()) {
                 Object key = itor.next();
-                Object val = record.get(key);
+                Object val = this.record.get(key);
                 if (key instanceof Term) {
                     Term from = (Term) key;
                     Term to = (Term) val;
@@ -397,15 +398,15 @@ public class View
             return result;
         }
 
-        Variable[] vars = smodule.getVariables();
+        Variable[] vars = this.smodule.getVariables();
         for (Variable var : vars) {
             result += "      var " + var.getName() + " : " + var.getSort()
                                                                 .getName()
                       + ".\n";
         }
 
-        for (Sort from : sortMap.keySet()) {
-            Sort to = sortMap.get(from);
+        for (Sort from : this.sortMap.keySet()) {
+            Sort to = this.sortMap.get(from);
             if (from.getInfo()
                     .equals("system-default")
                 && from.equals(to)) {
@@ -418,8 +419,8 @@ public class View
             }
         }
 
-        for (Operation from : opMap.keySet()) {
-            Operation to = opMap.get(from);
+        for (Operation from : this.opMap.keySet()) {
+            Operation to = this.opMap.get(from);
             if (from.info.equals("system-default") && from.equals(to)) {
 
             } else {
@@ -431,8 +432,8 @@ public class View
             }
         }
 
-        for (Term left : trans.keySet()) {
-            Term right = trans.get(left);
+        for (Term left : this.trans.keySet()) {
+            Term right = this.trans.get(left);
             result += "      op " + left + " to " + right + " .\n";
         }
 
@@ -443,36 +444,36 @@ public class View
 
     public void validate() throws ViewException {
 
-        for (int i = 0; i < source.sorts.size(); i++ ) {
-            Sort from = source.sorts.elementAt(i);
+        for (int i = 0; i < this.source.sorts.size(); i++ ) {
+            Sort from = this.source.sorts.elementAt(i);
 
-            if (sortMap.containsKey(from)) {
+            if (this.sortMap.containsKey(from)) {
                 continue;
 
-            } else if (from.equals(source.getPrincipalSort())) {
+            } else if (from.equals(this.source.getPrincipalSort())) {
 
-                sortMap.put(from, target.getPrincipalSort());
+                this.sortMap.put(from, this.target.getPrincipalSort());
                 continue;
 
-            } else if (target.containsSort(from)) {
+            } else if (this.target.containsSort(from)) {
 
-                sortMap.put(from, from);
+                this.sortMap.put(from, from);
                 continue;
 
             } else {
 
-                Sort[] sorts = target.getSortsByName(from.getName());
+                Sort[] sorts = this.target.getSortsByName(from.getName());
                 if (sorts.length == 1) {
-                    sortMap.put(from, sorts[0]);
+                    this.sortMap.put(from, sorts[0]);
                 } else {
 
-                    Sort[] s = source.getDirectSubsorts(from);
+                    Sort[] s = this.source.getDirectSubsorts(from);
                     if (s.length == 1) {
                         Sort tmp = getTarget(s[0]);
                         if (tmp != null) {
-                            s = target.getDirectSupersorts(tmp);
+                            s = this.target.getDirectSupersorts(tmp);
                             if (s.length == 1) {
-                                sortMap.put(from, s[0]);
+                                this.sortMap.put(from, s[0]);
                                 continue;
                             }
                         }
@@ -480,30 +481,30 @@ public class View
 
                     int count = -1;
                     boolean done = false;
-                    for (int j = 2; j < target.sorts.size(); j++ ) {
-                        Sort to = target.sorts.elementAt(j);
+                    for (int j = 2; j < this.target.sorts.size(); j++ ) {
+                        Sort to = this.target.sorts.elementAt(j);
                         ModuleName modName = to.getModuleName();
 
                         if (!modName.hasNotation()) {
 
                             if (modName.op == ModuleName.ATOM
                                 && (modName.atom.equals("INT") || modName.atom.equals("NAT"))
-                                && (target.containsSystemSort(IntModule.intSort)
-                                    || target.containsSystemSort(IntModule.natSort))) {
+                                && (this.target.containsSystemSort(IntModule.intSort)
+                                    || this.target.containsSystemSort(IntModule.natSort))) {
                                 continue;
                             }
 
                             count++ ;
 
                             if (count == i - 2) {
-                                sortMap.put(from, to);
+                                this.sortMap.put(from, to);
                                 done = true;
                                 break;
                             }
 
                         } else {
 
-                            Sort tmp = source.sorts.elementAt(j);
+                            Sort tmp = this.source.sorts.elementAt(j);
                             ModuleName tmpName = tmp.getModuleName();
 
                             if (tmpName.hasNotation() && tmpName.atom.equals(modName.atom)) {
@@ -516,7 +517,7 @@ public class View
 
                     if (!done) {
                         throw new ViewException("no mapping for " + from + " in "
-                                                + source.getModuleName(), this);
+                                                + this.source.getModuleName(), this);
                     }
                 }
             }
@@ -524,11 +525,11 @@ public class View
         }
 
         // check operations
-        for (int i = 0; i < source.operations.size(); i++ ) {
-            Operation from = source.operations.elementAt(i);
+        for (int i = 0; i < this.source.operations.size(); i++ ) {
+            Operation from = this.source.operations.elementAt(i);
 
             boolean got = false;
-            for (Operation o : opMap.keySet()) {
+            for (Operation o : this.opMap.keySet()) {
                 if (o.equals(from)) {
                     got = true;
                     break;
@@ -536,7 +537,7 @@ public class View
             }
 
             if (!got) {
-                for (Term left : trans.keySet()) {
+                for (Term left : this.trans.keySet()) {
                     if (left.operation.equals(from)) {
                         got = true;
                         break;
@@ -549,7 +550,7 @@ public class View
                 continue;
             } else {
 
-                Operation[] ops = target.getOperationsWithName(from.getName());
+                Operation[] ops = this.target.getOperationsWithName(from.getName());
                 ArrayList<Operation> list = new ArrayList<>();
                 for (Operation op : ops) {
 
@@ -560,7 +561,7 @@ public class View
                 }
 
                 if (list.size() == 1) {
-                    opMap.put(from, list.get(0));
+                    this.opMap.put(from, list.get(0));
                     continue;
                 } else {
 
@@ -572,10 +573,10 @@ public class View
                             args[k] = getTarget(from.argumentSorts[k]);
                         }
                         Sort resSort = getTarget(from.resultSort);
-                        ops = target.getOperations(args, resSort);
+                        ops = this.target.getOperations(args, resSort);
 
                         if (ops.length == 1) {
-                            opMap.put(from, ops[0]);
+                            this.opMap.put(from, ops[0]);
                             continue;
                         }
                     } else {
@@ -583,7 +584,7 @@ public class View
                         boolean done = false;
                         for (Operation tmp : list) {
                             if (getTarget(from.getResultSort()).equals(tmp.getResultSort())) {
-                                opMap.put(from, tmp);
+                                this.opMap.put(from, tmp);
                                 done = true;
                                 break;
                             }
@@ -595,7 +596,7 @@ public class View
                     }
 
                     boolean found = false;
-                    for (Term term : trans.keySet()) {
+                    for (Term term : this.trans.keySet()) {
                         if (!term.isVariable() && term.getTopOperation()
                                                       .equals(from)) {
                             found = true;
@@ -625,7 +626,7 @@ public class View
                     Sort s2 = getTarget(to.getArgumentSortAt(i));
 
                     if (s1 == null) {
-                        sortMap.put(s1, s2);
+                        this.sortMap.put(s1, s2);
                     } else if (s2 == null) {
 
                     } else if (!s1.equals(s2)) {
@@ -720,9 +721,9 @@ public class View
                          Term term)
         throws TermException {
 
-        if (trans.size() != 0) {
-            for (Term left : trans.keySet()) {
-                Term right = trans.get(left);
+        if (this.trans.size() != 0) {
+            for (Term left : this.trans.keySet()) {
+                Term right = this.trans.get(left);
 
                 Map<VarOrCode, Term> subst = term.getMatch(left, sig);
                 if (subst != null) {
@@ -732,16 +733,16 @@ public class View
                         Term trm = subst.get(var);
                         trm = getImage(sig, trm);
 
-                        for (Variable vtmp : varMap.keySet()) {
+                        for (Variable vtmp : this.varMap.keySet()) {
                             if (vtmp.equals(var)) {
-                                newSubst.put(varMap.get(vtmp), trm);
+                                newSubst.put(this.varMap.get(vtmp), trm);
                                 break;
                             }
                         }
 
                     }
 
-                    return right.subst(newSubst, tmodule);
+                    return right.subst(newSubst, this.tmodule);
 
                 }
             }
@@ -819,7 +820,7 @@ public class View
                 try {
                     Term term = new Term(op);
                     boolean done = false;
-                    for (Term tmp : trans.keySet()) {
+                    for (Term tmp : this.trans.keySet()) {
                         if (term.equals(tmp)) {
                             done = true;
                             break;
@@ -832,7 +833,7 @@ public class View
                 }
             } else {
                 boolean done = false;
-                for (Term tmp : trans.keySet()) {
+                for (Term tmp : this.trans.keySet()) {
                     if (tmp.operation.equals(op)) {
                         done = true;
                     }
@@ -916,19 +917,19 @@ public class View
         View result;
 
         if (flag == null) {
-            result = new View(name, source.addAnnotation(notation, env), target);
+            result = new View(this.name, this.source.addAnnotation(notation, env), this.target);
         } else {
-            result = new View(name, source.addAnnotation(notation, env),
-                              target.addAnnotation(flag, env));
+            result = new View(this.name, this.source.addAnnotation(notation, env),
+                              this.target.addAnnotation(flag, env));
         }
 
-        Variable[] vars = smodule.getVariables();
+        Variable[] vars = this.smodule.getVariables();
         for (Variable var : vars) {
             result.addVariable(var.addAnnotation(notation, env));
         }
 
-        for (Sort from : sortMap.keySet()) {
-            Sort to = sortMap.get(from);
+        for (Sort from : this.sortMap.keySet()) {
+            Sort to = this.sortMap.get(from);
 
             from = from.addAnnotation(notation, env);
             if (flag != null) {
@@ -938,8 +939,8 @@ public class View
 
         }
 
-        for (Operation from : opMap.keySet()) {
-            Operation to = opMap.get(from);
+        for (Operation from : this.opMap.keySet()) {
+            Operation to = this.opMap.get(from);
 
             from = from.addAnnotation(notation, env);
             if (flag != null) {
@@ -953,9 +954,9 @@ public class View
 
         }
 
-        for (Term left : trans.keySet()) {
-            Term right = trans.get(left);
-            left = left.addAnnotation(notation, smodule, env);
+        for (Term left : this.trans.keySet()) {
+            Term right = this.trans.get(left);
+            left = left.addAnnotation(notation, this.smodule, env);
             result.addTransformation(left, right);
         }
 
@@ -963,7 +964,7 @@ public class View
     }
 
     protected void record(Module module) {
-        main = module;
+        this.main = module;
     }
 
     public View instanceBy(Module[] mods,
@@ -991,31 +992,31 @@ public class View
                 list.add(modNames[i]);
             }
 
-            ModuleName modName1 = source.modName;
-            if (source.modName.subexps.size() > 0) {
-                modName1 = (ModuleName) source.modName.subexps.get(0);
-            }
-            modName1.instance(list);
+//            ModuleName modName1 = source.modName;
+//            if (source.modName.subexps.size() > 0) {
+//                modName1 = (ModuleName) source.modName.subexps.get(0);
+//            }
+//            modName1.instance(list);
 
-            ModuleName modName2 = (ModuleName) target.modName.subexps.get(0);
-            modName2.instance(list);
+//            ModuleName modName2 = (ModuleName) target.modName.subexps.get(0);
+//            modName2.instance(list);
 
             // check the size of actual parameters
-            if (mods.length != main.paraModules.size()
-                || notations.length != main.paraModules.size()) {
-                throw new ViewException("expect " + main.paraModules.size() + " parameters");
+            if (mods.length != this.main.paraModules.size()
+                || notations.length != this.main.paraModules.size()) {
+                throw new ViewException("expect " + this.main.paraModules.size() + " parameters");
             }
 
             // create new source and target
-            Module newSource = source.clone();
-            Module newTarget = target.clone();
+            Module newSource = this.source.clone();
+            Module newTarget = this.target.clone();
 
             View[] views = new View[mods.length];
             for (int i = 0; i < mods.length; i++ ) {
 
                 // get parameter and its name
-                Module parameter = main.paraModules.get(i);
-                String paraName = main.paraNames.get(i);
+                Module parameter = this.main.paraModules.get(i);
+                String paraName = this.main.paraNames.get(i);
 
                 // create an view
                 views[i] = (View) mods[i].getProperty("view");
@@ -1064,15 +1065,15 @@ public class View
             View result = new View(viewName, newSource, newTarget);
 
             // handle sort mapping
-            for (Sort from : sortMap.keySet()) {
-                Sort to = sortMap.get(from);
+            for (Sort from : this.sortMap.keySet()) {
+                Sort to = this.sortMap.get(from);
 
                 // change module names
                 for (int i = 0; i < mods.length; i++ ) {
 
                     // get parameter and its name
-                    Module parameter = main.paraModules.get(i);
-                    String paraName = main.paraNames.get(i);
+                    Module parameter = this.main.paraModules.get(i);
+                    String paraName = this.main.paraNames.get(i);
 
                     ModuleName tmpName = parameter.modName.addAnnotation(paraName);
 
@@ -1087,14 +1088,14 @@ public class View
                 result.addSortMap(from, to);
             }
 
-            for (Operation from : opMap.keySet()) {
-                Operation to = opMap.get(from);
+            for (Operation from : this.opMap.keySet()) {
+                Operation to = this.opMap.get(from);
 
                 for (int i = 0; i < mods.length; i++ ) {
 
                     // get parameter and its name
-                    Module parameter = main.paraModules.get(i);
-                    String paraName = main.paraNames.get(i);
+                    Module parameter = this.main.paraModules.get(i);
+                    String paraName = this.main.paraNames.get(i);
 
                     ModuleName tmpName = parameter.modName.addAnnotation(paraName);
                     from = views[i].getImage(from);
@@ -1107,14 +1108,14 @@ public class View
                 result.addOperationMap(from, to);
             }
 
-            for (Term from : trans.keySet()) {
-                Term to = trans.get(from);
+            for (Term from : this.trans.keySet()) {
+                Term to = this.trans.get(from);
 
                 for (int i = 0; i < views.length; i++ ) {
 
                     // get parameter and its name
-                    Module parameter = main.paraModules.get(i);
-                    String paraName = main.paraNames.get(i);
+                    Module parameter = this.main.paraModules.get(i);
+                    String paraName = this.main.paraNames.get(i);
 
                     ModuleName tmpName = parameter.modName.addAnnotation(paraName);
                     from = views[i].getImage(newSource, from);
@@ -1140,32 +1141,32 @@ public class View
     public View aliasModuleName(String alias) throws SignatureException, ViewException {
         ModuleName modName = new ModuleName(alias);
         modName.subexps.add(this.source.modName);
-        Module newSource = this.source.changeModuleName(source.modName, modName, modName);
-        Module newTarget = this.target.changeModuleName(target.modName, modName, modName);
+        Module newSource = this.source.changeModuleName(this.source.modName, modName, modName);
+        Module newTarget = this.target.changeModuleName(this.target.modName, modName, modName);
 
         View result = new View("", newSource, newTarget);
 
-        for (Sort from : sortMap.keySet()) {
+        for (Sort from : this.sortMap.keySet()) {
             Sort to = this.sortMap.get(from);
 
-            from = from.changeModuleName(source.modName, modName);
-            to = to.changeModuleName(target.modName, modName);
+            from = from.changeModuleName(this.source.modName, modName);
+            to = to.changeModuleName(this.target.modName, modName);
 
             result.addSortMap(from, to);
 
         }
 
-        for (Operation from : opMap.keySet()) {
+        for (Operation from : this.opMap.keySet()) {
             Operation to = this.opMap.get(from);
-            from = from.changeModuleName(source.modName, modName);
-            to = to.changeModuleName(target.modName, modName);
+            from = from.changeModuleName(this.source.modName, modName);
+            to = to.changeModuleName(this.target.modName, modName);
             result.addOperationMap(from, to);
         }
 
-        for (Term left : trans.keySet()) {
+        for (Term left : this.trans.keySet()) {
             Term right = this.trans.get(left);
-            left = left.changeModuleName(source.modName, modName, newSource);
-            right = right.changeModuleName(target.modName, modName, newTarget);
+            left = left.changeModuleName(this.source.modName, modName, newSource);
+            right = right.changeModuleName(this.target.modName, modName, newTarget);
             result.addTransformation(left, right);
         }
 
@@ -1181,17 +1182,17 @@ public class View
 
         // copy all in this to resView
 
-        for (Sort from : sortMap.keySet()) {
+        for (Sort from : this.sortMap.keySet()) {
             Sort to = this.sortMap.get(from);
             result.addSortMap(from, to);
         }
 
-        for (Operation from : opMap.keySet()) {
+        for (Operation from : this.opMap.keySet()) {
             Operation to = this.opMap.get(from);
             result.addOperationMap(from, to);
         }
 
-        for (Term left : trans.keySet()) {
+        for (Term left : this.trans.keySet()) {
             Term right = this.trans.get(left);
             result.addTransformation(left, right);
         }
@@ -1294,14 +1295,14 @@ public class View
             if (obj instanceof Sort) {
                 Sort from = (Sort) obj;
                 Sort to = (Sort) record.get(from);
-                from = from.changeModuleName(source.modName, name1);
-                to = to.changeModuleName(target.modName, name2);
+                from = from.changeModuleName(this.source.modName, name1);
+                to = to.changeModuleName(this.target.modName, name2);
                 result.sortMap.put(from, to);
             } else {
                 Operation from = (Operation) obj;
                 Operation to = (Operation) record.get(from);
-                from = from.changeModuleName(source.modName, name1);
-                to = to.changeModuleName(target.modName, name2);
+                from = from.changeModuleName(this.source.modName, name1);
+                to = to.changeModuleName(this.target.modName, name2);
                 result.opMap.put(from, to);
             }
 
@@ -1325,8 +1326,8 @@ public class View
             if (found) {
 
             } else {
-                from = from.changeModuleName(source.modName, name1);
-                to = to.changeModuleName(target.modName, name2);
+                from = from.changeModuleName(this.source.modName, name1);
+                to = to.changeModuleName(this.target.modName, name2);
                 result.addSortMap(from, to);
             }
 
@@ -1363,14 +1364,14 @@ public class View
                     }
                 }
 
-                from = from.changeModuleName(source.modName, name1);
-                to = to.changeModuleName(target.modName, name2);
+                from = from.changeModuleName(this.source.modName, name1);
+                to = to.changeModuleName(this.target.modName, name2);
                 result.addOperationMap(from, to);
 
             }
         }
 
-        for (Term left : trans.keySet()) {
+        for (Term left : this.trans.keySet()) {
             this.trans.get(left);
 //
 //            Iterator i = record.keySet()
@@ -1394,7 +1395,7 @@ public class View
 
                     resName = view.name;
 
-                } else if (this.name.equals(target.modName.toString())
+                } else if (this.name.equals(this.target.modName.toString())
                            && this.target.modName.op == ModuleName.ANNOTATE
                            && this.source.modName.equals(this.target.modName.subexps.get(0))) {
                                if (view.name != null && !view.name.equals("")) {
@@ -1402,13 +1403,12 @@ public class View
                                } else {
                                    resName = view.target.modName.toString();
                                }
-                           } else {
-                               if (view.name != null && !view.name.equals("")) {
-                                   resName = this.name + " * " + view.name;
-                               } else {
-                                   resName = this.name;
-                               }
-                           }
+                           } else
+                    if (view.name != null && !view.name.equals("")) {
+                        resName = this.name + " * " + view.name;
+                    } else {
+                        resName = this.name;
+                    }
 
             } else if (view.name != null && !view.name.equals("")) {
                 resName = view.name;
@@ -1416,14 +1416,14 @@ public class View
                 resName = view.target.modName.toString();
             }
 
-            View result = new View(resName, source, view.target);
+            View result = new View(resName, this.source, view.target);
 
-            for (Sort from : sortMap.keySet()) {
+            for (Sort from : this.sortMap.keySet()) {
                 Sort to = this.sortMap.get(from);
                 result.addSortMap(from, view.getTarget(to));
             }
 
-            for (Operation from : opMap.keySet()) {
+            for (Operation from : this.opMap.keySet()) {
                 Operation to = this.opMap.get(from);
                 Operation newTo = view.getTarget(to);
                 if (newTo == null) {
@@ -1447,7 +1447,7 @@ public class View
 
             }
 
-            for (Term left : trans.keySet()) {
+            for (Term left : this.trans.keySet()) {
                 Term right = this.trans.get(left);
                 result.addTransformation(left, view.getImage(result.smodule, right));
             }
@@ -1455,7 +1455,7 @@ public class View
             return result;
 
         } else {
-            throw new ViewException("can not make composition of the views: " + target.modName
+            throw new ViewException("can not make composition of the views: " + this.target.modName
                                     + " with " + view.source.modName);
         }
 
@@ -1463,16 +1463,16 @@ public class View
 
     public boolean isIdentity() {
 
-        if (name.equals(target.modName.toString())) {
+        if (this.name.equals(this.target.modName.toString())) {
 
-            ModuleName mn1 = source.modName;
-            ModuleName mn2 = target.modName;
-            if (source.modName.op == ModuleName.ANNOTATE) {
-                mn1 = (ModuleName) source.modName.subexps.get(0);
+            ModuleName mn1 = this.source.modName;
+            ModuleName mn2 = this.target.modName;
+            if (this.source.modName.op == ModuleName.ANNOTATE) {
+                mn1 = (ModuleName) this.source.modName.subexps.get(0);
             }
 
-            if (target.modName.op == ModuleName.ANNOTATE) {
-                mn2 = (ModuleName) target.modName.subexps.get(0);
+            if (this.target.modName.op == ModuleName.ANNOTATE) {
+                mn2 = (ModuleName) this.target.modName.subexps.get(0);
             }
 
             if (mn1.equals(mn2)) {

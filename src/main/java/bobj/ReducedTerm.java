@@ -26,16 +26,16 @@ public class ReducedTerm {
 
         this.module = module;
 
-        operation = term.getTopOperation();
+        this.operation = term.getTopOperation();
         if (term.subterms != null) {
-            subterms = new ReducedTerm[term.subterms.length];
-            for (int i = 0; i < subterms.length; i++ ) {
-                subterms[i] = new ReducedTerm((term.subterms)[i], module);
-                subterms[i].parent = this;
+            this.subterms = new ReducedTerm[term.subterms.length];
+            for (int i = 0; i < this.subterms.length; i++ ) {
+                this.subterms[i] = new ReducedTerm((term.subterms)[i], module);
+                this.subterms[i].parent = this;
             }
         }
-        var = term.getVariable();
-        retract = term.getRetract();
+        this.var = term.getVariable();
+        this.retract = term.getRetract();
 
         // handle the information about module
         Equation[] eqs = (Equation[]) (module.equations.toArray());
@@ -56,15 +56,14 @@ public class ReducedTerm {
         }
 
         Vector<Equation> conside;
-        if (operation != null) {
-            conside = op2eq.get(operation.getName());
-        }else  {
+        if (this.operation != null) {
+            conside = op2eq.get(this.operation.getName());
+        } else {
             conside = new Vector<>();
         }
 
         //System.out.println("\n======== conside for term "+term);
         //System.out.println(conside);
-
 
         for (int i = 0; i < conside.size(); i++ ) {
             Equation eq = conside.elementAt(i);
@@ -83,7 +82,7 @@ public class ReducedTerm {
                 }
 
                 //System.out.println("--------- "+right);
-                target = new ReducedTerm(right, module);
+                this.target = new ReducedTerm(right, module);
                 break;
             }
 
@@ -135,15 +134,15 @@ public class ReducedTerm {
 
         Term result = null;
 
-        if (var != null) {
-            result = new Term(var);
+        if (this.var != null) {
+            result = new Term(this.var);
         } else {
-            Term[] terms = new Term[subterms.length];
+            Term[] terms = new Term[this.subterms.length];
             for (int i = 0; i < terms.length; i++ ) {
-                terms[i] = subterms[i].toTerm();
+                terms[i] = this.subterms[i].toTerm();
             }
             try {
-                result = new Term(operation, terms);
+                result = new Term(this.operation, terms);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -156,17 +155,17 @@ public class ReducedTerm {
     public String toString() {
         String result = "";
 
-        if (var != null) {
-            result += var.getName();
-        } else if (operation.isConstant()) {
-            result += operation.getName();
-        } else if (operation.isMixNotation()) {
+        if (this.var != null) {
+            result += this.var.getName();
+        } else if (this.operation.isConstant()) {
+            result += this.operation.getName();
+        } else if (this.operation.isMixNotation()) {
 
-            String tmp = operation.getName();
+            String tmp = this.operation.getName();
             int i = tmp.indexOf("_");
             int count = 0;
             while (i != -1) {
-                ReducedTerm t = subterms[count];
+                ReducedTerm t = this.subterms[count];
                 String sub = t.toString()
                               .trim();
 
@@ -177,9 +176,9 @@ public class ReducedTerm {
                         // this is bogus
                         if ((op.getCleanName()
                                .equals("and")
-                             || operation.getCleanName()
-                                         .equals("=="))
-                            || (operation.getPriority() > op.getPriority())) {
+                             || this.operation.getCleanName()
+                                              .equals("=="))
+                            || (this.operation.getPriority() > op.getPriority())) {
                             sub = "(" + sub + ")";    // Nov.23
                         } else {
                             sub = "(" + sub + ")";
@@ -200,10 +199,10 @@ public class ReducedTerm {
             result += tmp;
 
         } else {
-            result += operation.getName() + "(";
-            for (int i = 0; i < subterms.length; i++ ) {
-                result += subterms[i].toString();
-                if (i < subterms.length - 1) {
+            result += this.operation.getName() + "(";
+            for (int i = 0; i < this.subterms.length; i++ ) {
+                result += this.subterms[i].toString();
+                if (i < this.subterms.length - 1) {
                     result += " , ";
                 }
                 ;
@@ -231,15 +230,15 @@ public class ReducedTerm {
     }
 
     public Redex[] getRedex() {
-        if (target != null) {
+        if (this.target != null) {
             Redex[] redex =
                 {
-                    new Redex(this, target)
+                    new Redex(this, this.target)
                 };
             return redex;
-        } else if (subterms != null && subterms.length != 0) {
+        } else if (this.subterms != null && this.subterms.length != 0) {
             Vector<Redex> pool = new Vector<>();
-            for (ReducedTerm subterm : subterms) {
+            for (ReducedTerm subterm : this.subterms) {
                 Redex[] tmp = subterm.getRedex();
                 for (Redex element : tmp) {
                     pool.addElement(element);
@@ -290,10 +289,10 @@ public class ReducedTerm {
         System.out.println("\n--------- reset redex ----------");
         //System.out.println(this);
 
-        if (target == null) {
+        if (this.target == null) {
 
             // handle the information about module
-            Equation[] eqs = (Equation[]) (module.equations.toArray());
+            Equation[] eqs = (Equation[]) (this.module.equations.toArray());
             HashMap<String, Vector<Equation>> op2eq = new HashMap<>();
 
             for (Equation eq : eqs) {
@@ -311,8 +310,8 @@ public class ReducedTerm {
             }
 
             Vector<Equation> conside = new Vector<>();
-            if (operation != null) {
-                conside = op2eq.get(operation.getName());
+            if (this.operation != null) {
+                conside = op2eq.get(this.operation.getName());
             }
 
             //System.out.println("\n======== conside for term "+term);
@@ -341,7 +340,7 @@ public class ReducedTerm {
                     //System.out.println("find equation: "+eq);
                     //System.out.println("right: "+right);
 
-                    target = new ReducedTerm(right, module);
+                    this.target = new ReducedTerm(right, this.module);
                     break;
                 }
 
@@ -365,11 +364,11 @@ public class ReducedTerm {
         }
 
         public ReducedTerm getPoint() {
-            return point;
+            return this.point;
         }
 
         public ReducedTerm getTerm() {
-            return term;
+            return this.term;
         }
     }
 

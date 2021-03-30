@@ -7,7 +7,7 @@ public class InitialSort
 
     public InitialSort(Sort sort) {
         super(sort.getName(), sort.getModuleName());
-        props = sort.props;
+        this.props = sort.props;
     }
 
     public InitialSort(String name,

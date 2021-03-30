@@ -23,7 +23,7 @@ public class Equation
                     Term r) {
         this.left = l;
         this.right = r;
-        info = "";
+        this.info = "";
     }
 
     public Equation(Term c,
@@ -32,7 +32,7 @@ public class Equation
         this.condition = c;
         this.left = l;
         this.right = r;
-        info = "";
+        this.info = "";
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Equation
         }
 
         Equation eq = (Equation) obj;
-        if (left.equals(eq.left) && right.equals(eq.right)) {
+        if (this.left.equals(eq.left) && this.right.equals(eq.right)) {
 
             if (debug) {
                 System.out.println("-------------------");
@@ -60,7 +60,7 @@ public class Equation
                 System.out.println(eq.condition);
             }
 
-            if (isConditional() && eq.isConditional() && condition.equals(eq.condition)) {
+            if (isConditional() && eq.isConditional() && this.condition.equals(eq.condition)) {
                 return true;
             } else if (!isConditional() && !eq.isConditional()) {
                 return true;
@@ -88,12 +88,13 @@ public class Equation
 
     @Override
     public int hashCode() {
-        return left.hashCode() + right.hashCode() + (isConditional() ? condition.hashCode()
-                                                                     : 0);
+        return this.left.hashCode() + this.right.hashCode()
+               + (isConditional() ? this.condition.hashCode()
+                                  : 0);
     }
 
     public boolean isConditional() {
-        return(condition != null);
+        return(this.condition != null);
     }
 
     public void setInfo(String info) {
@@ -101,7 +102,7 @@ public class Equation
     }
 
     public String getInfo() {
-        return info;
+        return this.info;
     }
 
     @Override
@@ -109,14 +110,14 @@ public class Equation
 
         String result = "";
 
-        if (name != null) {
-            result += "[" + name + "] ";
+        if (this.name != null) {
+            result += "[" + this.name + "] ";
         }
 
         if (isConditional()) {
-            result += "cq " + left + " = " + right + " if " + condition;
+            result += "cq " + this.left + " = " + this.right + " if " + this.condition;
         } else {
-            result += "eq " + left + " = " + right;
+            result += "eq " + this.left + " = " + this.right;
         }
 
         return result;
@@ -128,15 +129,15 @@ public class Equation
                           Term term) {
 
         Term c = null;
-        if (condition != null) {
-            c = condition.subst(sig, var, term);
+        if (this.condition != null) {
+            c = this.condition.subst(sig, var, term);
         }
-        Term l = left.subst(sig, var, term);
-        Term r = right.subst(sig, var, term);
+        Term l = this.left.subst(sig, var, term);
+        Term r = this.right.subst(sig, var, term);
 
         Equation eq = new Equation(c, l, r);
-        if (name != null) {
-            eq.name = name;
+        if (this.name != null) {
+            eq.name = this.name;
         }
         return eq;
 
@@ -146,15 +147,15 @@ public class Equation
                           Term term) {
 
         Term c = null;
-        if (condition != null) {
-            c = condition.subst(var, term);
+        if (this.condition != null) {
+            c = this.condition.subst(var, term);
         }
-        Term l = left.subst(var, term);
-        Term r = right.subst(var, term);
+        Term l = this.left.subst(var, term);
+        Term r = this.right.subst(var, term);
 
         Equation eq = new Equation(c, l, r);
-        if (name != null) {
-            eq.name = name;
+        if (this.name != null) {
+            eq.name = this.name;
         }
         return eq;
 
@@ -164,22 +165,22 @@ public class Equation
                                   Signature sig,
                                   Map<ModuleName, Integer> env) {
 
-        Term l = left.addAnnotation(name, sig, env);
-        Term r = right.addAnnotation(name, sig, env);
-        if (condition != null) {
-            Term c = condition.addAnnotation(name, sig, env);
+        Term l = this.left.addAnnotation(name, sig, env);
+        Term r = this.right.addAnnotation(name, sig, env);
+        if (this.condition != null) {
+            Term c = this.condition.addAnnotation(name, sig, env);
             Equation eq = new Equation(c, l, r);
             if (this.name != null) {
                 eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         } else {
             Equation eq = new Equation(l, r);
             if (this.name != null) {
                 eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -188,22 +189,22 @@ public class Equation
     public Equation removeAnnotation(String name,
                                      Signature sig) {
 
-        Term l = left.removeAnnotation(name, sig);
-        Term r = right.removeAnnotation(name, sig);
-        if (condition != null) {
-            Term c = condition.removeAnnotation(name, sig);
+        Term l = this.left.removeAnnotation(name, sig);
+        Term r = this.right.removeAnnotation(name, sig);
+        if (this.condition != null) {
+            Term c = this.condition.removeAnnotation(name, sig);
             Equation eq = new Equation(c, l, r);
             if (this.name != null) {
                 eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         } else {
             Equation eq = new Equation(l, r);
             if (this.name != null) {
                 eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -213,22 +214,22 @@ public class Equation
                                Sort news,
                                Signature sig) {
 
-        Term l = left.changeSort(olds, news, sig);
-        Term r = right.changeSort(olds, news, sig);
-        if (condition != null) {
-            Term c = condition.changeSort(olds, news, sig);
+        Term l = this.left.changeSort(olds, news, sig);
+        Term r = this.right.changeSort(olds, news, sig);
+        if (this.condition != null) {
+            Term c = this.condition.changeSort(olds, news, sig);
             Equation eq = new Equation(c, l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         } else {
             Equation eq = new Equation(l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -238,22 +239,22 @@ public class Equation
                                      ModuleName news,
                                      Signature sig) {
 
-        Term l = left.changeModuleName(olds, news, sig);
-        Term r = right.changeModuleName(olds, news, sig);
-        if (condition != null) {
-            Term c = condition.changeModuleName(olds, news, sig);
+        Term l = this.left.changeModuleName(olds, news, sig);
+        Term r = this.right.changeModuleName(olds, news, sig);
+        if (this.condition != null) {
+            Term c = this.condition.changeModuleName(olds, news, sig);
             Equation eq = new Equation(c, l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         } else {
             Equation eq = new Equation(l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -263,22 +264,22 @@ public class Equation
                                              ModuleName news,
                                              Signature sig) {
 
-        Term l = left.changeAbsoluteModuleName(olds, news, sig);
-        Term r = right.changeAbsoluteModuleName(olds, news, sig);
-        if (condition != null) {
-            Term c = condition.changeAbsoluteModuleName(olds, news, sig);
+        Term l = this.left.changeAbsoluteModuleName(olds, news, sig);
+        Term r = this.right.changeAbsoluteModuleName(olds, news, sig);
+        if (this.condition != null) {
+            Term c = this.condition.changeAbsoluteModuleName(olds, news, sig);
             Equation eq = new Equation(c, l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         } else {
             Equation eq = new Equation(l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -288,22 +289,22 @@ public class Equation
                                         String news,
                                         Signature sig) {
 
-        Term l = left.changeParameterName(olds, news, sig);
-        Term r = right.changeParameterName(olds, news, sig);
-        if (condition != null) {
-            Term c = condition.changeParameterName(olds, news, sig);
+        Term l = this.left.changeParameterName(olds, news, sig);
+        Term r = this.right.changeParameterName(olds, news, sig);
+        if (this.condition != null) {
+            Term c = this.condition.changeParameterName(olds, news, sig);
             Equation eq = new Equation(c, l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         } else {
             Equation eq = new Equation(l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -313,22 +314,22 @@ public class Equation
                                          String newname,
                                          Signature sig) {
 
-        Term l = left.replaceOperationName(oldname, newname, sig);
-        Term r = right.replaceOperationName(oldname, newname, sig);
-        if (condition != null) {
-            Term c = condition.replaceOperationName(oldname, newname, sig);
+        Term l = this.left.replaceOperationName(oldname, newname, sig);
+        Term r = this.right.replaceOperationName(oldname, newname, sig);
+        if (this.condition != null) {
+            Term c = this.condition.replaceOperationName(oldname, newname, sig);
             Equation eq = new Equation(c, l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         } else {
             Equation eq = new Equation(l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -338,23 +339,23 @@ public class Equation
                                     Operation to,
                                     Signature sig) {
 
-        Term l = left.changeOperation(from, to, sig);
-        Term r = right.changeOperation(from, to, sig);
-        if (condition != null) {
-            Term c = condition.changeOperation(from, to, sig);
+        Term l = this.left.changeOperation(from, to, sig);
+        Term r = this.right.changeOperation(from, to, sig);
+        if (this.condition != null) {
+            Term c = this.condition.changeOperation(from, to, sig);
             Equation eq = new Equation(c, l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
 
         } else {
             Equation eq = new Equation(l, r);
-            if (name != null) {
-                eq.name = name;
+            if (this.name != null) {
+                eq.name = this.name;
             }
-            eq.info = info;
+            eq.info = this.info;
             return eq;
         }
 
@@ -365,7 +366,7 @@ public class Equation
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
 }

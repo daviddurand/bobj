@@ -45,18 +45,18 @@ public class Signature
     int parameters = 0;
 
     public Signature() {
-        tokens.addElement("=");
-        firsts.add("(");
-        lasts.add(")");
+        this.tokens.addElement("=");
+        this.firsts.add("(");
+        this.lasts.add(")");
     }
 
     public boolean containsSort(Sort s) {
-        return sorts.contains(s);
+        return this.sorts.contains(s);
     }
 
     public boolean containsSystemSort(Sort s) {
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             if (sort.equals(s) && sort.getInfo()
                                       .equals("system-default")) {
                 return true;
@@ -67,8 +67,8 @@ public class Signature
 
     public boolean containsSystemOperation(Operation op) {
 
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation o = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation o = this.operations.elementAt(i);
             if (op.equals(o) && o.info.equals("system-default")) {
                 return true;
             }
@@ -78,7 +78,7 @@ public class Signature
     }
 
     public boolean containsVariable(Variable v) {
-        return vars.contains(v);
+        return this.vars.contains(v);
     }
 
     public boolean containsOperation(Operation op) {
@@ -92,14 +92,14 @@ public class Signature
 //        }
 //        return false;
 
-        return operations.contains(op);
+        return this.operations.contains(op);
     }
 
     public Variable[] getVariablesOnSort(Sort s) {
 
         Vector<Variable> v = new Vector<>();
 
-        for (Variable tmp : vars) {
+        for (Variable tmp : this.vars) {
             if (tmp.getSort()
                    .equals(s)) {
                 v.addElement(tmp);
@@ -113,23 +113,23 @@ public class Signature
 
     public Variable[] getVariables() {
 
-        Variable[] result = new Variable[vars.size()];
-        vars.copyInto(result);
+        Variable[] result = new Variable[this.vars.size()];
+        this.vars.copyInto(result);
         return result;
     }
 
     public Operation[] getOperations() {
 
-        Operation[] result = new Operation[operations.size()];
-        operations.copyInto(result);
+        Operation[] result = new Operation[this.operations.size()];
+        this.operations.copyInto(result);
         return result;
     }
 
     public Operation[] getOperationsIn(ModuleName modName) {
 
         Vector<Operation> vec = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation tmp = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation tmp = this.operations.elementAt(i);
             if (tmp.modName.equals(modName)) {
                 vec.addElement(tmp);
             }
@@ -144,8 +144,8 @@ public class Signature
 
     public Operation getOperation(Operation op) {
 
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation tmp = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation tmp = this.operations.elementAt(i);
             if (tmp.equals(op))
                 return tmp;
         }
@@ -157,8 +157,8 @@ public class Signature
 
         Vector<Operation> v = new Vector<>();
 
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation tmp = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation tmp = this.operations.elementAt(i);
             if (tmp.isBehavorial()) {
                 v.addElement(tmp);
             }
@@ -173,8 +173,8 @@ public class Signature
                                      Sort res) {
 
         Vector<Operation> tmp = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
 
             if (op.getArity() == args.length && this.isSubsort(op.resultSort, res)) {
 
@@ -201,8 +201,8 @@ public class Signature
     public Operation[] getOperationsWithCleanName(String na) {
 
         Vector<Operation> tmp = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.getCleanName()
                   .equals(na)) {
                 tmp.addElement(op);
@@ -217,8 +217,8 @@ public class Signature
     public Operation[] getOperationsWithName(String na) {
 
         Vector<Operation> tmp = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
 
             if (op.getName()
                   .equals(na)) {
@@ -269,8 +269,8 @@ public class Signature
     public Operation[] getConstants() {
 
         Vector<Operation> res = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.isConstant()) {
                 res.addElement(op);
             }
@@ -285,8 +285,8 @@ public class Signature
     public Operation[] getConstants(String cname) {
 
         Vector<Operation> res = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.isConstant() && op.getName()
                                      .equals(cname)) {
                 res.addElement(op);
@@ -303,8 +303,8 @@ public class Signature
                                 Sort[] args,
                                 Sort res) {
         opname = Operation.normalize(opname);
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (opname.equals(op.name) && res.equals(op.resultSort)
                 && args.length == op.argumentSorts.length) {
 
@@ -328,8 +328,8 @@ public class Signature
     }
 
     public boolean hasCompatibleOperation(Operation op) {
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation tmp = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation tmp = this.operations.elementAt(i);
 
             boolean compatible = tmp.name.equals(op.name) && tmp.getArity() == op.getArity();
 
@@ -358,16 +358,16 @@ public class Signature
     }
 
     public Subsort getSubsorts() {
-        return subsorts;
+        return this.subsorts;
     }
 
     public void addSort(Sort sort) {
         if (!containsSort(sort)) {
 
-            if (parameters > 1 && parameters == sorts.size()) {
-                sorts.insertElementAt(sort, 2);
+            if (this.parameters > 1 && this.parameters == this.sorts.size()) {
+                this.sorts.insertElementAt(sort, 2);
             } else {
-                sorts.addElement(sort);
+                this.sorts.addElement(sort);
             }
         }
     }
@@ -376,8 +376,8 @@ public class Signature
                              Sort s2) {
         Sort result = null;
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (isSubsort(s1, tmp) && isSubsort(s2, tmp)) {
                 if ((result == null) || isSubsort(tmp, result)) {
                     result = tmp;
@@ -392,8 +392,8 @@ public class Signature
                                     Sort s2) {
         boolean result = false;
 
-        for (int i = 0; i < sorts.size() && !result; i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size() && !result; i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             result = isSubsort(tmp, s1) && isSubsort(tmp, s2);
         }
 
@@ -408,29 +408,29 @@ public class Signature
                                             .getName());
         }
 
-        vars.addElement(v);
+        this.vars.addElement(v);
 
         String name = v.getName()
                        .trim();
 
         // insert the name of this variable into tokens
-        if (tokens.indexOf(name) == -1) {
+        if (this.tokens.indexOf(name) == -1) {
             boolean found = false;
-            for (int i = 0; i < tokens.size() && !found; i++ ) {
-                String st = (String) tokens.elementAt(i);
+            for (int i = 0; i < this.tokens.size() && !found; i++ ) {
+                String st = (String) this.tokens.elementAt(i);
                 if (st.length() < name.length()) {
-                    tokens.insertElementAt(name, i);
+                    this.tokens.insertElementAt(name, i);
                     found = true;
                 }
             }
 
             if (!found) {
-                tokens.addElement(name);
+                this.tokens.addElement(name);
             }
         }
 
-        firsts.add(name);
-        lasts.add(name);
+        this.firsts.add(name);
+        this.lasts.add(name);
 
     }
 
@@ -438,18 +438,18 @@ public class Signature
 
         if (modName.op == ModuleName.ATOM) {
             String name = modName.atom;
-            if (tokens.indexOf(name) == -1) {
+            if (this.tokens.indexOf(name) == -1) {
                 boolean found = false;
-                for (int i = 0; i < tokens.size() && !found; i++ ) {
-                    String st = (String) tokens.elementAt(i);
+                for (int i = 0; i < this.tokens.size() && !found; i++ ) {
+                    String st = (String) this.tokens.elementAt(i);
                     if (st.length() < name.length()) {
-                        tokens.insertElementAt(name, i);
+                        this.tokens.insertElementAt(name, i);
                         found = true;
                     }
                 }
 
                 if (!found) {
-                    tokens.addElement(name);
+                    this.tokens.addElement(name);
                 }
             }
         }
@@ -491,19 +491,19 @@ public class Signature
 
             // end checking
 
-            operations.addElement(op);
+            this.operations.addElement(op);
 
             //begin of adding compatible
 
             Vector<Operation> pool = new Vector<>();
             boolean foundOp = false;
-            for (int i = 0; i < operations.size() && !foundOp; i++ ) {
-                Operation tmp = operations.elementAt(i);
+            for (int i = 0; i < this.operations.size() && !foundOp; i++ ) {
+                Operation tmp = this.operations.elementAt(i);
                 if (!tmp.equals(op) && (tmp.less(this, op) || op.less(this, tmp))) {
                     foundOp = true;
-                    for (Operation optmp : compatible.keySet()) {
+                    for (Operation optmp : this.compatible.keySet()) {
                         if (optmp.equals(tmp)) {
-                            pool = compatible.get(optmp);
+                            pool = this.compatible.get(optmp);
                             break;
                         }
                     }
@@ -525,12 +525,12 @@ public class Signature
 
                 for (int i = 0; i < pool.size(); i++ ) {
                     Operation o = pool.elementAt(i);
-                    compatible.put(o, pool);
+                    this.compatible.put(o, pool);
                 }
 
             } else {
                 pool.addElement(op);
-                compatible.put(op, pool);
+                this.compatible.put(op, pool);
             }
 
             //end of adding compatible
@@ -551,8 +551,8 @@ public class Signature
 
             if (op.getArity() == 2 && op.id != null) {
 
-                for (int i = 0; i < operations.size(); i++ ) {
-                    Operation otmp = operations.elementAt(i);
+                for (int i = 0; i < this.operations.size(); i++ ) {
+                    Operation otmp = this.operations.elementAt(i);
                     if (otmp.less(this, op)) {
 
                         if (otmp.id == null && otmp.implicitId == null
@@ -574,18 +574,18 @@ public class Signature
                 String tmp = st.nextToken()
                                .trim();
 
-                if (tokens.indexOf(tmp) == -1) {
+                if (this.tokens.indexOf(tmp) == -1) {
                     boolean found = false;
-                    for (int i = 0; i < tokens.size() && !found; i++ ) {
-                        String str = (String) tokens.elementAt(i);
+                    for (int i = 0; i < this.tokens.size() && !found; i++ ) {
+                        String str = (String) this.tokens.elementAt(i);
                         if (str.length() < tmp.length()) {
-                            tokens.insertElementAt(tmp, i);
+                            this.tokens.insertElementAt(tmp, i);
                             found = true;
                         }
                     }
 
                     if (!found) {
-                        tokens.addElement(tmp);
+                        this.tokens.addElement(tmp);
                     }
                 }
 
@@ -612,8 +612,8 @@ public class Signature
             String symbol = (String) obj1;
             symbol = symbol.trim();
 
-            if (!firsts.contains(symbol)) {
-                firsts.add(symbol);
+            if (!this.firsts.contains(symbol)) {
+                this.firsts.add(symbol);
             }
         }
 
@@ -622,13 +622,13 @@ public class Signature
             String symbol = (String) obj2;
             symbol = symbol.trim();
 
-            if (!lasts.contains(symbol)) {
-                lasts.add(symbol);
+            if (!this.lasts.contains(symbol)) {
+                this.lasts.add(symbol);
             }
         }
 
-        if (balancedBrackets && !op.hasBalancedBrackets()) {
-            balancedBrackets = false;
+        if (this.balancedBrackets && !op.hasBalancedBrackets()) {
+            this.balancedBrackets = false;
         }
 
     }
@@ -642,7 +642,7 @@ public class Signature
         if (containsSort(parent)) {
             if (containsSort(child)) {
                 try {
-                    subsorts.addSubsort(parent, child);
+                    this.subsorts.addSubsort(parent, child);
                 } catch (SubsortException e) {
                     throw new SignatureException(e.getMessage());
                 }
@@ -674,11 +674,11 @@ public class Signature
 
         String result = "";
 
-        for (Sort tmp : sorts) {
+        for (Sort tmp : this.sorts) {
             result += tmp + "\n";
         }
 
-        String stmp = subsorts.toString();
+        String stmp = this.subsorts.toString();
         StringTokenizer st = new StringTokenizer(stmp, "\n");
         while (st.hasMoreTokens()) {
             result += st.nextToken()
@@ -686,11 +686,11 @@ public class Signature
                       + "\n";
         }
 
-        for (Variable tmp : vars) {
+        for (Variable tmp : this.vars) {
             result += tmp + "\n";
         }
 
-        for (Operation tmp : operations) {
+        for (Operation tmp : this.operations) {
             result += tmp + "\n";
         }
 
@@ -698,15 +698,15 @@ public class Signature
     }
 
     public Sort[] getSorts() {
-        Sort[] result = new Sort[sorts.size()];
-        sorts.copyInto(result);
+        Sort[] result = new Sort[this.sorts.size()];
+        this.sorts.copyInto(result);
         return result;
     }
 
     public Sort getSort(Sort sort) {
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (tmp.equals(sort)) {
                 return tmp;
             }
@@ -716,11 +716,11 @@ public class Signature
     }
 
     public Sort getPrincipalSort() {
-        Sort first = sorts.elementAt(0);
+        Sort first = this.sorts.elementAt(0);
         if (first.equals(BoolModule.boolSort) && first.getInfo()
                                                       .equals("system-default")
-            && sorts.size() > 2) {
-            return sorts.elementAt(2);
+            && this.sorts.size() > 2) {
+            return this.sorts.elementAt(2);
         } else {
             return first;
         }
@@ -730,8 +730,8 @@ public class Signature
 
         Vector<Sort> v = new Vector<>();
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (tmp.isHidden()) {
                 v.addElement(tmp);
             }
@@ -747,8 +747,8 @@ public class Signature
 
         Vector<Sort> v = new Vector<>();
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (tmp.isInitial()) {
                 v.addElement(tmp);
             }
@@ -763,8 +763,8 @@ public class Signature
     public Sort[] getHiddenSortsByName(String name) {
         Vector<Sort> vec = new Vector<>();
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             if (sort.isHidden() && sort.getName()
                                        .equals(name)) {
                 vec.addElement(sort);
@@ -780,8 +780,8 @@ public class Signature
     public Sort[] getSortsByName(String name) {
         Vector<Sort> vec = new Vector<>();
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             if (sort.getName()
                     .equals(name)) {
                 vec.addElement(sort);
@@ -798,8 +798,8 @@ public class Signature
 
         Vector<Sort> v = new Vector<>();
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (!tmp.isHidden() && !tmp.getName()
                                        .equals("Universal")) {
                 v.addElement(tmp);
@@ -815,7 +815,7 @@ public class Signature
     public Operation getConstant(String on) {
         Operation op = null;
 
-        for (Operation tmp : operations) {
+        for (Operation tmp : this.operations) {
             if (tmp.getName()
                    .equals(on)
                 && tmp.getArgumentSorts().length == 0) {
@@ -830,7 +830,7 @@ public class Signature
     public Operation getConstant(String on,
                                  Sort sort) {
 
-        for (Operation tmp : operations) {
+        for (Operation tmp : this.operations) {
             if (tmp.getName()
                    .equals(on)
                 && tmp.getArgumentSorts().length == 0 && tmp.getResultSort()
@@ -846,8 +846,8 @@ public class Signature
 
         Vector<Operation> res = new Vector<>();
 
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             int pri = op.getPriority();
             if (p == pri) {
                 res.addElement(op);
@@ -861,16 +861,16 @@ public class Signature
 
     public boolean isSubsort(Sort child,
                              Sort parent) {
-        return child.equals(parent) || subsorts.isSubsort(parent, child);
+        return child.equals(parent) || this.subsorts.isSubsort(parent, child);
     }
 
     public boolean less(Sort child,
                         Sort parent) {
-        return subsorts.isSubsort(parent, child);
+        return this.subsorts.isSubsort(parent, child);
     }
 
     protected Vector<Object> getTokens() {
-        return new Vector<>(tokens);
+        return new Vector<>(this.tokens);
     }
 
     protected String decomposeToken(String st) {
@@ -899,8 +899,8 @@ public class Signature
         // decompose by tokens
         boolean found = false;
         String sample = "";
-        for (int i = 0; i < tokens.size() && !found; i++ ) {
-            sample = (String) tokens.elementAt(i);
+        for (int i = 0; i < this.tokens.size() && !found; i++ ) {
+            sample = (String) this.tokens.elementAt(i);
             if (st.startsWith(sample)) {
                 found = true;
             }
@@ -945,7 +945,7 @@ public class Signature
     }
 
     public boolean containsToken(String st) {
-        return(st.equals("=") || tokens.indexOf(st) != -1);
+        return(st.equals("=") || this.tokens.indexOf(st) != -1);
     }
 
     public boolean contains(Signature signature) {
@@ -965,23 +965,23 @@ public class Signature
                 return false;
         }
 
-        result = subsorts.contains(signature.subsorts);
+        result = this.subsorts.contains(signature.subsorts);
 
         return result;
     }
 
     public Sort canApply(Sort s1,
                          Sort s2) {
-        return subsorts.canApply(s1, s2);
+        return this.subsorts.canApply(s1, s2);
     }
 
     public Operation[] getSortedOperationsCompatibleWith(Operation op) {
-        Vector<Operation> pool = compatible.get(op);
+        Vector<Operation> pool = this.compatible.get(op);
 
         if (pool == null) {
-            for (Operation tmp : compatible.keySet()) {
+            for (Operation tmp : this.compatible.keySet()) {
                 if (op.equals(tmp)) {
-                    pool = compatible.get(tmp);
+                    pool = this.compatible.get(tmp);
                 }
             }
         }
@@ -997,13 +997,13 @@ public class Signature
 
     protected Operation[] getGreaterCompatible(Operation op) {
 
-        Vector<Operation> pool = compatible.get(op);
+        Vector<Operation> pool = this.compatible.get(op);
         if (pool == null) {
             return new Operation[0];
         } else {
             pool = new Vector<>(pool);
             for (int i = 0; i < pool.size(); i++ ) {
-                Operation tmp = (Operation) pool.elementAt(i);
+                Operation tmp = pool.elementAt(i);
                 pool.removeElementAt(0);
                 if (tmp.equals(op)) {
                     break;
@@ -1021,16 +1021,16 @@ public class Signature
 
         Signature result = new Signature();
 
-        result.sorts = new Vector<>(sorts);
-        result.vars = new Vector<>(vars);
-        result.subsorts = (Subsort) subsorts.clone();
-        result.operations = new Vector<>(operations);
-        result.tokens = new Vector<>(tokens);
-        result.compatible = new HashMap<>(compatible);
-        result.firsts = new ArrayList<>(firsts);
-        result.lasts = new ArrayList<>(lasts);
-        result.balancedBrackets = balancedBrackets;
-        result.explicitRetract = explicitRetract;
+        result.sorts = new Vector<>(this.sorts);
+        result.vars = new Vector<>(this.vars);
+        result.subsorts = (Subsort) this.subsorts.clone();
+        result.operations = new Vector<>(this.operations);
+        result.tokens = new Vector<>(this.tokens);
+        result.compatible = new HashMap<>(this.compatible);
+        result.firsts = new ArrayList<>(this.firsts);
+        result.lasts = new ArrayList<>(this.lasts);
+        result.balancedBrackets = this.balancedBrackets;
+        result.explicitRetract = this.explicitRetract;
 
         return result;
     }
@@ -1038,8 +1038,8 @@ public class Signature
     public Operation[] getAttributes() {
 
         Vector<Operation> pool = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.isAttribute() && !op.isConstant()) {
                 pool.addElement(op);
             }
@@ -1052,8 +1052,8 @@ public class Signature
 
     public Operation[] getMethods() {
         Vector<Operation> pool = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.isMethod() && !op.isConstant()) {
                 pool.addElement(op);
             }
@@ -1067,8 +1067,8 @@ public class Signature
     public Operation[] getNonBehavorialOperations() {
 
         Vector<Operation> pool = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.isNonBehavorial() && !op.isConstant()) {
                 pool.addElement(op);
             }
@@ -1082,8 +1082,8 @@ public class Signature
     public Operation[] getOperationsOnInitial() {
 
         Vector<Operation> pool = new Vector<>();
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.isDefinedOnInitial()) {
                 pool.addElement(op);
             }
@@ -1101,8 +1101,8 @@ public class Signature
 
         Vector<Operation> pool = new Vector<>();
 
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             String name = op.getName();
             if (name.startsWith(begin) && name.endsWith(end) && op.getResultSort()
                                                                   .equals(expect)) {
@@ -1119,7 +1119,7 @@ public class Signature
     }
 
     public void addQidAlias(Sort sort) {
-        List<Sort> list = alias.get("QID");
+        List<Sort> list = this.alias.get("QID");
         if (list == null) {
             list = new ArrayList<>();
         }
@@ -1128,12 +1128,12 @@ public class Signature
             list.add(sort);
         }
 
-        alias.put("QID", list);
+        this.alias.put("QID", list);
 
     }
 
     public Sort[] getQidAlias() {
-        List<Sort> list = alias.get("QID");
+        List<Sort> list = this.alias.get("QID");
         if (list != null) {
 
             Object[] objs = list.toArray();
@@ -1151,8 +1151,8 @@ public class Signature
     public boolean hasUniqueNameFor(Sort sort) {
 
         int count = 0;
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (tmp.getName()
                    .equals(sort.getName())) {
 
@@ -1175,11 +1175,11 @@ public class Signature
 
         result.add("(");
 
-        for (int k = 0; k < operations.size(); k++ ) {
-            Operation op = operations.elementAt(k);
+        for (int k = 0; k < this.operations.size(); k++ ) {
+            Operation op = this.operations.elementAt(k);
 
-            tokens = op.getTokens();
-            Object obj = tokens.elementAt(0);
+            this.tokens = op.getTokens();
+            Object obj = this.tokens.elementAt(0);
 
             if (obj instanceof String) {
 
@@ -1192,8 +1192,8 @@ public class Signature
             }
         }
 
-        for (int k = 0; k < vars.size(); k++ ) {
-            Variable var = vars.elementAt(k);
+        for (int k = 0; k < this.vars.size(); k++ ) {
+            Variable var = this.vars.elementAt(k);
             result.add(var.name);
         }
 
@@ -1207,8 +1207,8 @@ public class Signature
 
         result.add(")");
 
-        for (int k = 0; k < operations.size(); k++ ) {
-            Operation op = operations.elementAt(k);
+        for (int k = 0; k < this.operations.size(); k++ ) {
+            Operation op = this.operations.elementAt(k);
             Vector<Object> tokens = op.getTokens();
             Object obj = tokens.elementAt(tokens.size() - 1);
 
@@ -1223,8 +1223,8 @@ public class Signature
             }
         }
 
-        for (int k = 0; k < vars.size(); k++ ) {
-            Variable var = vars.elementAt(k);
+        for (int k = 0; k < this.vars.size(); k++ ) {
+            Variable var = this.vars.elementAt(k);
             result.add(var.name);
         }
 
@@ -1234,8 +1234,8 @@ public class Signature
 
     public boolean hasCommonSupersort(Sort s1,
                                       Sort s2) {
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             if (!sort.equals(BoolModule.univSort) && this.isSubsort(s1, sort)
                 && this.isSubsort(s2, sort)) {
 
@@ -1248,8 +1248,8 @@ public class Signature
 
     public Sort[] getDirectSupersorts(Sort sort) {
         ArrayList<Sort> list = new ArrayList<>();
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (!tmp.equals(BoolModule.univSort) && !tmp.equals(sort) && isSubsort(sort, tmp)) {
                 // tmp is candidate, but make sure tmp is not a supersort
                 // of a sort in list
@@ -1285,7 +1285,7 @@ public class Signature
 
     public Sort[] getDirectSubsorts(Sort sort) {
         ArrayList<Sort> list = new ArrayList<>();
-        Vector<Sort> vec = subsorts.subsorts.get(sort);
+        Vector<Sort> vec = this.subsorts.subsorts.get(sort);
         if (vec != null) {
             for (int i = 0; i < vec.size(); i++ ) {
                 Sort tmp = vec.elementAt(i);

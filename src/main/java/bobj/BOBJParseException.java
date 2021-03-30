@@ -28,9 +28,9 @@ public class BOBJParseException
                               int[][] expectedTokenSequencesVal,
                               String[] tokenImageVal) {
         super(initialise(currentTokenVal, expectedTokenSequencesVal, tokenImageVal));
-        currentToken = currentTokenVal;
-        expectedTokenSequences = expectedTokenSequencesVal;
-        tokenImage = tokenImageVal;
+        this.currentToken = currentTokenVal;
+        this.expectedTokenSequences = expectedTokenSequencesVal;
+        this.tokenImage = tokenImageVal;
     }
 
     /**
@@ -84,8 +84,8 @@ public class BOBJParseException
             if (maxSize < element.length) {
                 maxSize = element.length;
             }
-            for (int j = 0; j < element.length; j++ ) {
-                expected.append(tokenImage[element[j]])
+            for (int element2 : element) {
+                expected.append(tokenImage[element2])
                         .append(' ');
             }
             expected.append(eol)

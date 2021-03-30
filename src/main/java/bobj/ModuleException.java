@@ -15,6 +15,7 @@ public class ModuleException
      *
      */
     private static final long serialVersionUID = 1L;
+
     /**
      * create a signature exception with the specified string.
      */

@@ -17,7 +17,7 @@ public class Substitution
     private Map<VarOrCode, Term> substs;
 
     public Substitution() {
-        substs = new HashMap<>();
+        this.substs = new HashMap<>();
     }
 
     public void addSubst(Variable v,
@@ -29,19 +29,19 @@ public class Substitution
             throw new SubstitutionException();
         }
 
-        substs = doAdd(v, t);
+        this.substs = doAdd(v, t);
     }
 
     private Map<VarOrCode, Term> doAdd(Variable v,
                                        Term t)
         throws SubstitutionException {
-        if (substs.containsKey(v))
+        if (this.substs.containsKey(v))
             throw new SubstitutionException();
 
         Map<VarOrCode, Term> table = new HashMap<>();
-        for (VarOrCode tmp : substs.keySet()) {
+        for (VarOrCode tmp : this.substs.keySet()) {
 
-            Term term = substs.get(tmp);
+            Term term = this.substs.get(tmp);
             term = term.subst(v, t);
             table.put(tmp, term);
         }
@@ -59,7 +59,7 @@ public class Substitution
             throw new SubstitutionException();
         }
 
-        substs = doAdd(v, t);
+        this.substs = doAdd(v, t);
     }
 
     public void add(Substitution sub) throws SubstitutionException {
@@ -77,8 +77,8 @@ public class Substitution
 
         Vector<SingleSubstitution> pool = new Vector<>();
 
-        for (VarOrCode var : substs.keySet()) {
-            Term term = substs.get(var);
+        for (VarOrCode var : this.substs.keySet()) {
+            Term term = this.substs.get(var);
             pool.addElement(new SingleSubstitution((Variable) var, term));
 
         }
@@ -93,9 +93,9 @@ public class Substitution
 
         Term result = new Term(var);
 
-        for (VarOrCode vtmp : substs.keySet()) {
+        for (VarOrCode vtmp : this.substs.keySet()) {
             if (var.equals(vtmp)) {
-                result = substs.get(vtmp);
+                result = this.substs.get(vtmp);
                 return result;
             }
         }
@@ -105,14 +105,14 @@ public class Substitution
     }
 
     public boolean contains(Variable var) {
-        return substs.containsKey(var);
+        return this.substs.containsKey(var);
     }
 
     @Override
     public String toString() {
         String result = "";
-        for (VarOrCode var : substs.keySet()) {
-            Term term = substs.get(var);
+        for (VarOrCode var : this.substs.keySet()) {
+            Term term = this.substs.get(var);
             if (result.equals("")) {
                 result += var + " -> " + term;
             } else {

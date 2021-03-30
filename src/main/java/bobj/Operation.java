@@ -120,32 +120,32 @@ public class Operation
                      .startsWith("_")
                 && !name.trim()
                         .endsWith("_"))) {
-            priority = 0;
+            this.priority = 0;
         } else if (!name.trim()
                         .startsWith("_")
                    && name.trim()
                           .endsWith("_")
-                   && argumentSorts.length == 1) {
-                       priority = 15;
+                   && this.argumentSorts.length == 1) {
+                       this.priority = 15;
                    } else {
-                       priority = 41;
+                       this.priority = 41;
                    }
 
         //set properties.
-        isAssociative = false;
-        isCommutative = false;
-        isIdempotent = false;
-        behavorial = true;
+        this.isAssociative = false;
+        this.isCommutative = false;
+        this.isIdempotent = false;
+        this.behavorial = true;
 
         //set information
-        info = "";
+        this.info = "";
 
         //set prod
-        prod = new Vector<>();
+        this.prod = new Vector<>();
         if (args.length == 0) {
             StringTokenizer ster = new StringTokenizer(name, " ");
             while (ster.hasMoreTokens()) {
-                prod.addElement(ster.nextToken());
+                this.prod.addElement(ster.nextToken());
             }
 
         } else if (name.indexOf("_") != -1) {
@@ -159,10 +159,10 @@ public class Operation
                     //prod.addElement(st);
                     StringTokenizer ster = new StringTokenizer(st, " ");
                     while (ster.hasMoreTokens()) {
-                        prod.addElement(ster.nextToken());
+                        this.prod.addElement(ster.nextToken());
                     }
                 }
-                prod.addElement(args[count]);
+                this.prod.addElement(args[count]);
                 count++ ;
                 stmp = stmp.substring(index + 1);
                 index = stmp.indexOf("_");
@@ -170,19 +170,19 @@ public class Operation
             if (!stmp.equals("")) {
                 StringTokenizer ster = new StringTokenizer(stmp, " ");
                 while (ster.hasMoreTokens()) {
-                    prod.addElement(ster.nextToken());
+                    this.prod.addElement(ster.nextToken());
                 }
             }
         } else {
-            prod.addElement(name);
-            prod.addElement("(");
+            this.prod.addElement(name);
+            this.prod.addElement("(");
             for (int i = 0; i < args.length; i++ ) {
-                prod.addElement(args[i]);
+                this.prod.addElement(args[i]);
                 if (i < args.length - 1) {
-                    prod.addElement(",");
+                    this.prod.addElement(",");
                 }
             }
-            prod.addElement(")");
+            this.prod.addElement(")");
         }
     }
 
@@ -200,7 +200,7 @@ public class Operation
     }
 
     public ModuleName getModuleName() {
-        return modName;
+        return this.modName;
     }
 
     protected static String normalize(String name) {
@@ -259,16 +259,16 @@ public class Operation
      */
 
     public void setAssociativity() throws SignatureException {
-        if (argumentSorts.length == 2) {
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
-            if (firstSort.equals(resultSort) && secondSort.equals(resultSort)) {
-                isAssociative = true;
+        if (this.argumentSorts.length == 2) {
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
+            if (firstSort.equals(this.resultSort) && secondSort.equals(this.resultSort)) {
+                this.isAssociative = true;
             } else {
                 throw new SignatureException("Inconsistent argument sorts for " + "associativity");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
 
     }
@@ -283,32 +283,32 @@ public class Operation
 
     public void setAssociativity(Signature sig) throws SignatureException {
 
-        if (argumentSorts.length == 2) {
+        if (this.argumentSorts.length == 2) {
 
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
 
-            boolean lcanset =
-                sig.isSubsort(resultSort, firstSort) || sig.isSubsort(firstSort, resultSort);
+            boolean lcanset = sig.isSubsort(this.resultSort, firstSort)
+                              || sig.isSubsort(firstSort, this.resultSort);
 
             if (!lcanset) {
-                lcanset = sig.hasCommonSubsort(resultSort, firstSort);
+                lcanset = sig.hasCommonSubsort(this.resultSort, firstSort);
             }
 
-            boolean rcanset =
-                sig.isSubsort(resultSort, secondSort) || sig.isSubsort(secondSort, resultSort);
+            boolean rcanset = sig.isSubsort(this.resultSort, secondSort)
+                              || sig.isSubsort(secondSort, this.resultSort);
 
             if (!rcanset) {
-                rcanset = sig.hasCommonSubsort(resultSort, secondSort);
+                rcanset = sig.hasCommonSubsort(this.resultSort, secondSort);
             }
 
             if (lcanset && rcanset) {
-                isAssociative = true;
+                this.isAssociative = true;
             } else {
                 throw new SignatureException("Inconsistent argument sorts for " + "associativity");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
 
     }
@@ -322,16 +322,16 @@ public class Operation
      */
 
     public void setCommutativity() throws SignatureException {
-        if (argumentSorts.length == 2) {
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
+        if (this.argumentSorts.length == 2) {
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
             if (firstSort.equals(secondSort)) {
-                isCommutative = true;
+                this.isCommutative = true;
             } else {
                 throw new SignatureException("Inconsistent argument sorts for " + "communtativity");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
     }
 
@@ -344,19 +344,19 @@ public class Operation
      */
 
     public void setCommutativity(Signature sig) throws SignatureException {
-        if (argumentSorts.length == 2) {
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
+        if (this.argumentSorts.length == 2) {
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
 
             boolean canset = sig.getSuperSort(firstSort, secondSort) != null;
 
             if (canset) {
-                isCommutative = true;
+                this.isCommutative = true;
             } else {
                 throw new SignatureException("Inconsistent argument sorts for " + "communtativity");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
     }
 
@@ -369,16 +369,16 @@ public class Operation
      */
 
     public void setIdempotence() throws SignatureException {
-        if (argumentSorts.length == 2) {
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
+        if (this.argumentSorts.length == 2) {
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
             if (firstSort.equals(secondSort)) {
-                isIdempotent = true;
+                this.isIdempotent = true;
             } else {
                 throw new SignatureException("Inconsistent argument sorts for " + "idempotence");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
     }
 
@@ -394,14 +394,14 @@ public class Operation
 
     public void setIdentity(Operation op) throws SignatureException {
 
-        if (argumentSorts.length == 2) {
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
+        if (this.argumentSorts.length == 2) {
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
             Sort resultSort = op.getResultSort();
 
             if (resultSort.equals(firstSort) && resultSort.equals(secondSort)) {
                 if (op.argumentSorts.length == 0) {
-                    id = op;
+                    this.id = op;
                 } else {
                     throw new SignatureException("Inconsistent argument sorts for " + "identity");
                 }
@@ -409,7 +409,7 @@ public class Operation
                 throw new SignatureException("Inconsistent argument sorts for " + "identity");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
     }
 
@@ -417,14 +417,14 @@ public class Operation
                             Operation op)
         throws SignatureException {
 
-        if (argumentSorts.length == 2) {
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
+        if (this.argumentSorts.length == 2) {
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
 
             if (sig.isSubsort(op.resultSort, firstSort)
                 || sig.isSubsort(op.resultSort, secondSort)) {
                 if (op.argumentSorts.length == 0) {
-                    id = op;
+                    this.id = op;
                 } else {
                     throw new SignatureException("Inconsistent argument sorts for " + "identity");
                 }
@@ -432,7 +432,7 @@ public class Operation
                 throw new SignatureException("Inconsistent argument sorts for " + "identity");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
     }
 
@@ -450,14 +450,14 @@ public class Operation
                             Signature sig)
         throws SignatureException {
 
-        if (argumentSorts.length == 2) {
-            Sort firstSort = argumentSorts[0];
-            Sort secondSort = argumentSorts[1];
+        if (this.argumentSorts.length == 2) {
+            Sort firstSort = this.argumentSorts[0];
+            Sort secondSort = this.argumentSorts[1];
             Sort resultSort = op.getResultSort();
 
             if (sig.isSubsort(resultSort, firstSort) || sig.isSubsort(resultSort, secondSort)) {
                 if (op.argumentSorts.length == 0) {
-                    id = op;
+                    this.id = op;
 
                 } else {
                     throw new SignatureException("Inconsistent argument" + " sorts for identity");
@@ -466,7 +466,7 @@ public class Operation
                 throw new SignatureException("Inconsistent argument sorts " + "for identity");
             }
         } else {
-            throw new SignatureException("Expect two arguments for " + name);
+            throw new SignatureException("Expect two arguments for " + this.name);
         }
     }
 
@@ -477,7 +477,7 @@ public class Operation
      *            string
      */
     public void setInfo(String s) {
-        info = s;
+        this.info = s;
     }
 
     /**
@@ -490,48 +490,48 @@ public class Operation
     public String toString() {
         String result = "op ";
 
-        result += name + " :";
+        result += this.name + " :";
 
-        for (Sort tmp : argumentSorts) {
+        for (Sort tmp : this.argumentSorts) {
             result += " " + tmp.getName() + "." + tmp.getModuleName();
         }
 
-        result += " -> " + resultSort.getName() + "." + resultSort.getModuleName() + "  ";
+        result += " -> " + this.resultSort.getName() + "." + this.resultSort.getModuleName() + "  ";
         result += "[";
 
-        if (isAssociative)
+        if (this.isAssociative)
             result += " assoc";
-        if (isCommutative)
+        if (this.isCommutative)
             result += " comm";
-        if (isIdempotent)
+        if (this.isIdempotent)
             result += " idem";
-        if (id != null)
-            result += " idr: " + id.getName();
-        if (!behavorial)
+        if (this.id != null)
+            result += " idr: " + this.id.getName();
+        if (!this.behavorial)
             result += "ncong";
 
-        if (priority != Integer.MAX_VALUE) {
-            result += " prec " + priority;
+        if (this.priority != Integer.MAX_VALUE) {
+            result += " prec " + this.priority;
         }
 
-        if (gather != null) {
+        if (this.gather != null) {
             result += " gather(";
-            for (int i = 0; i < gather.length; i++ ) {
+            for (int i = 0; i < this.gather.length; i++ ) {
                 if (i != 0) {
                     result += ", ";
                 }
-                result += gather[i];
+                result += this.gather[i];
             }
             result += ")";
         }
 
-        if (strategy != null) {
+        if (this.strategy != null) {
             result += " strategy(";
-            for (int i = 0; i < strategy.length; i++ ) {
+            for (int i = 0; i < this.strategy.length; i++ ) {
                 if (i != 0) {
                     result += ", ";
                 }
-                result += strategy[i];
+                result += this.strategy[i];
             }
             result += ")";
         }
@@ -551,11 +551,11 @@ public class Operation
      * return the name of this operation.
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getCleanName() {
-        String result = name.trim();
+        String result = this.name.trim();
         if (result.startsWith("_")) {
             result = result.substring(1)
                            .trim();
@@ -567,7 +567,7 @@ public class Operation
         }
 
         if (result.indexOf("_") != -1) {
-            result = name;
+            result = this.name;
         }
 
         return result;
@@ -578,7 +578,7 @@ public class Operation
      * return the vector of the argument sorts. This vector can be modified without any side effect.
      */
     public Sort[] getArgumentSorts() {
-        return argumentSorts;
+        return this.argumentSorts;
     }
 
     /**
@@ -589,8 +589,8 @@ public class Operation
      */
     public Sort getArgumentSortAt(int i) throws SignatureException {
         Sort result = null;
-        if (i < argumentSorts.length) {
-            result = argumentSorts[i];
+        if (i < this.argumentSorts.length) {
+            result = this.argumentSorts[i];
         } else {
             throw new SignatureException("The number of arguments out of bound " + i);
         }
@@ -602,7 +602,7 @@ public class Operation
      *
      */
     public Sort getResultSort() {
-        return resultSort;
+        return this.resultSort;
     }
 
     /**
@@ -610,14 +610,14 @@ public class Operation
      *
      */
     public int getPriority() {
-        return priority;
+        return this.priority;
     }
 
     /**
      * return the arity of this operation.
      */
     public int getArity() {
-        return argumentSorts.length;
+        return this.argumentSorts.length;
     }
 
     /**
@@ -625,7 +625,7 @@ public class Operation
      *
      */
     public String getInfo() {
-        return info;
+        return this.info;
     }
 
     /**
@@ -633,10 +633,10 @@ public class Operation
      *
      */
     public Operation getIdentity() {
-        if (id != null) {
-            return id;
-        } else if (implicitId != null) {
-            return implicitId;
+        if (this.id != null) {
+            return this.id;
+        } else if (this.implicitId != null) {
+            return this.implicitId;
         } else {
             return null;
         }
@@ -648,7 +648,7 @@ public class Operation
      *
      */
     public boolean isConstant() {
-        return argumentSorts.length == 0;
+        return this.argumentSorts.length == 0;
     }
 
     /**
@@ -657,7 +657,7 @@ public class Operation
      *
      */
     public boolean isAssociative() {
-        return isAssociative;
+        return this.isAssociative;
     }
 
     /**
@@ -666,7 +666,7 @@ public class Operation
      *
      */
     public boolean isCommutative() {
-        return isCommutative;
+        return this.isCommutative;
     }
 
     /**
@@ -675,7 +675,7 @@ public class Operation
      *
      */
     public boolean isIdempotent() {
-        return isIdempotent;
+        return this.isIdempotent;
     }
 
     /**
@@ -684,7 +684,7 @@ public class Operation
      *
      */
     public boolean isMixNotation() {
-        return name.indexOf("_") != -1;
+        return this.name.indexOf("_") != -1;
     }
 
     /**
@@ -702,18 +702,18 @@ public class Operation
         if (obj instanceof Operation) {
 
             Operation op = (Operation) obj;
-            if (name.equals(op.name) && resultSort.equals(op.resultSort)
-                && argumentSorts.length == op.argumentSorts.length) {
+            if (this.name.equals(op.name) && this.resultSort.equals(op.resultSort)
+                && this.argumentSorts.length == op.argumentSorts.length) {
 
-                for (int i = 0; i < argumentSorts.length; i++ ) {
-                    if (!argumentSorts[i].equals(op.argumentSorts[i])) {
+                for (int i = 0; i < this.argumentSorts.length; i++ ) {
+                    if (!this.argumentSorts[i].equals(op.argumentSorts[i])) {
                         return false;
                     }
                 }
 
-                if (modName != null && op.modName != null) {
-                    return modName.equals(op.modName);
-                } else if (modName == null && op.modName == null) {
+                if (this.modName != null && op.modName != null) {
+                    return this.modName.equals(op.modName);
+                } else if (this.modName == null && op.modName == null) {
                     return true;
                 }
 
@@ -726,17 +726,18 @@ public class Operation
 
     @Override
     public int hashCode() {
-        return name.hashCode() * 31 + resultSort.hashCode() + argumentSorts.hashCode()
-               + ((modName != null) ? modName.hashCode()
-                                    : 0);
+        return this.name.hashCode() * 31 + this.resultSort.hashCode()
+               + this.argumentSorts.hashCode() + ((this.modName != null) ? this.modName.hashCode()
+                                                                         : 0);
     }
 
     public boolean hasSameSignature(Operation op) {
 
-        if (resultSort.equals(op.resultSort) && argumentSorts.length == op.argumentSorts.length) {
+        if (this.resultSort.equals(op.resultSort)
+            && this.argumentSorts.length == op.argumentSorts.length) {
 
-            for (int i = 0; i < argumentSorts.length; i++ ) {
-                if (!argumentSorts[i].equals(op.argumentSorts[i])) {
+            for (int i = 0; i < this.argumentSorts.length; i++ ) {
+                if (!this.argumentSorts[i].equals(op.argumentSorts[i])) {
                     return false;
                 }
             }
@@ -753,22 +754,22 @@ public class Operation
      * @param pri an positive integer */
     public void setPriority(int pri) {
         if (pri > 0) {
-            priority = pri;
+            this.priority = pri;
         } else {
             pri = Integer.MAX_VALUE;
         }
     }
 
     protected Vector<Object> getTokens() {
-        return new Vector<>(prod);
+        return new Vector<>(this.prod);
     }
 
     public void setBehavorial(boolean flag) {
-        behavorial = flag;
+        this.behavorial = flag;
     }
 
     public boolean isBehavorial() {
-        return behavorial;
+        return this.behavorial;
     }
 
     /* check whether this operation is less than another operation op under the specified
@@ -778,10 +779,10 @@ public class Operation
 
         boolean result = false;
         boolean samename = true;
-        if (prod.size() == op.prod.size()) {
+        if (this.prod.size() == op.prod.size()) {
 
-            for (int i = 0; i < prod.size() && samename; i++ ) {
-                Object prodItem = prod.elementAt(i);
+            for (int i = 0; i < this.prod.size() && samename; i++ ) {
+                Object prodItem = this.prod.elementAt(i);
                 Object opProdItem = op.prod.elementAt(i);
 
                 if (prodItem instanceof String) {
@@ -805,10 +806,10 @@ public class Operation
             }
 
         } else if (op.getArity() == 1 && getArity() == 1) {
-            samename = name.trim()
-                           .equals(op.name.trim() + " _")
+            samename = this.name.trim()
+                                .equals(op.name.trim() + " _")
                        || op.name.trim()
-                                 .startsWith(name.trim() + " _");
+                                 .startsWith(this.name.trim() + " _");
         } else {
             samename = false;
         }
@@ -819,8 +820,8 @@ public class Operation
                 boolean less = false;
                 boolean comparable = true;
 
-                for (int i = 0; i < argumentSorts.length && comparable; i++ ) {
-                    Sort s1 = argumentSorts[i];
+                for (int i = 0; i < this.argumentSorts.length && comparable; i++ ) {
+                    Sort s1 = this.argumentSorts[i];
                     Sort s2 = op.argumentSorts[i];
 
                     if (sig.isSubsort(s1, s2)) {
@@ -831,22 +832,16 @@ public class Operation
                 }
 
                 if (comparable && less) {
-                    result = sig.isSubsort(resultSort, op.resultSort);
+                    result = sig.isSubsort(this.resultSort, op.resultSort);
                 } else if (comparable) {
                     //result = sig.isSubsort(resultSort, op.resultSort);
-                    result = sig.less(resultSort, op.resultSort);
+                    result = sig.less(this.resultSort, op.resultSort);
                 }
 
-            } else {
-                //result = sig.isSubsort(resultSort, op.resultSort);
-                if (sig.less(resultSort, op.resultSort)) {
+            } else //result = sig.isSubsort(resultSort, op.resultSort);
+                if (sig.less(this.resultSort, op.resultSort)) {
                     result = true;
                 }
-
-                /* else if (resultSort.equals(op.resultSort)) { if (modName != null && op.modName !=
-                 * null && modName.equals(op.modName)) { result = true; } else if (modName == null
-                 * && op.modName == null) { result = true; } } */
-            }
         }
 
         return result;
@@ -854,21 +849,21 @@ public class Operation
     }
 
     public boolean isAttribute() {
-        return !resultSort.isHidden() && behavorial;
+        return !this.resultSort.isHidden() && this.behavorial;
     }
 
     public boolean isMethod() {
-        return resultSort.isHidden() && behavorial;
+        return this.resultSort.isHidden() && this.behavorial;
     }
 
     public boolean isNonBehavorial() {
-        if (!behavorial) {
-            for (Sort argumentSort : argumentSorts) {
+        if (!this.behavorial) {
+            for (Sort argumentSort : this.argumentSorts) {
                 if (argumentSort.isHidden()) {
                     return true;
                 }
             }
-            if (resultSort.isHidden()) {
+            if (this.resultSort.isHidden()) {
                 return true;
             }
         }
@@ -879,38 +874,39 @@ public class Operation
                                       ModuleName news) {
 
         Operation result = null;
-        Sort[] args = new Sort[argumentSorts.length];
-        Sort res = resultSort.changeModuleName(olds, news);
+        Sort[] args = new Sort[this.argumentSorts.length];
+        Sort res = this.resultSort.changeModuleName(olds, news);
 
-        for (int j = 0; j < argumentSorts.length; j++ ) {
-            args[j] = argumentSorts[j].changeModuleName(olds, news);
+        for (int j = 0; j < this.argumentSorts.length; j++ ) {
+            args[j] = this.argumentSorts[j].changeModuleName(olds, news);
         }
 
         try {
 
-            if (modName.equals(olds)) {
-                result = new Operation(name, args, res, news);
+            if (this.modName.equals(olds)) {
+                result = new Operation(this.name, args, res, news);
             } else {
-                result = new Operation(name, args, res, modName.changeModuleName(olds, news));
+                result =
+                    new Operation(this.name, args, res, this.modName.changeModuleName(olds, news));
             }
 
-            result.priority = priority;
-            result.info = info;
-            result.isAssociative = isAssociative;
-            result.isCommutative = isCommutative;
-            result.isIdempotent = isIdempotent;
+            result.priority = this.priority;
+            result.info = this.info;
+            result.isAssociative = this.isAssociative;
+            result.isCommutative = this.isCommutative;
+            result.isIdempotent = this.isIdempotent;
 
-            if (id != null) {
-                result.id = id.changeModuleName(olds, news);
+            if (this.id != null) {
+                result.id = this.id.changeModuleName(olds, news);
             }
 
-            if (implicitId != null) {
-                result.implicitId = implicitId.changeModuleName(olds, news);
+            if (this.implicitId != null) {
+                result.implicitId = this.implicitId.changeModuleName(olds, news);
             }
 
-            result.behavorial = behavorial;
-            result.gather = gather;
-            result.strategy = strategy;
+            result.behavorial = this.behavorial;
+            result.gather = this.gather;
+            result.strategy = this.strategy;
 
         } catch (SignatureException e) {
         }
@@ -922,37 +918,37 @@ public class Operation
                                               ModuleName news) {
 
         Operation result = null;
-        Sort[] args = new Sort[argumentSorts.length];
-        Sort res = resultSort.changeAbsoluteModuleName(olds, news);
+        Sort[] args = new Sort[this.argumentSorts.length];
+        Sort res = this.resultSort.changeAbsoluteModuleName(olds, news);
 
-        for (int j = 0; j < argumentSorts.length; j++ ) {
-            args[j] = argumentSorts[j].changeAbsoluteModuleName(olds, news);
+        for (int j = 0; j < this.argumentSorts.length; j++ ) {
+            args[j] = this.argumentSorts[j].changeAbsoluteModuleName(olds, news);
         }
 
         try {
 
-            if (modName.equals(olds)) {
-                result = new Operation(name, args, res, news);
+            if (this.modName.equals(olds)) {
+                result = new Operation(this.name, args, res, news);
             } else {
-                result = new Operation(name, args, res, modName);
+                result = new Operation(this.name, args, res, this.modName);
             }
-            result.priority = priority;
-            result.info = info;
-            result.isAssociative = isAssociative;
-            result.isCommutative = isCommutative;
-            result.isIdempotent = isIdempotent;
+            result.priority = this.priority;
+            result.info = this.info;
+            result.isAssociative = this.isAssociative;
+            result.isCommutative = this.isCommutative;
+            result.isIdempotent = this.isIdempotent;
 
-            if (id != null) {
-                result.id = id.changeAbsoluteModuleName(olds, news);
-            }
-
-            if (implicitId != null) {
-                result.implicitId = implicitId.changeAbsoluteModuleName(olds, news);
+            if (this.id != null) {
+                result.id = this.id.changeAbsoluteModuleName(olds, news);
             }
 
-            result.behavorial = behavorial;
-            result.gather = gather;
-            result.strategy = strategy;
+            if (this.implicitId != null) {
+                result.implicitId = this.implicitId.changeAbsoluteModuleName(olds, news);
+            }
+
+            result.behavorial = this.behavorial;
+            result.gather = this.gather;
+            result.strategy = this.strategy;
 
         } catch (SignatureException e) {
         }
@@ -964,34 +960,35 @@ public class Operation
                                          String news) {
 
         Operation result = null;
-        Sort[] args = new Sort[argumentSorts.length];
-        Sort res = resultSort.changeParameterName(olds, news);
+        Sort[] args = new Sort[this.argumentSorts.length];
+        Sort res = this.resultSort.changeParameterName(olds, news);
 
-        for (int j = 0; j < argumentSorts.length; j++ ) {
-            args[j] = argumentSorts[j].changeParameterName(olds, news);
+        for (int j = 0; j < this.argumentSorts.length; j++ ) {
+            args[j] = this.argumentSorts[j].changeParameterName(olds, news);
         }
 
         try {
 
-            result = new Operation(name, args, res, modName.changeParameterName(olds, news));
+            result =
+                new Operation(this.name, args, res, this.modName.changeParameterName(olds, news));
 
-            result.priority = priority;
-            result.info = info;
-            result.isAssociative = isAssociative;
-            result.isCommutative = isCommutative;
-            result.isIdempotent = isIdempotent;
+            result.priority = this.priority;
+            result.info = this.info;
+            result.isAssociative = this.isAssociative;
+            result.isCommutative = this.isCommutative;
+            result.isIdempotent = this.isIdempotent;
 
-            if (id != null) {
-                result.id = id.changeParameterName(olds, news);
+            if (this.id != null) {
+                result.id = this.id.changeParameterName(olds, news);
             }
 
-            if (implicitId != null) {
-                result.implicitId = implicitId.changeParameterName(olds, news);
+            if (this.implicitId != null) {
+                result.implicitId = this.implicitId.changeParameterName(olds, news);
             }
 
-            result.behavorial = behavorial;
-            result.gather = gather;
-            result.strategy = strategy;
+            result.behavorial = this.behavorial;
+            result.gather = this.gather;
+            result.strategy = this.strategy;
 
         } catch (SignatureException e) {
         }
@@ -1002,39 +999,39 @@ public class Operation
     public Operation addAnnotation(String name,
                                    Map<ModuleName, Integer> env) {
 
-        if (info.equals("system-default")) {
+        if (this.info.equals("system-default")) {
             return this;
         }
 
-        Integer aInt = env.get(modName);
+        Integer aInt = env.get(this.modName);
         if (aInt != null && aInt.intValue() == 0) {
             return this;
         }
 
-        if (modName.hasNotation()) {
+        if (this.modName.hasNotation()) {
             return this;
         }
 
         Operation result = null;
-        Sort[] args = new Sort[argumentSorts.length];
-        Sort res = resultSort.addAnnotation(name, env);
+        Sort[] args = new Sort[this.argumentSorts.length];
+        Sort res = this.resultSort.addAnnotation(name, env);
 
-        for (int j = 0; j < argumentSorts.length; j++ ) {
-            args[j] = argumentSorts[j].addAnnotation(name, env);
+        for (int j = 0; j < this.argumentSorts.length; j++ ) {
+            args[j] = this.argumentSorts[j].addAnnotation(name, env);
         }
 
         try {
 
-            result = new Operation(this.name, args, res, modName.addAnnotation(name));
-            result.priority = priority;
-            result.info = info;
-            result.isAssociative = isAssociative;
-            result.isCommutative = isCommutative;
-            result.isIdempotent = isIdempotent;
-            result.id = id;
-            result.behavorial = behavorial;
-            result.gather = gather;
-            result.strategy = strategy;
+            result = new Operation(this.name, args, res, this.modName.addAnnotation(name));
+            result.priority = this.priority;
+            result.info = this.info;
+            result.isAssociative = this.isAssociative;
+            result.isCommutative = this.isCommutative;
+            result.isIdempotent = this.isIdempotent;
+            result.id = this.id;
+            result.behavorial = this.behavorial;
+            result.gather = this.gather;
+            result.strategy = this.strategy;
 
         } catch (SignatureException e) {
         } catch (Exception e) {
@@ -1050,25 +1047,25 @@ public class Operation
     public Operation removeAnnotation(String name) {
 
         Operation result = null;
-        Sort[] args = new Sort[argumentSorts.length];
-        Sort res = resultSort.removeAnnotation(name);
+        Sort[] args = new Sort[this.argumentSorts.length];
+        Sort res = this.resultSort.removeAnnotation(name);
 
-        for (int j = 0; j < argumentSorts.length; j++ ) {
-            args[j] = argumentSorts[j].removeAnnotation(name);
+        for (int j = 0; j < this.argumentSorts.length; j++ ) {
+            args[j] = this.argumentSorts[j].removeAnnotation(name);
         }
 
         try {
 
-            result = new Operation(this.name, args, res, modName.getOriginModuleName());
-            result.priority = priority;
-            result.info = info;
-            result.isAssociative = isAssociative;
-            result.isCommutative = isCommutative;
-            result.isIdempotent = isIdempotent;
-            result.id = id;
-            result.behavorial = behavorial;
-            result.gather = gather;
-            result.strategy = strategy;
+            result = new Operation(this.name, args, res, this.modName.getOriginModuleName());
+            result.priority = this.priority;
+            result.info = this.info;
+            result.isAssociative = this.isAssociative;
+            result.isCommutative = this.isCommutative;
+            result.isIdempotent = this.isIdempotent;
+            result.id = this.id;
+            result.behavorial = this.behavorial;
+            result.gather = this.gather;
+            result.strategy = this.strategy;
 
         } catch (SignatureException e) {
         }
@@ -1080,29 +1077,29 @@ public class Operation
                                 Sort news) {
 
         Operation result = null;
-        Sort[] args = new Sort[argumentSorts.length];
-        Sort res = resultSort.equals(olds) ? news
-                                           : resultSort;
+        Sort[] args = new Sort[this.argumentSorts.length];
+        Sort res = this.resultSort.equals(olds) ? news
+                                                : this.resultSort;
 
-        for (int j = 0; j < argumentSorts.length; j++ ) {
-            args[j] = argumentSorts[j].equals(olds) ? news
-                                                    : argumentSorts[j];
+        for (int j = 0; j < this.argumentSorts.length; j++ ) {
+            args[j] = this.argumentSorts[j].equals(olds) ? news
+                                                         : this.argumentSorts[j];
         }
 
         try {
-            result = new Operation(name, args, res, modName);
-            result.priority = priority;
-            result.info = info;
-            result.isAssociative = isAssociative;
-            result.isCommutative = isCommutative;
-            result.isIdempotent = isIdempotent;
-            if (id != null)
-                result.id = id.changeSort(olds, news);
-            if (implicitId != null)
-                result.implicitId = implicitId.changeSort(olds, news);
-            result.behavorial = behavorial;
-            result.gather = gather;
-            result.strategy = strategy;
+            result = new Operation(this.name, args, res, this.modName);
+            result.priority = this.priority;
+            result.info = this.info;
+            result.isAssociative = this.isAssociative;
+            result.isCommutative = this.isCommutative;
+            result.isIdempotent = this.isIdempotent;
+            if (this.id != null)
+                result.id = this.id.changeSort(olds, news);
+            if (this.implicitId != null)
+                result.implicitId = this.implicitId.changeSort(olds, news);
+            result.behavorial = this.behavorial;
+            result.gather = this.gather;
+            result.strategy = this.strategy;
 
         } catch (SignatureException e) {
         }
@@ -1111,7 +1108,7 @@ public class Operation
     }
 
     public Operation replaceOperationName(String to) {
-        return this.replaceOperationName(name, to);
+        return this.replaceOperationName(this.name, to);
     }
 
     public Operation replaceOperationName(String from,
@@ -1121,7 +1118,7 @@ public class Operation
 
         boolean same = true;
         StringTokenizer st1 = new StringTokenizer(from, "_ ");
-        StringTokenizer st2 = new StringTokenizer(name, "_ ");
+        StringTokenizer st2 = new StringTokenizer(this.name, "_ ");
         while (st1.hasMoreTokens() && same) {
             String tmp1 = st1.nextToken();
             if (st2.hasMoreTokens()) {
@@ -1143,23 +1140,23 @@ public class Operation
         if (same) {
 
             try {
-                result = new Operation(to, argumentSorts, resultSort, modName);
+                result = new Operation(to, this.argumentSorts, this.resultSort, this.modName);
 
-                result.isAssociative = isAssociative;
-                result.isCommutative = isCommutative;
-                result.isIdempotent = isIdempotent;
-                result.behavorial = behavorial;
+                result.isAssociative = this.isAssociative;
+                result.isCommutative = this.isCommutative;
+                result.isIdempotent = this.isIdempotent;
+                result.behavorial = this.behavorial;
 
-                if (id != null) {
-                    result.id = id.replaceOperationName(from, to);
+                if (this.id != null) {
+                    result.id = this.id.replaceOperationName(from, to);
                 }
 
-                if (implicitId != null) {
-                    result.implicitId = implicitId;
+                if (this.implicitId != null) {
+                    result.implicitId = this.implicitId;
                 }
 
-                result.gather = gather;
-                result.strategy = strategy;
+                result.gather = this.gather;
+                result.strategy = this.strategy;
 
             } catch (SignatureException e) {
             }
@@ -1171,13 +1168,13 @@ public class Operation
     }
 
     public boolean uses(Sort sort) {
-        for (Sort argumentSort : argumentSorts) {
+        for (Sort argumentSort : this.argumentSorts) {
             if (argumentSort.equals(sort)) {
                 return true;
             }
         }
 
-        if (resultSort.equals(sort)) {
+        if (this.resultSort.equals(sort)) {
             return true;
         }
 
@@ -1187,12 +1184,12 @@ public class Operation
 
     public boolean isDefinedOnInitial() {
         boolean result = true;
-        for (int i = 0; i < argumentSorts.length && result; i++ ) {
-            result = argumentSorts[i].isInitial();
+        for (int i = 0; i < this.argumentSorts.length && result; i++ ) {
+            result = this.argumentSorts[i].isInitial();
         }
 
         if (result)
-            result = resultSort.isInitial();
+            result = this.resultSort.isInitial();
         return result;
     }
 
@@ -1201,24 +1198,24 @@ public class Operation
         Operation result = null;
 
         try {
-            result = new Operation(name, argumentSorts, resultSort, modName);
+            result = new Operation(this.name, this.argumentSorts, this.resultSort, this.modName);
         } catch (Exception e) {
         }
 
-        result.argumentNames = argumentNames;
-        result.resultName = resultName;
-        result.priority = priority;
-        result.isAssociative = isAssociative;
-        result.isCommutative = isCommutative;
-        result.isIdempotent = isIdempotent;
-        result.id = id;
-        result.implicitId = implicitId;
-        result.behavorial = behavorial;
-        result.gather = gather;
-        result.strategy = strategy;
+        result.argumentNames = this.argumentNames;
+        result.resultName = this.resultName;
+        result.priority = this.priority;
+        result.isAssociative = this.isAssociative;
+        result.isCommutative = this.isCommutative;
+        result.isIdempotent = this.isIdempotent;
+        result.id = this.id;
+        result.implicitId = this.implicitId;
+        result.behavorial = this.behavorial;
+        result.gather = this.gather;
+        result.strategy = this.strategy;
 
-        result.info = info;
-        result.prod = new Vector<>(prod);
+        result.info = this.info;
+        result.prod = new Vector<>(this.prod);
 
         return result;
 
@@ -1226,7 +1223,7 @@ public class Operation
 
     public void setGather(String[] gather) throws SignatureException {
         if (gather.length != this.argumentSorts.length) {
-            throw new SignatureException("expect " + argumentSorts.length
+            throw new SignatureException("expect " + this.argumentSorts.length
                                          + " in gather definition");
         }
 

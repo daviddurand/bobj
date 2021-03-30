@@ -31,37 +31,37 @@ public class FastTermParser {
         this.tokens = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(string);
         while (st.hasMoreTokens()) {
-            tokens.add(st.nextToken());
+            this.tokens.add(st.nextToken());
         }
 
         //set up parathesis counts
-        paratheses = new int[tokens.size()];
+        this.paratheses = new int[this.tokens.size()];
         int count = 0;
-        for (int i = 0; i < tokens.size(); i++ ) {
-            String token = tokens.get(i);
+        for (int i = 0; i < this.tokens.size(); i++ ) {
+            String token = this.tokens.get(i);
             if (sig.balancedBrackets) {
                 if (token.equals("(") || token.equals("{") || token.equals("[")) {
-                    paratheses[i] = count;
+                    this.paratheses[i] = count;
                     count++ ;
                 } else if (token.equals(")") || token.equals("}") || token.equals("]")) {
                     count-- ;
-                    paratheses[i] = count;
+                    this.paratheses[i] = count;
                 } else {
-                    paratheses[i] = count;
+                    this.paratheses[i] = count;
                 }
             } else if (token.equals("(")) {
-                paratheses[i] = count;
+                this.paratheses[i] = count;
                 count++ ;
             } else if (token.equals(")")) {
                 count-- ;
-                paratheses[i] = count;
+                this.paratheses[i] = count;
             } else {
-                paratheses[i] = count;
+                this.paratheses[i] = count;
             }
         }
 
         //initialize tables
-        tables = new ArrayList[tokens.size()][tokens.size()];
+        this.tables = new ArrayList[this.tokens.size()][this.tokens.size()];
 
         // prepare operations
         Operation[] ops = sig.getOperations();
@@ -73,7 +73,7 @@ public class FastTermParser {
                 Object obj = vec.elementAt(j);
                 if (obj instanceof String) {
                     hasLetter = true;
-                    if (tokens.contains(obj)) {
+                    if (this.tokens.contains(obj)) {
 
                         // add ops[i] by the order
                         int k;
@@ -98,18 +98,18 @@ public class FastTermParser {
             }
         }
 
-        operations = new Operation[opList.size()];
-        opList.copyInto(operations);
+        this.operations = new Operation[opList.size()];
+        opList.copyInto(this.operations);
     }
 
     private void showTables() {
         System.err.print("\n\n=====\nParse-table\n");
-        for (int i = 0; i < tokens.size(); i++ ) {
-            System.err.print(tokens.get(i) + "\t");
-            for (int j = 0; j < tokens.size(); j++ ) {
-                if (tables[i][j] == null)
+        for (int i = 0; i < this.tokens.size(); i++ ) {
+            System.err.print(this.tokens.get(i) + "\t");
+            for (int j = 0; j < this.tokens.size(); j++ ) {
+                if (this.tables[i][j] == null)
                     System.err.print("nil");
-                else System.err.print(tables[i][j].toString());
+                else System.err.print(this.tables[i][j].toString());
                 System.err.print("\t\t");
             }
             System.err.print("\n");
@@ -122,24 +122,24 @@ public class FastTermParser {
 //      System.err.println("tokens = " + tokens + "     size = " + tokens.size());
 //      System.err.println("begin = " + i + "   end = " + (i + len));
 
-        for (int len = 0; len < tokens.size(); len++ ) {
+        for (int len = 0; len < this.tokens.size(); len++ ) {
             if (debug)
                 System.err.println("len: " + (len));
-            for (int i = 0; i + len < tokens.size(); i++ ) {
+            for (int i = 0; i + len < this.tokens.size(); i++ ) {
                 if (debug)
                     System.err.println("   start: " + i + " end: " + (i + len));
 
                 // calculate tables[i, i+len]
-                tables[i][i + len] = new ArrayList<>();
+                this.tables[i][i + len] = new ArrayList<>();
 
                 // only handle balanced parenthese
-                if (paratheses[i] != paratheses[i + len]) {
+                if (this.paratheses[i] != this.paratheses[i + len]) {
                     continue;
                 }
 
                 boolean o = true;
                 for (int j = i + 1; j <= len + i; j++ ) {
-                    if (paratheses[j] < paratheses[i]) {
+                    if (this.paratheses[j] < this.paratheses[i]) {
                         o = false;
                         break;
                     }
@@ -149,11 +149,11 @@ public class FastTermParser {
                 }
 
                 // optimaization for the first token
-                String first = tokens.get(i);
+                String first = this.tokens.get(i);
 
-                if (!sig.firsts.contains(first) && !first.startsWith("'") && !first.startsWith("r:")
-                    && !first.startsWith("~setsort~") && !first.startsWith("~sort~")
-                    && !first.startsWith("~sort*~")) {
+                if (!this.sig.firsts.contains(first) && !first.startsWith("'")
+                    && !first.startsWith("r:") && !first.startsWith("~setsort~")
+                    && !first.startsWith("~sort~") && !first.startsWith("~sort*~")) {
                     try {
                         Integer.parseInt(first);
                     } catch (Exception e) {
@@ -167,12 +167,12 @@ public class FastTermParser {
 
                 // optimaization for the last token
 
-                String last = tokens.get(i + len);
-                if (!sig.lasts.contains(last) && !last.startsWith("'")) {
+                String last = this.tokens.get(i + len);
+                if (!this.sig.lasts.contains(last) && !last.startsWith("'")) {
 
                     boolean opt = true;
                     if (len > 0) {
-                        String last2 = tokens.get(i + len - 1);
+                        String last2 = this.tokens.get(i + len - 1);
                         if (last2.equals(".")) {
                             opt = false;
                         }
@@ -193,12 +193,12 @@ public class FastTermParser {
 
                 // handle variable
                 if (len == 0) {
-                    String string = tokens.get(i);
-                    Variable[] vars = sig.getVariables();
+                    String string = this.tokens.get(i);
+                    Variable[] vars = this.sig.getVariables();
                     for (Variable var : vars) {
                         if (var.getName()
                                .equals(string)) {
-                            add(tables[i][i], new Term(var));
+                            add(this.tables[i][i], new Term(var));
                             break;
                         }
                     }
@@ -207,10 +207,11 @@ public class FastTermParser {
                 // handle parentheses
                 if (len > 1) {
 
-                    String l = tokens.get(i);
-                    String r = tokens.get(i + len);
+                    String l = this.tokens.get(i);
+                    String r = this.tokens.get(i + len);
                     if (l.equals("(") && r.equals(")")) {
-                        addAllWithParenthese(tables[i][i + len], tables[i + 1][i + len - 1]);
+                        addAllWithParenthese(this.tables[i][i + len],
+                                             this.tables[i + 1][i + len - 1]);
                     }
                 }
 
@@ -223,14 +224,14 @@ public class FastTermParser {
                 Sort imtSort = new Sort("Int", imt);
                 Sort floatSort = FloatModule.floatSort;
 
-                if (len == 0 && sig.containsSystemSort(natSort)) {
-                    String token = tokens.get(i);
+                if (len == 0 && this.sig.containsSystemSort(natSort)) {
+                    String token = this.tokens.get(i);
                     try {
                         int num = Integer.parseInt(token);
                         if (num > 0) {
                             try {
                                 Operation op = new Operation(token, natSort, nat);
-                                add(tables[i][i], new Term(op));
+                                add(this.tables[i][i], new Term(op));
                             } catch (Exception e) {
                             }
                         }
@@ -238,14 +239,14 @@ public class FastTermParser {
                     }
                 }
 
-                if (len == 0 && sig.containsSystemSort(imtSort)) {
-                    String token = tokens.get(i);
+                if (len == 0 && this.sig.containsSystemSort(imtSort)) {
+                    String token = this.tokens.get(i);
                     try {
                         int num = Integer.parseInt(token);
                         if (num < 0) {
                             try {
                                 Operation op = new Operation(token, imtSort, imt);
-                                add(tables[i][i], new Term(op, new Term[0]));
+                                add(this.tables[i][i], new Term(op, new Term[0]));
                             } catch (Exception e) {
                             }
                         }
@@ -253,14 +254,14 @@ public class FastTermParser {
                     }
                 }
 
-                if (len == 0 && sig.containsSystemSort(floatSort)) {
-                    String token = tokens.get(i);
+                if (len == 0 && this.sig.containsSystemSort(floatSort)) {
+                    String token = this.tokens.get(i);
 
                     try {
                         float num = Float.parseFloat(token);
                         try {
                             Operation op = new Operation(token, floatSort, floatt);
-                            add(tables[i][i], new Term(op));
+                            add(this.tables[i][i], new Term(op));
                         } catch (Exception e) {
                         }
                     } catch (Exception ex) {
@@ -269,13 +270,13 @@ public class FastTermParser {
 
                 // handle Id and its aliases
                 if (len == 0) {
-                    Sort[] sorts = sig.getQidAlias();
-                    String token = tokens.get(i);
+                    Sort[] sorts = this.sig.getQidAlias();
+                    String token = this.tokens.get(i);
                     if (sorts != null && sorts.length > 0 && token.startsWith("'")) {
                         for (Sort sort : sorts) {
                             try {
                                 Operation op = new Operation(token, sort, sort.getModuleName());
-                                add(tables[i][i], new Term(op));
+                                add(this.tables[i][i], new Term(op));
                             } catch (Exception e) {
                             }
                         }
@@ -295,7 +296,7 @@ public class FastTermParser {
                     if (list.size() == 0) {
                         if (op.isConstant()) {
                             try {
-                                add(tables[i][i + len], new Term(op));
+                                add(this.tables[i][i + len], new Term(op));
                             } catch (TermException e) {
                             }
                         }
@@ -310,7 +311,7 @@ public class FastTermParser {
                             }
 
                             System.out.flush();
-                            addAll(i, i + len, tables[i][i + len], join(op, candidate));
+                            addAll(i, i + len, this.tables[i][i + len], join(op, candidate));
 
                         }
                     }
@@ -318,11 +319,11 @@ public class FastTermParser {
 
                 // handle module name
                 if (len > 1) {
-                    String dot = tokens.get(i + len - 1);
-                    String s = tokens.get(i + len);
+                    String dot = this.tokens.get(i + len - 1);
+                    String s = this.tokens.get(i + len);
 
                     if (dot.equals(".")) {
-                        addByModuleName(tables[i][i + len], tables[i][i + len - 2],
+                        addByModuleName(this.tables[i][i + len], this.tables[i][i + len - 2],
                                         new ModuleName(s));
                     }
 
@@ -333,13 +334,13 @@ public class FastTermParser {
 
                     //System.out.println("===> "+tokens);
 
-                    String l = tokens.get(i);
-                    String r = tokens.get(i + len);
+                    String l = this.tokens.get(i);
+                    String r = this.tokens.get(i + len);
                     if (!l.equals("(") && r.equals(")")) {
                         int pos = i + len - 1;
                         int count = 1;
                         while (count > 0 && pos >= i) {
-                            String s = tokens.get(pos);
+                            String s = this.tokens.get(pos);
                             if (s.equals("(")) {
                                 count-- ;
                             } else if (s.equals(")")) {
@@ -349,12 +350,12 @@ public class FastTermParser {
                         }
 
                         if (count == 0 && pos > i) {
-                            String s = tokens.get(pos);
+                            String s = this.tokens.get(pos);
                             if (s.equals(".")) {
 
                                 String modexp = "";
                                 for (int x = pos + 2; x < i + len; x++ ) {
-                                    modexp += " " + tokens.get(x);
+                                    modexp += " " + this.tokens.get(x);
                                 }
 // debug
                                 modexp = printModexpDebug(modexp);
@@ -365,9 +366,9 @@ public class FastTermParser {
                                 bobj.modPool = BOBJ.client.modPool;
 
                                 try {
-                                    Module mod = bobj.ModExpr((Module) sig);
-                                    addByModuleName(tables[i][i + len], tables[i][pos - 1],
-                                                    mod.modName);
+                                    Module mod = bobj.ModExpr((Module) this.sig);
+                                    addByModuleName(this.tables[i][i + len],
+                                                    this.tables[i][pos - 1], mod.modName);
                                     // Debug
 //                                    Term tttt = tables[i][i + len].get(0);
 //                                    System.err.println(tttt.showStructureWithModuleName((Module) sig));
@@ -385,7 +386,7 @@ public class FastTermParser {
 
                 // handle retraction
                 if (len > 2) {
-                    String string = tokens.get(i);
+                    String string = this.tokens.get(i);
                     int index = string.indexOf(">");
                     if (string.startsWith("r:") && index != -1) {
                         String superSortName = string.substring(0, index)
@@ -394,13 +395,13 @@ public class FastTermParser {
                         String subSortName = string.substring(index + 1)
                                                    .trim();
 
-                        Sort[] superSorts = sig.getSortsByName(superSortName);
-                        Sort[] subSorts = sig.getSortsByName(subSortName);
+                        Sort[] superSorts = this.sig.getSortsByName(superSortName);
+                        Sort[] subSorts = this.sig.getSortsByName(subSortName);
 
                         if (superSorts.length == 1 && subSorts.length == 1
-                            && sig.subsorts.isSubsort(superSorts[0], subSorts[0])) {
+                            && this.sig.subsorts.isSubsort(superSorts[0], subSorts[0])) {
 
-                            addByRetraction(tables[i][i + len], tables[i + 1][i + len],
+                            addByRetraction(this.tables[i][i + len], this.tables[i + 1][i + len],
                                             superSorts[0], subSorts[0]);
 
                         }
@@ -409,17 +410,17 @@ public class FastTermParser {
 
                 // handle ~setsort~
                 if (len > 4) {
-                    String string = tokens.get(i);
+                    String string = this.tokens.get(i);
                     if (string.equals("~setsort~")) {
-                        String lp = tokens.get(i + 1);
-                        String rp = tokens.get(i + len);
-                        String sortName = tokens.get(i + 2);
-                        String comma = tokens.get(i + 3);
-                        List<Term> terms = tables[i + 4][i + len - 1];
+                        String lp = this.tokens.get(i + 1);
+                        String rp = this.tokens.get(i + len);
+                        String sortName = this.tokens.get(i + 2);
+                        String comma = this.tokens.get(i + 3);
+                        List<Term> terms = this.tables[i + 4][i + len - 1];
 
                         if (lp.equals("(") && rp.equals(")") && comma.equals(",")) {
 
-                            Sort[] sorts = sig.getSortsByName(sortName);
+                            Sort[] sorts = this.sig.getSortsByName(sortName);
                             for (Sort sort : sorts) {
                                 for (int l = 0; l < terms.size(); l++ ) {
                                     try {
@@ -431,9 +432,9 @@ public class FastTermParser {
 
                                         Term term2 = new Term(sortOp);
                                         Operation op = BOBJModule.getSetsortOperation();
-                                        Term term = new Term(sig, op, term2, term1);
+                                        Term term = new Term(this.sig, op, term2, term1);
 
-                                        tables[i][i + len].add(term);
+                                        this.tables[i][i + len].add(term);
                                     } catch (Exception e) {
                                     }
                                 }
@@ -446,15 +447,15 @@ public class FastTermParser {
 
                 // handle ~sort~
                 if (len > 2) {
-                    String string = tokens.get(i);
+                    String string = this.tokens.get(i);
                     if (string.equals("~sort~") || string.equals("~sort*~")) {
 
-                        String lp = tokens.get(i + 1);
-                        String rp = tokens.get(i + len);
-                        List<Term> terms = tables[i + 2][i + len - 1];
+                        String lp = this.tokens.get(i + 1);
+                        String rp = this.tokens.get(i + len);
+                        List<Term> terms = this.tables[i + 2][i + len - 1];
 
                         if (lp.equals("(") && rp.equals(")")
-                            && sig.containsSystemSort(QidlModule.idSort)) {
+                            && this.sig.containsSystemSort(QidlModule.idSort)) {
 
                             for (int l = 0; l < terms.size(); l++ ) {
 
@@ -467,8 +468,8 @@ public class FastTermParser {
                                 }
 
                                 try {
-                                    term = new Term(sig, op, term);
-                                    tables[i][i + len].add(term);
+                                    term = new Term(this.sig, op, term);
+                                    this.tables[i][i + len].add(term);
                                 } catch (Exception e) {
                                 }
                             }
@@ -481,7 +482,7 @@ public class FastTermParser {
                 showTables();
         }
 
-        return tables[0][tokens.size() - 1];
+        return this.tables[0][this.tokens.size() - 1];
 
     }
 
@@ -522,7 +523,7 @@ public class FastTermParser {
 
         for (int i = 0; i < list.size(); i++ ) {
             Term term = list.get(i);
-            if (term.getPropertyBy("()") != null && sig.isSubsort(term.sort, superSort)) {
+            if (term.getPropertyBy("()") != null && this.sig.isSubsort(term.sort, superSort)) {
                 try {
                     Sort[] args = new Sort[]
                         {
@@ -534,7 +535,7 @@ public class FastTermParser {
                                       args, res, BOBJModule.getModuleName());
                     retOp.info = "system-retract";
 
-                    term = new Term(sig, retOp, term);
+                    term = new Term(this.sig, retOp, term);
                     dest.add(term);
                     //sig.explicitRetract = true;
 
@@ -561,11 +562,11 @@ public class FastTermParser {
                 Sort opSort = op.resultSort;
                 String reg = modName.atom;
 
-                for (int j = 0; j < sig.sorts.size(); j++ ) {
-                    Sort sort = sig.sorts.elementAt(j);
+                for (int j = 0; j < this.sig.sorts.size(); j++ ) {
+                    Sort sort = this.sig.sorts.elementAt(j);
                     if (sort.getName()
                             .equals(reg)) {
-                        if (sig.isSubsort(opSort, sort)) {
+                        if (this.sig.isSubsort(opSort, sort)) {
                             dest.add(term);
                         }
                         break;
@@ -578,7 +579,7 @@ public class FastTermParser {
                   .equals(modName)
                 && !dest.contains(term)) {
                 dest.add(term);
-            } else if (((Module) sig).hasParameter(modName.atom) && op.modName != null
+            } else if (((Module) this.sig).hasParameter(modName.atom) && op.modName != null
                        && op.modName.op == ModuleName.ANNOTATE
                        && op.modName.atom.equals(modName.atom)) {
                            if (term.isComposite()) {
@@ -589,12 +590,12 @@ public class FastTermParser {
                                add(dest, term);
                            }
                        } else
-                if (((Module) sig).hasParameter(modName.atom) && op.modName != null
+                if (((Module) this.sig).hasParameter(modName.atom) && op.modName != null
                     && op.modName.op == ModuleName.ATOM && op.resultSort.isInitial()) {
 
                         try {
 
-                            Module mod = ((Module) sig).getParameter(modName.atom);
+                            Module mod = ((Module) this.sig).getParameter(modName.atom);
                             if (mod.containsSort(op.resultSort)) {
 
                                 if (term.isComposite()) {
@@ -610,26 +611,26 @@ public class FastTermParser {
 
                     } else {
 
-                        Operation[] ops = sig.getOperationsWithName(op.getName());
+                        Operation[] ops = this.sig.getOperationsWithName(op.getName());
                         ArrayList<Operation> l = new ArrayList<>();
 
                         for (Operation op2 : ops) {
                             if (op2.getModuleName()
                                    .equals(modName)
-                                && op.less(sig, op2)) {
+                                && op.less(this.sig, op2)) {
 
                                 // insert ops[k] into l
                                 boolean found = false;
                                 for (int j = 0; j < l.size(); j++ ) {
                                     Operation o = l.get(i);
-                                    if (op2.less(sig, o)) {
+                                    if (op2.less(this.sig, o)) {
                                         // remove o
                                         l.remove(j);
                                         // insert k
                                         l.add(op2);
                                         found = true;
                                         break;
-                                    } else if (o.less(sig, op2)) {
+                                    } else if (o.less(this.sig, op2)) {
                                         found = true;
                                         break;
                                     }
@@ -645,7 +646,7 @@ public class FastTermParser {
                         try {
                             Term[] terms = term.subterms;
                             for (Operation o : l) {
-                                Term t = new Term(sig, o, terms);
+                                Term t = new Term(this.sig, o, terms);
                                 dest.add(t);
                             }
                         } catch (TermException ex) {
@@ -700,7 +701,7 @@ public class FastTermParser {
         for (int i = 0; i < dest.size(); i++ ) {
             Term t = dest.get(i);
 
-            if (term.equals(sig, t)) {
+            if (term.equals(this.sig, t)) {
 
                 if (t.needHeadRetract()) {
                     if (!term.needHeadRetract()) {
@@ -721,7 +722,7 @@ public class FastTermParser {
                 } else if (!term.needHeadRetract()) {
 
                     if (term.operation != null && t.operation != null
-                        && term.operation.less(sig, t.operation)) {
+                        && term.operation.less(this.sig, t.operation)) {
 
                         dest.remove(i);
                         for (int k = dest.size() - 1; k >= i; k-- ) {
@@ -768,7 +769,7 @@ public class FastTermParser {
     private boolean removable(Term term,
                               Term target) {
 
-        if (term.equals(sig, target)) {
+        if (term.equals(this.sig, target)) {
             if (target.needRetract()) {
                 if (!term.needRetract()) {
                     return true;
@@ -778,7 +779,7 @@ public class FastTermParser {
 
             } else if (!term.needRetract()) {
                 if (term.operation != null && target.operation != null
-                    && term.operation.less(sig, target.operation)) {
+                    && term.operation.less(this.sig, target.operation)) {
                     return true;
                 } else {
                     return false;
@@ -815,7 +816,7 @@ public class FastTermParser {
                                   ArrayList<Operation> ops,
                                   ArrayList<ArrayList<Match[]>> matches) {
 
-        for (Operation operation : operations) {
+        for (Operation operation : this.operations) {
             ArrayList<Match[]> list = getAllTopMatches(operation, x, y);
             if (list != null) {
                 ops.add(operation);
@@ -843,7 +844,7 @@ public class FastTermParser {
             if (obj instanceof String) {
 
                 String string = ((String) obj).trim();
-                String token = tokens.get(x); //trim();
+                String token = this.tokens.get(x); //trim();
 
                 if (string.equals(token)) {
                     return getAllTopMatches(vec, x + 1, y);
@@ -857,7 +858,7 @@ public class FastTermParser {
                 ArrayList<Match[]> result = new ArrayList<>();
                 for (int i = x; i + vec.size() - 1 < y; i++ ) {
 
-                    if (paratheses[x] != paratheses[i]) {
+                    if (this.paratheses[x] != this.paratheses[i]) {
                         continue;
                     }
 
@@ -904,8 +905,8 @@ public class FastTermParser {
                               Sort sort) {
 
         List<Term> result = new ArrayList<>();
-        for (Term term : tables[x][y]) {
-            Term tmp = term.copy(sig);
+        for (Term term : this.tables[x][y]) {
+            Term tmp = term.copy(this.sig);
             tmp.helper = new HashMap<>(term.helper);
 
             if (term.parent != null) {
@@ -913,9 +914,9 @@ public class FastTermParser {
             }
             term = tmp;
 
-            if ((sig.isSubsort(term.sort, sort) || sig.isSubsort(sort, term.sort)
-                 || sig.hasCommonSupersort(term.sort, sort))
-                || (sig.canApply(sort, term.sort) != null)) {
+            if ((this.sig.isSubsort(term.sort, sort) || this.sig.isSubsort(sort, term.sort)
+                 || this.sig.hasCommonSupersort(term.sort, sort))
+                || (this.sig.canApply(sort, term.sort) != null)) {
 
                 result.add(term);
             }
@@ -972,15 +973,15 @@ public class FastTermParser {
                 // then term is not okay
 
                 Operation oper = terms[terms.length - 1].getTopOperation();
-                Term term = new Term(sig, op, terms);
+                Term term = new Term(this.sig, op, terms);
 
                 if (op.equals(BoolModule.metaIf) && op.info.equals("system-default")) {
 
-                    if (sig.isSubsort(terms[1].sort, terms[2].sort)) {
+                    if (this.sig.isSubsort(terms[1].sort, terms[2].sort)) {
                         term.sort = terms[2].sort;
                     }
 
-                    if (sig.isSubsort(terms[2].sort, terms[1].sort)) {
+                    if (this.sig.isSubsort(terms[2].sort, terms[1].sort)) {
                         term.sort = terms[1].sort;
                     }
                 }
@@ -1000,11 +1001,11 @@ public class FastTermParser {
                         System.arraycopy(terms, 0, a, 0, terms.length - 1);
                         a[terms.length - 1] = terms[terms.length - 1].subterms[0];
 
-                        b[0] = new Term(sig, op, a);
+                        b[0] = new Term(this.sig, op, a);
                         System.arraycopy(terms[terms.length - 1].subterms, 1, b, 1,
                                          terms[terms.length - 1].subterms.length - 1);
 
-                        new Term(sig, oper, b);
+                        new Term(this.sig, oper, b);
                         continue;
 
                     } catch (Exception e) {
@@ -1029,10 +1030,10 @@ public class FastTermParser {
                         System.arraycopy(terms, 1, a, 1, terms.length - 1);
                         a[0] = terms[0].subterms[terms[0].subterms.length - 1];
 
-                        b[b.length - 1] = new Term(sig, op, a);
+                        b[b.length - 1] = new Term(this.sig, op, a);
                         System.arraycopy(terms[0].subterms, 0, b, 0, terms[0].subterms.length - 1);
 
-                        new Term(sig, oper, b);
+                        new Term(this.sig, oper, b);
                         continue;
 
                     } catch (Exception e) {
@@ -1089,11 +1090,11 @@ public class FastTermParser {
     public void show() {
 
         System.out.println("\n--------- show ------------");
-        System.out.println("tokens = " + tokens);
-        for (int i = 0; i < tokens.size(); i++ ) {
-            for (int j = i; j < tokens.size(); j++ ) {
-                if (tables[i][j] != null && tables[i][j].size() != 0) {
-                    System.out.println(i + "   " + j + " : " + tables[i][j]);
+        System.out.println("tokens = " + this.tokens);
+        for (int i = 0; i < this.tokens.size(); i++ ) {
+            for (int j = i; j < this.tokens.size(); j++ ) {
+                if (this.tables[i][j] != null && this.tables[i][j].size() != 0) {
+                    System.out.println(i + "   " + j + " : " + this.tables[i][j]);
                 }
             }
         }
@@ -1101,11 +1102,11 @@ public class FastTermParser {
 
     public String[] getUnknownTokens() {
         List<Object> list = new ArrayList<>();
-        for (int i = 0; i < tokens.size(); i++ ) {
-            String string = tokens.get(i);
-            if (!sig.tokens.contains(string) && !string.equals(",") && !string.equals("(")
+        for (int i = 0; i < this.tokens.size(); i++ ) {
+            String string = this.tokens.get(i);
+            if (!this.sig.tokens.contains(string) && !string.equals(",") && !string.equals("(")
                 && !string.equals(")")) {
-                list.add(tokens.get(i));
+                list.add(this.tokens.get(i));
             }
         }
 
@@ -1135,7 +1136,7 @@ public class FastTermParser {
 
         @Override
         public String toString() {
-            return "(" + x + " " + y + " " + sort.getName() + ")";
+            return "(" + this.x + " " + this.y + " " + this.sort.getName() + ")";
         }
     }
 

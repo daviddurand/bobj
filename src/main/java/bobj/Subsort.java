@@ -25,13 +25,13 @@ public class Subsort
         Vector<Sort> pv = new Vector<>();
         Vector<Sort> cv = new Vector<>();
 
-        if (subsorts.containsKey(child)) {
-            cv = subsorts.get(child);
-            subsorts.remove(child);
+        if (this.subsorts.containsKey(child)) {
+            cv = this.subsorts.get(child);
+            this.subsorts.remove(child);
         }
-        if (subsorts.containsKey(parent)) {
-            pv = subsorts.get(parent);
-            subsorts.remove(parent);
+        if (this.subsorts.containsKey(parent)) {
+            pv = this.subsorts.get(parent);
+            this.subsorts.remove(parent);
         }
 
         // insert child into pv
@@ -46,12 +46,12 @@ public class Subsort
             if (!pv.contains(aChild))
                 pv.addElement(aChild);
         }
-        subsorts.put(parent, pv);
-        subsorts.put(child, cv);
+        this.subsorts.put(parent, pv);
+        this.subsorts.put(child, cv);
 
         // insert child and all the elements in cv to all possible places
-        for (Sort sort : subsorts.keySet()) {
-            Vector<Sort> sv = subsorts.get(sort);
+        for (Sort sort : this.subsorts.keySet()) {
+            Vector<Sort> sv = this.subsorts.get(sort);
 
             // if sv contains parent, then insert
             if (sv.contains(parent)) {
@@ -81,15 +81,17 @@ public class Subsort
                      .equals("system-default")) {
             result = true;
         } else {
-            result = subsorts.keySet()
-                             .contains(parent);
+
+            result = this.subsorts.keySet()
+                                  .contains(parent);
             if (result) {
-                Vector<Sort> v = subsorts.get(parent);
+                Vector<Sort> v = this.subsorts.get(parent);
                 result = false;
                 if (v.contains(child)) {
                     result = true;
                 }
             }
+
         }
 
         return result;
@@ -121,7 +123,7 @@ public class Subsort
         Vector<Sort> kids = new Vector<>();
         for (Sort sort : this.subsorts.keySet()) {
             if (sort.equals(parent)) {
-                kids = subsorts.get(sort);
+                kids = this.subsorts.get(sort);
             }
         }
 
@@ -136,7 +138,7 @@ public class Subsort
         Subsort result = new Subsort();
 
         for (Sort ps : this.subsorts.keySet()) {
-            Vector<Sort> vec = subsorts.get(ps);
+            Vector<Sort> vec = this.subsorts.get(ps);
 
             ps = ps.changeModuleName(olds, news);
 
@@ -163,7 +165,7 @@ public class Subsort
         Subsort result = new Subsort();
 
         for (Sort ps : this.subsorts.keySet()) {
-            Vector<Sort> vec = subsorts.get(ps);
+            Vector<Sort> vec = this.subsorts.get(ps);
 
             ps = ps.changeAbsoluteModuleName(olds, news);
 
@@ -190,7 +192,7 @@ public class Subsort
         Subsort result = new Subsort();
 
         for (Sort ps : this.subsorts.keySet()) {
-            Vector<Sort> vec = subsorts.get(ps);
+            Vector<Sort> vec = this.subsorts.get(ps);
 
             ps = ps.changeParameterName(olds, news);
 
@@ -216,7 +218,7 @@ public class Subsort
 
         Subsort tmp = new Subsort();
         for (Sort parent : this.subsorts.keySet()) {
-            Vector<Sort> cv = subsorts.get(parent);
+            Vector<Sort> cv = this.subsorts.get(parent);
 
             if (parent.equals(olds)) {
                 parent = news;
@@ -245,7 +247,7 @@ public class Subsort
         Subsort result = new Subsort();
 
         for (Sort ps : this.subsorts.keySet()) {
-            Vector<Sort> vec = subsorts.get(ps);
+            Vector<Sort> vec = this.subsorts.get(ps);
             Sort sort = ps.addAnnotation(name, env);
 
             for (int i = 0; i < vec.size(); i++ ) {
@@ -268,7 +270,7 @@ public class Subsort
         Subsort result = new Subsort();
 
         for (Sort ps : this.subsorts.keySet()) {
-            Vector<Sort> vec = subsorts.get(ps);
+            Vector<Sort> vec = this.subsorts.get(ps);
             Vector<Sort> res = new Vector<>();
 
             for (int i = 0; i < vec.size(); i++ ) {
@@ -310,7 +312,7 @@ public class Subsort
         Vector<Sort> kids = null;
         for (Sort tmp : this.subsorts.keySet()) {
             if (s2.equals(tmp)) {
-                kids = subsorts.get(tmp);
+                kids = this.subsorts.get(tmp);
                 break;
             }
         }

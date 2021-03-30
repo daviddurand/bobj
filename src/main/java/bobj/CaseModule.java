@@ -67,12 +67,12 @@ public class CaseModule
         for (int i = 1; i < list.size(); i++ ) {
             mod = (CaseModule) list.get(i);
 
-            if (!mod.base.equals(base)) {
-                throw new CaseModuleException(mod.name + " is not on the base " + base);
+            if (!mod.base.equals(this.base)) {
+                throw new CaseModuleException(mod.name + " is not on the base " + this.base);
             }
 
-            if (!mod.context.equals(context) && !mod.context.isSubterm(context)) {
-                throw new CaseModuleException(mod.context + " is not coherent to " + context);
+            if (!mod.context.equals(this.context) && !mod.context.isSubterm(this.context)) {
+                throw new CaseModuleException(mod.context + " is not coherent to " + this.context);
             }
 
             for (int j = 0; j < mod.vars.size(); j++ ) {
@@ -113,7 +113,7 @@ public class CaseModule
         this.cases = new ArrayList<>();
         this.labels = new ArrayList<>();
 
-        Module tmp = (Module) module.clone();
+        Module tmp = module.clone();
 
         // clone signature part
         this.sorts = new Vector<>(tmp.sorts);
@@ -160,10 +160,10 @@ public class CaseModule
     @Override
     public String toString() {
         String result = "";
-        result = "cases " + name + " for " + base + " is \n";
+        result = "cases " + this.name + " for " + this.base + " is \n";
 
         // handle variables
-        for (Sort tmp : sorts) {
+        for (Sort tmp : this.sorts) {
             if (tmp.getInfo()
                    .equals("system-default")) {
                 continue;
@@ -185,17 +185,17 @@ public class CaseModule
         }
 
         // context
-        result += "   context " + context + " .\n";
+        result += "   context " + this.context + " .\n";
 
         // cases
-        for (int i = 0; i < cases.size(); i++ ) {
-            if (labels.size() > 0) {
-                result += "   case (" + labels.get(i) + ") :\n";
+        for (int i = 0; i < this.cases.size(); i++ ) {
+            if (this.labels.size() > 0) {
+                result += "   case (" + this.labels.get(i) + ") :\n";
             } else {
                 result += "   case \n";
             }
 
-            List<Object> list = cases.get(i);
+            List<Object> list = this.cases.get(i);
             for (Object obj : list) {
                 if (obj instanceof Operation) {
                     result += "     " + this.toString((Operation) obj) + " .\n";
@@ -265,28 +265,28 @@ public class CaseModule
         if (this.labels.isEmpty()) {
             try {
                 int i = Integer.parseInt(label);
-                cases.remove(i - 1);
+                this.cases.remove(i - 1);
             } catch (Exception e) {
-                throw new CaseModuleException("no case in " + name + " with name " + label);
+                throw new CaseModuleException("no case in " + this.name + " with name " + label);
             }
-        } else if (labels.contains(label)) {
+        } else if (this.labels.contains(label)) {
 
-            int i = labels.indexOf(label);
-            cases.remove(i);
-            labels.remove(i);
+            int i = this.labels.indexOf(label);
+            this.cases.remove(i);
+            this.labels.remove(i);
 
         } else if (label.indexOf("*") != -1) {
 
-            for (int k = labels.size() - 1; k >= 0; k-- ) {
-                String tmp = labels.get(k);
+            for (int k = this.labels.size() - 1; k >= 0; k-- ) {
+                String tmp = this.labels.get(k);
                 if (match(label, tmp)) {
-                    cases.remove(k);
-                    labels.remove(k);
+                    this.cases.remove(k);
+                    this.labels.remove(k);
                 }
             }
 
         } else {
-            throw new CaseModuleException("no case in " + name + " with name " + label);
+            throw new CaseModuleException("no case in " + this.name + " with name " + label);
         }
 
     }

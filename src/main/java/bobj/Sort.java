@@ -45,7 +45,7 @@ public class Sort
                 ModuleName mod) {
         this.name = name;
         this.mod = mod;
-        this.props = new HashMap<String, Object>();
+        this.props = new HashMap<>();
         this.props.put("info", "no information available.");
     }
 
@@ -54,7 +54,7 @@ public class Sort
      *
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -62,7 +62,7 @@ public class Sort
      *
      */
     public ModuleName getModuleName() {
-        return mod;
+        return this.mod;
     }
 
     /**
@@ -84,12 +84,12 @@ public class Sort
     /* set a property with the specified name */
     public void setProperty(String name,
                             Object object) {
-        props.put(name, object);
+        this.props.put(name, object);
     }
 
     /* get a property with the specified name */
     public Object getProperty(String name) {
-        return props.get(name);
+        return this.props.get(name);
     }
 
     /* check whether this sort is initial sort */
@@ -110,10 +110,10 @@ public class Sort
 
         if (object instanceof Sort) {
             Sort sort = (Sort) object;
-            if (sort.name.equals(name)) {
-                if (sort.mod != null && mod != null && sort.mod.equals(mod)) {
+            if (sort.name.equals(this.name)) {
+                if (sort.mod != null && this.mod != null && sort.mod.equals(this.mod)) {
                     return true;
-                } else if (sort.mod == null && mod == null) {
+                } else if (sort.mod == null && this.mod == null) {
                     return true;
                 } else {
                     return false;
@@ -128,8 +128,8 @@ public class Sort
 
     @Override
     public int hashCode() {
-        return name.hashCode() + ((mod == null) ? 0
-                                                : mod.hashCode());
+        return this.name.hashCode() + ((this.mod == null) ? 0
+                                                          : this.mod.hashCode());
     }
 
     /**
@@ -149,10 +149,10 @@ public class Sort
      */
     @Override
     public String toString() {
-        if (mod == null) {
-            return "sort " + name;
+        if (this.mod == null) {
+            return "sort " + this.name;
         } else {
-            return "sort " + name + "." + mod;
+            return "sort " + this.name + "." + this.mod;
         }
     }
 
@@ -160,21 +160,21 @@ public class Sort
      * check whether this sort is system default sort
      */
     protected boolean isDefault() {
-        return props.get("info")
-                    .equals("system-default");
+        return this.props.get("info")
+                         .equals("system-default");
     }
 
     protected Sort addAnnotation(String name,
                                  Map<ModuleName, Integer> env) {
         if (!isDefault()) {
 
-            Integer aInt = env.get(mod);
+            Integer aInt = env.get(this.mod);
 
             if (aInt != null && aInt.intValue() == 0) {
                 return this;
             }
 
-            if (mod.hasNotation()) {
+            if (this.mod.hasNotation()) {
                 return this;
             }
 
@@ -182,7 +182,7 @@ public class Sort
                 return this;
             }
 
-            Sort sort = new Sort(this.name, mod.addAnnotation(name));
+            Sort sort = new Sort(this.name, this.mod.addAnnotation(name));
             sort.props = this.props;
             return sort;
 
@@ -192,8 +192,8 @@ public class Sort
     }
 
     protected Sort removeAnnotation(String name) {
-        if (mod.hasNotation(name)) {
-            Sort sort = new Sort(this.name, mod.getOriginModuleName());
+        if (this.mod.hasNotation(name)) {
+            Sort sort = new Sort(this.name, this.mod.getOriginModuleName());
             sort.props = this.props;
             return sort;
         } else {
@@ -204,7 +204,7 @@ public class Sort
     public Sort changeModuleName(ModuleName olds,
                                  ModuleName news) {
 
-        Sort sort = new Sort(name, mod.changeModuleName(olds, news));
+        Sort sort = new Sort(this.name, this.mod.changeModuleName(olds, news));
         sort.props = this.props;
         return sort;
 
@@ -213,7 +213,7 @@ public class Sort
     public Sort changeAbsoluteModuleName(ModuleName olds,
                                          ModuleName news) {
 
-        Sort sort = new Sort(name, mod.changeAbsoluteModuleName(olds, news));
+        Sort sort = new Sort(this.name, this.mod.changeAbsoluteModuleName(olds, news));
         sort.props = this.props;
         return sort;
 
@@ -222,7 +222,7 @@ public class Sort
     public Sort changeParameterName(String from,
                                     String to) {
 
-        Sort sort = new Sort(name, mod.changeParameterName(from, to));
+        Sort sort = new Sort(this.name, this.mod.changeParameterName(from, to));
         sort.props = this.props;
         return sort;
 

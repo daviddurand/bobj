@@ -80,30 +80,30 @@ class TermSelection {
     public String toString() {
 
         String result = "";
-        if (next != null) {
-            result = next.toString() + " of ";
+        if (this.next != null) {
+            result = this.next.toString() + " of ";
         }
 
-        switch (kind) {
+        switch (this.kind) {
             case RANGE:
-                if (begin < end) {
-                    return result + "[" + begin + ".." + end + "]";
+                if (this.begin < this.end) {
+                    return result + "[" + this.begin + ".." + this.end + "]";
                 } else {
-                    return result + "[" + begin + "]";
+                    return result + "[" + this.begin + "]";
                 }
             case SEQ:
                 String res = "(";
-                for (int element : seq) {
+                for (int element : this.seq) {
                     res += element + " ";
                 }
                 return result + res.trim() + ")";
             case SUB:
                 res = "{";
-                for (int i = 0; i < seq.length; i++ ) {
-                    if (i == seq.length - 1) {
-                        res += (seq[i] + 1);
+                for (int i = 0; i < this.seq.length; i++ ) {
+                    if (i == this.seq.length - 1) {
+                        res += (this.seq[i] + 1);
                     } else {
-                        res += (seq[i] + 1) + ",";
+                        res += (this.seq[i] + 1) + ",";
                     }
                 }
                 return result + res.trim() + "}";

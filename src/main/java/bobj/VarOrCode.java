@@ -21,7 +21,7 @@ public class VarOrCode {
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return this.name.hashCode();
     }
 
     @Override
@@ -30,14 +30,13 @@ public class VarOrCode {
             return true;
         if (!(obj instanceof VarOrCode) || obj instanceof Variable)
             return false;
-        if (name.equals(((VarOrCode) obj).name))
+        if (this.name.equals(((VarOrCode) obj).name))
             return true;
         else return false;
     }
 
     @Override
     public String toString() {
-        return "Var-tag:" + name + (value == null ? ""
-                                                  : " " + value.toString());
+        return "Var-tag:" + this.name;
     }
 }

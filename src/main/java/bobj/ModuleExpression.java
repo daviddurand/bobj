@@ -14,13 +14,13 @@ public class ModuleExpression {
     protected String rename;
 
     protected ModuleExpression() {
-        subexps = new Vector<>();
+        this.subexps = new Vector<>();
     }
 
     // create an atom module expression
     public ModuleExpression(String str) {
-        operation = "atom";
-        name = str;
+        this.operation = "atom";
+        this.name = str;
     }
 
     // create an addition ModuleExpression
@@ -48,7 +48,7 @@ public class ModuleExpression {
         ModuleExpression result = new ModuleExpression();
         result.operation = "*";
         result.subexps.addElement(this);
-        rename = str;
+        this.rename = str;
 
         return result;
     }
@@ -70,39 +70,39 @@ public class ModuleExpression {
     public String toString() {
         String result = "";
 
-        if (operation.equals("+")) {
+        if (this.operation.equals("+")) {
 
-            ModuleExpression exp1 = subexps.elementAt(0);
-            ModuleExpression exp2 = subexps.elementAt(1);
+            ModuleExpression exp1 = this.subexps.elementAt(0);
+            ModuleExpression exp2 = this.subexps.elementAt(1);
             result = exp1 + " + " + exp2;
 
-        } else if (operation.equals("||")) {
+        } else if (this.operation.equals("||")) {
 
-            ModuleExpression exp1 = subexps.elementAt(0);
-            ModuleExpression exp2 = subexps.elementAt(1);
+            ModuleExpression exp1 = this.subexps.elementAt(0);
+            ModuleExpression exp2 = this.subexps.elementAt(1);
             result = exp1 + " || " + exp2;
 
-        } else if (operation.equals("*")) {
+        } else if (this.operation.equals("*")) {
 
-            ModuleExpression exp = subexps.elementAt(0);
-            result = exp + " * (" + rename + ")";
+            ModuleExpression exp = this.subexps.elementAt(0);
+            result = exp + " * (" + this.rename + ")";
 
-        } else if (operation.equals("[]")) {
+        } else if (this.operation.equals("[]")) {
 
-            ModuleExpression exp = subexps.elementAt(0);
+            ModuleExpression exp = this.subexps.elementAt(0);
             result = exp + "[";
-            for (int i = 1; i < subexps.size(); i++ ) {
-                exp = subexps.elementAt(i);
-                if (i != subexps.size() - 1) {
+            for (int i = 1; i < this.subexps.size(); i++ ) {
+                exp = this.subexps.elementAt(i);
+                if (i != this.subexps.size() - 1) {
                     result += exp + ",";
                 } else {
                     result += exp + "]";
                 }
             }
 
-        } else if (operation.equals("atom")) {
+        } else if (this.operation.equals("atom")) {
 
-            result = name;
+            result = this.name;
 
         } else {
             System.out.println("Error: you should see this");

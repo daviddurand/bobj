@@ -20,7 +20,7 @@ public class Cobasis {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setModule(Module module) {
@@ -29,16 +29,16 @@ public class Cobasis {
 
     public void add(Sort sort) throws CobasisException {
 
-        if (module != null) {
-            if (!module.containsSort(sort)) {
+        if (this.module != null) {
+            if (!this.module.containsSort(sort)) {
                 throw new CobasisException(sort.getName() + " not defined in module "
-                                           + module.getModuleName());
+                                           + this.module.getModuleName());
             }
         }
 
         boolean found = false;
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort tmp = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort tmp = this.sorts.elementAt(i);
             if (sort.equals(tmp)) {
                 found = true;
                 break;
@@ -46,23 +46,23 @@ public class Cobasis {
         }
 
         if (!found)
-            sorts.addElement(sort);
+            this.sorts.addElement(sort);
 
     }
 
     public void add(Operation op) throws CobasisException {
 
-        if (module != null) {
+        if (this.module != null) {
             Operation opr = validFor(op);
             if (opr == null) {
                 throw new CobasisException(op.name + " not defined in module "
-                                           + module.getModuleName());
+                                           + this.module.getModuleName());
             }
         }
 
         boolean found = false;
-        for (int i = 0; i < ops.size(); i++ ) {
-            Operation tmp = ops.elementAt(i);
+        for (int i = 0; i < this.ops.size(); i++ ) {
+            Operation tmp = this.ops.elementAt(i);
             if (op.equals(tmp)) {
                 found = true;
                 break;
@@ -70,18 +70,18 @@ public class Cobasis {
         }
 
         if (!found)
-            ops.addElement(op);
+            this.ops.addElement(op);
 
     }
 
     @Override
     public String toString() {
-        String result = "cobasis " + name + " is \n";
-        for (int i = 0; i < sorts.size(); i++ ) {
-            result += "  " + sorts.elementAt(i) + " .\n";
+        String result = "cobasis " + this.name + " is \n";
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            result += "  " + this.sorts.elementAt(i) + " .\n";
         }
-        for (int i = 0; i < ops.size(); i++ ) {
-            result += " " + ops.elementAt(i) + " .\n";
+        for (int i = 0; i < this.ops.size(); i++ ) {
+            result += " " + this.ops.elementAt(i) + " .\n";
         }
         result += "end\n";
 
@@ -94,11 +94,11 @@ public class Cobasis {
          * (Operation)ops.elementAt(i); for (int j=0; j<op.argumentSorts.length; j++) { if
          * (module.containsHiddenSort(op.argumentSorts[j])) { op.argumentSorts[j] = new
          * HiddenSort(op.argumentSorts[j]); } } if (module.containsHiddenSort(op.resultSort)) {
-         * op.resultSort = new HiddenSort(op.resultSort); } pool.addElement(op); }
-         * Operation[] result = new Operation[pool.size()]; pool.copyInto(result); */
+         * op.resultSort = new HiddenSort(op.resultSort); } pool.addElement(op); } Operation[]
+         * result = new Operation[pool.size()]; pool.copyInto(result); */
 
-        Operation[] result = new Operation[ops.size()];
-        ops.copyInto(result);
+        Operation[] result = new Operation[this.ops.size()];
+        this.ops.copyInto(result);
 
         return result;
 
@@ -107,15 +107,15 @@ public class Cobasis {
     public boolean validFor(Module module,
                             Vector<Operation> cops) {
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             if (!module.containsSort(sort)) {
                 return false;
             }
         }
 
-        for (int i = 0; i < ops.size(); i++ ) {
-            Operation op = ops.elementAt(i);
+        for (int i = 0; i < this.ops.size(); i++ ) {
+            Operation op = this.ops.elementAt(i);
             Operation[] opers = module.getOperationsWithName(op.name);
             boolean found = false;
             for (int j = 0; j < opers.length && !found; j++ ) {
@@ -185,7 +185,7 @@ public class Cobasis {
 
         Operation result = null;
 
-        Operation[] opers = module.getOperationsWithName(op.name);
+        Operation[] opers = this.module.getOperationsWithName(op.name);
         boolean found = false;
         for (int j = 0; j < opers.length && !found; j++ ) {
 

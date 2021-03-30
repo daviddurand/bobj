@@ -7,7 +7,7 @@ public class HiddenSort
 
     public HiddenSort(Sort sort) {
         super(sort.getName(), sort.getModuleName());
-        props = sort.props;
+        this.props = sort.props;
     }
 
     public HiddenSort(String name,

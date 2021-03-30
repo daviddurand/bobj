@@ -13,11 +13,11 @@ public class SingleSubstitution {
     }
 
     public Variable getVariable() {
-        return var;
+        return this.var;
     }
 
     public Term getTerm() {
-        return term;
+        return this.term;
     }
 
 }

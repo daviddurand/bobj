@@ -60,7 +60,7 @@ public class Variable
      *
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -68,7 +68,7 @@ public class Variable
      *
      */
     public Sort getSort() {
-        return sort;
+        return this.sort;
     }
 
     /**
@@ -76,7 +76,7 @@ public class Variable
      *
      */
     public String getSortName() {
-        return sort.getName();
+        return this.sort.getName();
     }
 
     /**
@@ -85,7 +85,7 @@ public class Variable
      */
 
     public String getInfo() {
-        return info;
+        return this.info;
     }
 
     /**
@@ -94,7 +94,7 @@ public class Variable
      */
     @Override
     public String toString() {
-        return "var " + name + " : " + sort.getName() + "." + sort.getModuleName();
+        return "var " + this.name + " : " + this.sort.getName() + "." + this.sort.getModuleName();
     }
 
     @Override
@@ -115,8 +115,8 @@ public class Variable
     protected Variable changeSort(Sort olds,
                                   Sort news) {
         if (this.sort.equals(olds)) {
-            Variable var = new Variable(name, news);
-            var.info = info;
+            Variable var = new Variable(this.name, news);
+            var.info = this.info;
             return var;
         } else {
             return this;
@@ -125,16 +125,16 @@ public class Variable
     }
 
     protected Variable changeSortTo(Sort sort) {
-        Variable var = new Variable(name, sort);
-        var.info = info;
+        Variable var = new Variable(this.name, sort);
+        var.info = this.info;
         return var;
     }
 
     public Variable changeModuleName(ModuleName olds,
                                      ModuleName news) {
 
-        Variable var = new Variable(name, sort.changeModuleName(olds, news));
-        var.info = info;
+        Variable var = new Variable(this.name, this.sort.changeModuleName(olds, news));
+        var.info = this.info;
         return var;
 
     }
@@ -142,8 +142,8 @@ public class Variable
     public Variable changeAbsoluteModuleName(ModuleName olds,
                                              ModuleName news) {
 
-        Variable var = new Variable(name, sort.changeAbsoluteModuleName(olds, news));
-        var.info = info;
+        Variable var = new Variable(this.name, this.sort.changeAbsoluteModuleName(olds, news));
+        var.info = this.info;
         return var;
 
     }
@@ -151,22 +151,22 @@ public class Variable
     public Variable changeParameterName(String olds,
                                         String news) {
 
-        Variable var = new Variable(name, sort.changeParameterName(olds, news));
-        var.info = info;
+        Variable var = new Variable(this.name, this.sort.changeParameterName(olds, news));
+        var.info = this.info;
         return var;
 
     }
 
     public Variable addAnnotation(String name,
                                   Map<ModuleName, Integer> env) {
-        Variable var = new Variable(this.name, sort.addAnnotation(name, env));
-        var.info = info;
+        Variable var = new Variable(this.name, this.sort.addAnnotation(name, env));
+        var.info = this.info;
         return var;
     }
 
     public Variable removeAnnotation(String name) {
-        Variable var = new Variable(this.name, sort.removeAnnotation(name));
-        var.info = info;
+        Variable var = new Variable(this.name, this.sort.removeAnnotation(name));
+        var.info = this.info;
         return var;
     }
 }

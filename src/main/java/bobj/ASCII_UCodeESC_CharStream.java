@@ -87,162 +87,174 @@ public final class ASCII_UCodeESC_CharStream {
     protected int inBuf = 0;
 
     private final void ExpandBuff(boolean wrapAround) {
-        char[] newbuffer = new char[bufsize + 2048];
-        int newbufline[] = new int[bufsize + 2048];
-        int newbufcolumn[] = new int[bufsize + 2048];
+        char[] newbuffer = new char[this.bufsize + 2048];
+        int newbufline[] = new int[this.bufsize + 2048];
+        int newbufcolumn[] = new int[this.bufsize + 2048];
 
         try {
             if (wrapAround) {
-                System.arraycopy(buffer, tokenBegin, newbuffer, 0, bufsize - tokenBegin);
-                System.arraycopy(buffer, 0, newbuffer, bufsize - tokenBegin, bufpos);
-                buffer = newbuffer;
+                System.arraycopy(this.buffer, this.tokenBegin, newbuffer, 0,
+                                 this.bufsize - this.tokenBegin);
+                System.arraycopy(this.buffer, 0, newbuffer, this.bufsize - this.tokenBegin,
+                                 this.bufpos);
+                this.buffer = newbuffer;
 
-                System.arraycopy(bufline, tokenBegin, newbufline, 0, bufsize - tokenBegin);
-                System.arraycopy(bufline, 0, newbufline, bufsize - tokenBegin, bufpos);
-                bufline = newbufline;
+                System.arraycopy(this.bufline, this.tokenBegin, newbufline, 0,
+                                 this.bufsize - this.tokenBegin);
+                System.arraycopy(this.bufline, 0, newbufline, this.bufsize - this.tokenBegin,
+                                 this.bufpos);
+                this.bufline = newbufline;
 
-                System.arraycopy(bufcolumn, tokenBegin, newbufcolumn, 0, bufsize - tokenBegin);
-                System.arraycopy(bufcolumn, 0, newbufcolumn, bufsize - tokenBegin, bufpos);
-                bufcolumn = newbufcolumn;
+                System.arraycopy(this.bufcolumn, this.tokenBegin, newbufcolumn, 0,
+                                 this.bufsize - this.tokenBegin);
+                System.arraycopy(this.bufcolumn, 0, newbufcolumn, this.bufsize - this.tokenBegin,
+                                 this.bufpos);
+                this.bufcolumn = newbufcolumn;
 
-                bufpos += (bufsize - tokenBegin);
+                this.bufpos += (this.bufsize - this.tokenBegin);
             } else {
-                System.arraycopy(buffer, tokenBegin, newbuffer, 0, bufsize - tokenBegin);
-                buffer = newbuffer;
+                System.arraycopy(this.buffer, this.tokenBegin, newbuffer, 0,
+                                 this.bufsize - this.tokenBegin);
+                this.buffer = newbuffer;
 
-                System.arraycopy(bufline, tokenBegin, newbufline, 0, bufsize - tokenBegin);
-                bufline = newbufline;
+                System.arraycopy(this.bufline, this.tokenBegin, newbufline, 0,
+                                 this.bufsize - this.tokenBegin);
+                this.bufline = newbufline;
 
-                System.arraycopy(bufcolumn, tokenBegin, newbufcolumn, 0, bufsize - tokenBegin);
-                bufcolumn = newbufcolumn;
+                System.arraycopy(this.bufcolumn, this.tokenBegin, newbufcolumn, 0,
+                                 this.bufsize - this.tokenBegin);
+                this.bufcolumn = newbufcolumn;
 
-                bufpos -= tokenBegin;
+                this.bufpos -= this.tokenBegin;
             }
         } catch (Throwable t) {
             throw new Error(t.getMessage());
         }
 
-        available = (bufsize += 2048);
-        tokenBegin = 0;
+        this.available = (this.bufsize += 2048);
+        this.tokenBegin = 0;
     }
 
     private final void FillBuff() throws java.io.IOException {
         int i;
-        if (maxNextCharInd == 4096)
-            maxNextCharInd = nextCharInd = 0;
+        if (this.maxNextCharInd == 4096)
+            this.maxNextCharInd = this.nextCharInd = 0;
 
         try {
-            if ((i = inputStream.read(nextCharBuf, maxNextCharInd, 4096 - maxNextCharInd)) == -1) {
-                inputStream.close();
+            if ((i = this.inputStream.read(this.nextCharBuf, this.maxNextCharInd,
+                                           4096 - this.maxNextCharInd)) == -1) {
+                this.inputStream.close();
                 throw new java.io.IOException();
-            } else maxNextCharInd += i;
+            } else this.maxNextCharInd += i;
             return;
         } catch (java.io.IOException e) {
-            if (bufpos != 0) {
-                --bufpos;
+            if (this.bufpos != 0) {
+                --this.bufpos;
                 backup(0);
             } else {
-                bufline[bufpos] = line;
-                bufcolumn[bufpos] = column;
+                this.bufline[this.bufpos] = this.line;
+                this.bufcolumn[this.bufpos] = this.column;
             }
             throw e;
         }
     }
 
     private final char ReadByte() throws java.io.IOException {
-        if ( ++nextCharInd >= maxNextCharInd)
+        if ( ++this.nextCharInd >= this.maxNextCharInd)
             FillBuff();
 
-        return nextCharBuf[nextCharInd];
+        return this.nextCharBuf[this.nextCharInd];
     }
 
     public final char BeginToken() throws java.io.IOException {
-        if (inBuf > 0) {
-            --inBuf;
-            return buffer[tokenBegin = (bufpos == bufsize - 1) ? (bufpos = 0)
-                                                               : ++bufpos];
+        if (this.inBuf > 0) {
+            --this.inBuf;
+            return this.buffer[this.tokenBegin =
+                (this.bufpos == this.bufsize - 1) ? (this.bufpos = 0)
+                                                  : ++this.bufpos];
         }
 
-        tokenBegin = 0;
-        bufpos = -1;
+        this.tokenBegin = 0;
+        this.bufpos = -1;
 
         return readChar();
     }
 
     private final void AdjustBuffSize() {
-        if (available == bufsize) {
-            if (tokenBegin > 2048) {
-                bufpos = 0;
-                available = tokenBegin;
+        if (this.available == this.bufsize) {
+            if (this.tokenBegin > 2048) {
+                this.bufpos = 0;
+                this.available = this.tokenBegin;
             } else ExpandBuff(false);
-        } else if (available > tokenBegin)
-            available = bufsize;
-        else if ((tokenBegin - available) < 2048)
+        } else if (this.available > this.tokenBegin)
+            this.available = this.bufsize;
+        else if ((this.tokenBegin - this.available) < 2048)
             ExpandBuff(true);
-        else available = tokenBegin;
+        else this.available = this.tokenBegin;
     }
 
     private final void UpdateLineColumn(char c) {
-        column++ ;
+        this.column++ ;
 
-        if (prevCharIsLF) {
-            prevCharIsLF = false;
-            line += (column = 1);
-        } else if (prevCharIsCR) {
-            prevCharIsCR = false;
+        if (this.prevCharIsLF) {
+            this.prevCharIsLF = false;
+            this.line += (this.column = 1);
+        } else if (this.prevCharIsCR) {
+            this.prevCharIsCR = false;
             if (c == '\n') {
-                prevCharIsLF = true;
-            } else line += (column = 1);
+                this.prevCharIsLF = true;
+            } else this.line += (this.column = 1);
         }
 
         switch (c) {
             case '\r':
-                prevCharIsCR = true;
+                this.prevCharIsCR = true;
             break;
             case '\n':
-                prevCharIsLF = true;
+                this.prevCharIsLF = true;
             break;
             case '\t':
-                column-- ;
-                column += (8 - (column & 07));
+                this.column-- ;
+                this.column += (8 - (this.column & 07));
             break;
             default:
             break;
         }
 
-        bufline[bufpos] = line;
-        bufcolumn[bufpos] = column;
+        this.bufline[this.bufpos] = this.line;
+        this.bufcolumn[this.bufpos] = this.column;
     }
 
     public final char readChar() throws java.io.IOException {
-        if (inBuf > 0) {
-            --inBuf;
-            return buffer[(bufpos == bufsize - 1) ? (bufpos = 0)
-                                                  : ++bufpos];
+        if (this.inBuf > 0) {
+            --this.inBuf;
+            return this.buffer[(this.bufpos == this.bufsize - 1) ? (this.bufpos = 0)
+                                                                 : ++this.bufpos];
         }
 
         char c;
 
-        if ( ++bufpos == available)
+        if ( ++this.bufpos == this.available)
             AdjustBuffSize();
 
-        if (((buffer[bufpos] = c = (char) ((char) 0xff & ReadByte())) == '\\')) {
+        if (((this.buffer[this.bufpos] = c = (char) ((char) 0xff & ReadByte())) == '\\')) {
             UpdateLineColumn(c);
 
             int backSlashCnt = 1;
 
             for (;;) // Read all the backslashes
             {
-                if ( ++bufpos == available)
+                if ( ++this.bufpos == this.available)
                     AdjustBuffSize();
 
                 try {
-                    if ((buffer[bufpos] = c = (char) ((char) 0xff & ReadByte())) != '\\') {
+                    if ((this.buffer[this.bufpos] =
+                        c = (char) ((char) 0xff & ReadByte())) != '\\') {
                         UpdateLineColumn(c);
                         // found a non-backslash char.
                         if ((c == 'u') && ((backSlashCnt & 1) == 1)) {
-                            if ( --bufpos < 0)
-                                bufpos = bufsize - 1;
+                            if ( --this.bufpos < 0)
+                                this.bufpos = this.bufsize - 1;
 
                             break;
                         }
@@ -264,17 +276,17 @@ public final class ASCII_UCodeESC_CharStream {
             // Here, we have seen an odd number of backslash's followed by a 'u'
             try {
                 while ((c = (char) ((char) 0xff & ReadByte())) == 'u')
-                    ++column;
+                    ++this.column;
 
-                buffer[bufpos] =
+                this.buffer[this.bufpos] =
                     c = (char) (hexval(c) << 12 | hexval((char) ((char) 0xff & ReadByte())) << 8
                                 | hexval((char) ((char) 0xff & ReadByte())) << 4
                                 | hexval((char) ((char) 0xff & ReadByte())));
 
-                column += 4;
+                this.column += 4;
             } catch (java.io.IOException e) {
-                throw new Error("Invalid escape character at line " + line + " column " + column
-                                + ".");
+                throw new Error("Invalid escape character at line " + this.line + " column "
+                                + this.column + ".");
             }
 
             if (backSlashCnt == 1)
@@ -296,7 +308,7 @@ public final class ASCII_UCodeESC_CharStream {
 
     @Deprecated
     public final int getColumn() {
-        return bufcolumn[bufpos];
+        return this.bufcolumn[this.bufpos];
     }
 
     /**
@@ -306,45 +318,45 @@ public final class ASCII_UCodeESC_CharStream {
 
     @Deprecated
     public final int getLine() {
-        return bufline[bufpos];
+        return this.bufline[this.bufpos];
     }
 
     public final int getEndColumn() {
-        return bufcolumn[bufpos];
+        return this.bufcolumn[this.bufpos];
     }
 
     public final int getEndLine() {
-        return bufline[bufpos];
+        return this.bufline[this.bufpos];
     }
 
     public final int getBeginColumn() {
-        return bufcolumn[tokenBegin];
+        return this.bufcolumn[this.tokenBegin];
     }
 
     public final int getBeginLine() {
-        return bufline[tokenBegin];
+        return this.bufline[this.tokenBegin];
     }
 
     public final void backup(int amount) {
 
-        inBuf += amount;
-        if ((bufpos -= amount) < 0)
-            bufpos += bufsize;
+        this.inBuf += amount;
+        if ((this.bufpos -= amount) < 0)
+            this.bufpos += this.bufsize;
     }
 
     public ASCII_UCodeESC_CharStream(java.io.Reader dstream,
                                      int startline,
                                      int startcolumn,
                                      int buffersize) {
-        inputStream = dstream;
-        line = startline;
-        column = startcolumn - 1;
+        this.inputStream = dstream;
+        this.line = startline;
+        this.column = startcolumn - 1;
 
-        available = bufsize = buffersize;
-        buffer = new char[buffersize];
-        bufline = new int[buffersize];
-        bufcolumn = new int[buffersize];
-        nextCharBuf = new char[4096];
+        this.available = this.bufsize = buffersize;
+        this.buffer = new char[buffersize];
+        this.bufline = new int[buffersize];
+        this.bufcolumn = new int[buffersize];
+        this.nextCharBuf = new char[4096];
     }
 
     public ASCII_UCodeESC_CharStream(java.io.Reader dstream,
@@ -357,20 +369,20 @@ public final class ASCII_UCodeESC_CharStream {
                        int startline,
                        int startcolumn,
                        int buffersize) {
-        inputStream = dstream;
-        line = startline;
-        column = startcolumn - 1;
+        this.inputStream = dstream;
+        this.line = startline;
+        this.column = startcolumn - 1;
 
-        if (buffer == null || buffersize != buffer.length) {
-            available = bufsize = buffersize;
-            buffer = new char[buffersize];
-            bufline = new int[buffersize];
-            bufcolumn = new int[buffersize];
-            nextCharBuf = new char[4096];
+        if (this.buffer == null || buffersize != this.buffer.length) {
+            this.available = this.bufsize = buffersize;
+            this.buffer = new char[buffersize];
+            this.bufline = new int[buffersize];
+            this.bufcolumn = new int[buffersize];
+            this.nextCharBuf = new char[4096];
         }
-        prevCharIsLF = prevCharIsCR = false;
-        tokenBegin = inBuf = maxNextCharInd = 0;
-        nextCharInd = bufpos = -1;
+        this.prevCharIsLF = this.prevCharIsCR = false;
+        this.tokenBegin = this.inBuf = this.maxNextCharInd = 0;
+        this.nextCharInd = this.bufpos = -1;
     }
 
     public void ReInit(java.io.Reader dstream,
@@ -406,30 +418,31 @@ public final class ASCII_UCodeESC_CharStream {
     }
 
     public final String GetImage() {
-        if (bufpos >= tokenBegin)
-            return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
-        else return new String(buffer, tokenBegin, bufsize - tokenBegin)
-                    + new String(buffer, 0, bufpos + 1);
+        if (this.bufpos >= this.tokenBegin)
+            return new String(this.buffer, this.tokenBegin, this.bufpos - this.tokenBegin + 1);
+        else return new String(this.buffer, this.tokenBegin, this.bufsize - this.tokenBegin)
+                    + new String(this.buffer, 0, this.bufpos + 1);
     }
 
     public final char[] GetSuffix(int len) {
         char[] ret = new char[len];
 
-        if ((bufpos + 1) >= len)
-            System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
+        if ((this.bufpos + 1) >= len)
+            System.arraycopy(this.buffer, this.bufpos - len + 1, ret, 0, len);
         else {
-            System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0, len - bufpos - 1);
-            System.arraycopy(buffer, 0, ret, len - bufpos - 1, bufpos + 1);
+            System.arraycopy(this.buffer, this.bufsize - (len - this.bufpos - 1), ret, 0,
+                             len - this.bufpos - 1);
+            System.arraycopy(this.buffer, 0, ret, len - this.bufpos - 1, this.bufpos + 1);
         }
 
         return ret;
     }
 
     public void Done() {
-        nextCharBuf = null;
-        buffer = null;
-        bufline = null;
-        bufcolumn = null;
+        this.nextCharBuf = null;
+        this.buffer = null;
+        this.bufline = null;
+        this.bufcolumn = null;
     }
 
     /**
@@ -437,39 +450,40 @@ public final class ASCII_UCodeESC_CharStream {
      */
     public void adjustBeginLineColumn(int newLine,
                                       int newCol) {
-        int start = tokenBegin;
+        int start = this.tokenBegin;
         int len;
 
-        if (bufpos >= tokenBegin) {
-            len = bufpos - tokenBegin + inBuf + 1;
+        if (this.bufpos >= this.tokenBegin) {
+            len = this.bufpos - this.tokenBegin + this.inBuf + 1;
         } else {
-            len = bufsize - tokenBegin + bufpos + 1 + inBuf;
+            len = this.bufsize - this.tokenBegin + this.bufpos + 1 + this.inBuf;
         }
 
         int i = 0, j = 0, k = 0;
         int nextColDiff = 0, columnDiff = 0;
 
-        while (i < len && bufline[j = start % bufsize] == bufline[k = ++start % bufsize]) {
-            bufline[j] = newLine;
-            nextColDiff = columnDiff + bufcolumn[k] - bufcolumn[j];
-            bufcolumn[j] = newCol + columnDiff;
+        while (i < len && this.bufline[j = start % this.bufsize] == this.bufline[k =
+            ++start % this.bufsize]) {
+            this.bufline[j] = newLine;
+            nextColDiff = columnDiff + this.bufcolumn[k] - this.bufcolumn[j];
+            this.bufcolumn[j] = newCol + columnDiff;
             columnDiff = nextColDiff;
             i++ ;
         }
 
         if (i < len) {
-            bufline[j] = newLine++ ;
-            bufcolumn[j] = newCol + columnDiff;
+            this.bufline[j] = newLine++ ;
+            this.bufcolumn[j] = newCol + columnDiff;
 
             while (i++ < len) {
-                if (bufline[j = start % bufsize] != bufline[ ++start % bufsize])
-                    bufline[j] = newLine++ ;
-                else bufline[j] = newLine;
+                if (this.bufline[j = start % this.bufsize] != this.bufline[ ++start % this.bufsize])
+                    this.bufline[j] = newLine++ ;
+                else this.bufline[j] = newLine;
             }
         }
 
-        line = bufline[j];
-        column = bufcolumn[j];
+        this.line = this.bufline[j];
+        this.column = this.bufcolumn[j];
     }
 
     /**
@@ -479,41 +493,42 @@ public final class ASCII_UCodeESC_CharStream {
     int pushbackBufSize = 0;
 
     public java.io.Reader getReader() throws java.io.IOException {
-        if (inBuf == 0 && nextCharInd >= maxNextCharInd)
-            return inputStream;
+        if (this.inBuf == 0 && this.nextCharInd >= this.maxNextCharInd)
+            return this.inputStream;
 
         char[] tmp = null, toPush;
         int cnt = 0;
-        if (inBuf != 0) {
-            tmp = new char[2 * inBuf];
-            for (int i = 0; i < inBuf; i++ )
-                if (buffer[i] < 256)
-                    tmp[cnt++ ] = buffer[i];
+        if (this.inBuf != 0) {
+            tmp = new char[2 * this.inBuf];
+            for (int i = 0; i < this.inBuf; i++ )
+                if (this.buffer[i] < 256)
+                    tmp[cnt++ ] = this.buffer[i];
                 else {
-                    tmp[cnt++ ] = (buffer[i]);
-                    tmp[cnt++ ] = (char) (buffer[i] >> 8);
+                    tmp[cnt++ ] = (this.buffer[i]);
+                    tmp[cnt++ ] = (char) (this.buffer[i] >> 8);
                 }
         }
 
-        if (nextCharInd > 0 && nextCharInd <= maxNextCharInd) {
-            toPush = new char[maxNextCharInd - nextCharInd + cnt];
+        if (this.nextCharInd > 0 && this.nextCharInd <= this.maxNextCharInd) {
+            toPush = new char[this.maxNextCharInd - this.nextCharInd + cnt];
 
             if (cnt > 0)
                 System.arraycopy(tmp, 0, toPush, 0, cnt);
 
-            System.arraycopy(nextCharBuf, cnt, toPush, 0, maxNextCharInd - nextCharInd);
+            System.arraycopy(this.nextCharBuf, cnt, toPush, 0,
+                             this.maxNextCharInd - this.nextCharInd);
         } else toPush = tmp;
 
-        if (pushbackBufSize < tmp.length)
-            inputStream = new java.io.PushbackReader(inputStream);
-        ((java.io.PushbackReader) inputStream).unread(toPush);
+        if (this.pushbackBufSize < tmp.length)
+            this.inputStream = new java.io.PushbackReader(this.inputStream);
+        ((java.io.PushbackReader) this.inputStream).unread(toPush);
 
-        bufpos = -1;
-        tokenBegin = -1;
-        maxNextCharInd = 0;
-        inBuf = 0;
+        this.bufpos = -1;
+        this.tokenBegin = -1;
+        this.maxNextCharInd = 0;
+        this.inBuf = 0;
 
-        return inputStream;
+        return this.inputStream;
     }
 
 }

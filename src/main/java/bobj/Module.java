@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -93,32 +92,32 @@ public class Module
      *
      */
     public ModuleName getModuleName() {
-        return modName;
+        return this.modName;
     }
 
     public int getType() {
-        return type;
+        return this.type;
     }
 
     public boolean isBehavorial() {
-        return type == BEHAVORIAL;
+        return this.type == BEHAVORIAL;
     }
 
     public boolean isInitial() {
-        return type == INITIAL;
+        return this.type == INITIAL;
     }
 
     public boolean isLoose() {
-        return type == LOOSE;
+        return this.type == LOOSE;
     }
 
     public boolean isParameterized() {
-        return paraNames.size() != 0;
+        return this.paraNames.size() != 0;
     }
 
     public boolean isSecondOrder() {
         if (isParameterized()) {
-            for (Module paraModule : paraModules) {
+            for (Module paraModule : this.paraModules) {
                 Module parameter = paraModule;
                 if (parameter.isParameterized()) {
                     return true;
@@ -129,29 +128,29 @@ public class Module
     }
 
     public Module[] getParameters() {
-        return (Module[]) (paraModules.toArray());
+        return (Module[]) (this.paraModules.toArray());
     }
 
     public Module getParameter(String name) throws ModuleParameterException {
-        int i = paraNames.indexOf(name);
+        int i = this.paraNames.indexOf(name);
         if (i != -1) {
-            return(paraModules.get(i));
+            return(this.paraModules.get(i));
         }
         throw new ModuleParameterException("No parameter for " + name);
     }
 
     public Module getParameterAt(int index) throws ModuleParameterException {
 
-        if (index > -1 && index < paraModules.size()) {
-            return(paraModules.get(index));
+        if (index > -1 && index < this.paraModules.size()) {
+            return(this.paraModules.get(index));
         }
         try {
 
-            throw new ModuleParameterException("module " + modName + " has no " + (index + 1)
+            throw new ModuleParameterException("module " + this.modName + " has no " + (index + 1)
                                                + "-th parameter");
         } catch (Exception e) {
             //e.printStackTrace();
-            throw new ModuleParameterException("module " + modName + " has no " + (index + 1)
+            throw new ModuleParameterException("module " + this.modName + " has no " + (index + 1)
                                                + "-th parameter");
         }
 
@@ -159,27 +158,27 @@ public class Module
 
     public String getParameterNameAt(int index) throws ModuleParameterException {
 
-        if (index > -1 && index < paraNames.size()) {
-            return(paraNames.get(index));
+        if (index > -1 && index < this.paraNames.size()) {
+            return(this.paraNames.get(index));
         }
-        throw new ModuleParameterException("module " + modName + " has no " + (index + 1)
+        throw new ModuleParameterException("module " + this.modName + " has no " + (index + 1)
                                            + "-th parameter");
     }
 
     public String[] getParameterNames() {
-        String[] result = new String[paraNames.size()];
+        String[] result = new String[this.paraNames.size()];
         for (int i = 0; i < result.length; i++ ) {
-            result[i] = paraNames.get(i);
+            result[i] = this.paraNames.get(i);
         }
         return result;
     }
 
     public String[] getSecondOrderParameterNames() {
         ArrayList<String> list = new ArrayList<>();
-        for (int i = 0; i < paraModules.size(); i++ ) {
-            Module parameter = paraModules.get(i);
+        for (int i = 0; i < this.paraModules.size(); i++ ) {
+            Module parameter = this.paraModules.get(i);
             if (parameter.isParameterized()) {
-                list.add(paraNames.get(i));
+                list.add(this.paraNames.get(i));
             }
         }
 
@@ -196,35 +195,35 @@ public class Module
         throws ModuleParameterException, SignatureException {
 
         validateParameterName(name);
-        paraNames.add(name);
-        paraModules.add(module);
+        this.paraNames.add(name);
+        this.paraModules.add(module);
 
         if (!module.isParameterized()) {
             Module mod = module.addAnnotation(name, env);
             importModule(mod);
         }
 
-        parameters = sorts.size();
+        this.parameters = this.sorts.size();
 
     }
 
     public boolean hasParameter(String name) {
-        return paraNames.contains(name);
+        return this.paraNames.contains(name);
     }
 
     private void validateParameterName(String name) throws ModuleParameterException {
-        if (paraNames.contains(name)) {
+        if (this.paraNames.contains(name)) {
             throw new ModuleParameterException("repeated module name " + name);
         }
 
         ModuleName testName = new ModuleName(name);
-        if (modName.equals(testName)) {
+        if (this.modName.equals(testName)) {
             throw new ModuleParameterException("parameter name can't be same "
                                                + "as the module name");
         }
         /* reserve probably bad lookupin case */
-        if (protectImportList.contains(testName) || extendImportList.contains(testName)
-            || useImportList.contains(testName)) {
+        if (this.protectImportList.contains(testName) || this.extendImportList.contains(testName)
+            || this.useImportList.contains(testName)) {
             throw new ModuleParameterException("name " + name + " is used in "
                                                + "this module already");
         }
@@ -232,7 +231,7 @@ public class Module
     }
 
     public boolean containsEquation(Equation eq) {
-        return equations.contains(eq);
+        return this.equations.contains(eq);
     }
 
     public void addEquation(Equation eq) {
@@ -240,14 +239,14 @@ public class Module
         completeEquation(eq);
 
         if (!containsEquation(eq)) {
-            equations.add(eq);
+            this.equations.add(eq);
         } else {
 
-            int i = equations.indexOf(eq);
-            Equation equat = equations.get(i);
+            int i = this.equations.indexOf(eq);
+            Equation equat = this.equations.get(i);
 
             if (!equat.equals(eq)) {
-                equations.add(eq);
+                this.equations.add(eq);
             } else {
                 equat.equals(eq);
             }
@@ -257,8 +256,8 @@ public class Module
 
     public void addGeneralEquation(Equation eq) {
 
-        if (!generalEquations.contains(eq)) {
-            generalEquations.add(eq);
+        if (!this.generalEquations.contains(eq)) {
+            this.generalEquations.add(eq);
         }
 
     }
@@ -289,13 +288,13 @@ public class Module
             Term r1 = new Term(var);
             Equation eq1 = new Equation(l1, r1);
             eq1.info = "system-introduced";
-            equations.add(eq1);
+            this.equations.add(eq1);
 
             Term l2 = new Term(this, op, new Term(var), new Term(this, id));
             Term r2 = new Term(var);
             Equation eq2 = new Equation(l2, r2);
             eq2.info = "system-introduced";
-            equations.add(eq2);
+            this.equations.add(eq2);
         } catch (Exception e) {
         }
     }
@@ -310,49 +309,49 @@ public class Module
             Term l = new Term(this, op, r, r);
             Equation eq = new Equation(l, r);
             eq.info = "system-default";
-            equations.add(eq);
+            this.equations.add(eq);
         } catch (Exception e) {
         }
     }
 
     public boolean isBuiltIn() {
 
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             if (!sort.getInfo()
                      .equals("system-default")) {
                 return false;
             }
         }
 
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (!op.info.equals("system-default")) {
                 return false;
             }
         }
 
-        for (Equation equation : equations) {
+        for (Equation equation : this.equations) {
             if (!equation.info.equals("system-default")) {
                 return false;
             }
         }
 
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             if (!eq.info.equals("system-default")) {
                 return false;
             }
         }
 
-        if (modName.op != ModuleName.ATOM) {
+        if (this.modName.op != ModuleName.ATOM) {
             return false;
         }
 
-        if (!modName.atom.equals("TRUTH-VALUE") && !modName.atom.equals("TRUTH")
-            && !modName.atom.equals("IDENTICAL") && !modName.atom.equals("BOOL")
-            && !modName.atom.equals("QID") && !modName.atom.equals("NZNAT")
-            && !modName.atom.equals("NAT") && !modName.atom.equals("INT")
-            && !modName.atom.equals("FLOAT")) {
+        if (!this.modName.atom.equals("TRUTH-VALUE") && !this.modName.atom.equals("TRUTH")
+            && !this.modName.atom.equals("IDENTICAL") && !this.modName.atom.equals("BOOL")
+            && !this.modName.atom.equals("QID") && !this.modName.atom.equals("NZNAT")
+            && !this.modName.atom.equals("NAT") && !this.modName.atom.equals("INT")
+            && !this.modName.atom.equals("FLOAT")) {
 
             return false;
         }
@@ -372,7 +371,7 @@ public class Module
 
         String result = "";
 
-        switch (type) {
+        switch (this.type) {
             case INITIAL:
                 result += "dth ";
             break;
@@ -385,25 +384,25 @@ public class Module
             default:
         }
 
-        result += modName;
+        result += this.modName;
 
-        if (levels != null) {
+        if (this.levels != null) {
             int l = 0;
             result += " [ ";
-            for (int i = 0; i < paraNames.size(); i++ ) {
+            for (int i = 0; i < this.paraNames.size(); i++ ) {
 
-                if (i == levels[l]) {
+                if (i == this.levels[l]) {
                     result += " ]";
                     l++ ;
 
-                    if (l < levels.length) {
+                    if (l < this.levels.length) {
                         result += " [ ";
                     }
 
                 }
 
-                String pname = paraNames.get(i);
-                Module pmod = paraModules.get(i);
+                String pname = this.paraNames.get(i);
+                Module pmod = this.paraModules.get(i);
 
                 if (l == 0) {
                     if (i != 0) {
@@ -411,7 +410,7 @@ public class Module
                     } else {
                         result += pname + " :: " + pmod.modName;
                     }
-                } else if (i != levels[l - 1]) {
+                } else if (i != this.levels[l - 1]) {
                     result += ", " + pname + " :: " + pmod.modName;
                 } else {
                     result += pname + " :: " + pmod.modName;
@@ -424,25 +423,25 @@ public class Module
 
         result += " is \n";
 
-        if (!protectImportList.isEmpty()) {
+        if (!this.protectImportList.isEmpty()) {
             result += "   protecting";
-            for (ModuleName element : protectImportList) {
+            for (ModuleName element : this.protectImportList) {
                 result += " " + element;
             }
             result += " .\n";
         }
 
-        if (!extendImportList.isEmpty()) {
+        if (!this.extendImportList.isEmpty()) {
             result += "   extending";
-            for (ModuleName element : extendImportList) {
+            for (ModuleName element : this.extendImportList) {
                 result += " " + element;
             }
             result += " .\n";
         }
 
-        if (!useImportList.isEmpty()) {
+        if (!this.useImportList.isEmpty()) {
             result += "   including";
-            for (ModuleName element : useImportList) {
+            for (ModuleName element : this.useImportList) {
                 result += " " + element;
             }
             result += " .\n";
@@ -451,7 +450,7 @@ public class Module
         // handle sorts
         String s = "";
         int count = 0;
-        for (Sort tmp : sorts) {
+        for (Sort tmp : this.sorts) {
             if (tmp.getInfo()
                    .equals("system-default")) {
                 continue;
@@ -466,7 +465,7 @@ public class Module
         }
 
         // handle subsorts
-        String stmp = toStringWithoutBuiltIn(subsorts);
+        String stmp = toStringWithoutBuiltIn(this.subsorts);
         StringTokenizer st = new StringTokenizer(stmp, "\n");
         while (st.hasMoreTokens()) {
             result += "   " + st.nextToken()
@@ -475,7 +474,7 @@ public class Module
         }
 
         // handle variables
-        for (Sort tmp : sorts) {
+        for (Sort tmp : this.sorts) {
             if (tmp.getInfo()
                    .equals("system-default")) {
                 continue;
@@ -522,7 +521,7 @@ public class Module
         }
 
         // handle non-constants
-        for (Operation tmp : operations) {
+        for (Operation tmp : this.operations) {
             if (tmp.info.equals("system-default") || tmp.isConstant()) {
                 continue;
             }
@@ -530,14 +529,14 @@ public class Module
         }
 
         // handle equations
-        for (Equation tmp : equations) {
+        for (Equation tmp : this.equations) {
             if (tmp.info.equals("system-default") || tmp.info.equals("system-introduced")) {
                 continue;
             }
             result += "   " + tmp + " .\n";
         }
 
-        for (Equation tmp : generalEquations) {
+        for (Equation tmp : this.generalEquations) {
             if (tmp.info.equals("system-default") || tmp.info.equals("system-introduced")) {
                 continue;
             }
@@ -583,7 +582,7 @@ public class Module
 
         String result = "";
 
-        switch (type) {
+        switch (this.type) {
             case INITIAL:
                 result += "dth ";
             break;
@@ -596,14 +595,14 @@ public class Module
             default:
         }
 
-        result += modName;
+        result += this.modName;
         result += " is \n";
 
-        for (Sort tmp : sorts) {
+        for (Sort tmp : this.sorts) {
             result += "   sort " + toString(tmp) + "  " + tmp.getModuleName() + " .\n";
         }
 
-        String stmp = toString(subsorts);
+        String stmp = toString(this.subsorts);
         StringTokenizer st = new StringTokenizer(stmp, "\n");
         while (st.hasMoreTokens()) {
             result += "   " + st.nextToken()
@@ -611,16 +610,16 @@ public class Module
                       + "\n";
         }
 
-        for (Variable tmp : vars) {
+        for (Variable tmp : this.vars) {
             result += "   " + toString(tmp) + " .\n";
         }
 
-        for (Operation tmp : operations) {
+        for (Operation tmp : this.operations) {
             //result += "   "+toString(tmp)+".\n";
             result += "   " + tmp + "   " + tmp.modName + ".\n";
         }
 
-        for (Equation tmp : equations) {
+        for (Equation tmp : this.equations) {
             if (tmp.right.operation == null) {
                 result += "   " + tmp + "     " + tmp.left.operation.modName + " .\n";
             } else {
@@ -635,7 +634,7 @@ public class Module
 
         }
 
-        for (Equation tmp : generalEquations) {
+        for (Equation tmp : this.generalEquations) {
             result += "  general " + tmp + " .\n";
         }
 
@@ -647,14 +646,14 @@ public class Module
     private String builtInToString() {
         String result = "";
 
-        if (modName.atom.equals("TRUTH-VALUE")) {
+        if (this.modName.atom.equals("TRUTH-VALUE")) {
             result += "dth TRUTH-VALUE is\n";
             result += "   sort Bool .\n";
             result += "   op true : -> Bool  .\n";
             result += "   op false : -> Bool .\n";
             result += "end\n";
 
-        } else if (modName.atom.equals("TRUTH")) {
+        } else if (this.modName.atom.equals("TRUTH")) {
 
             result += "dth TRUTH is\n";
             result += "   protecting TRUTH-VALUE .\n";
@@ -672,7 +671,7 @@ public class Module
             result += "   eq if B then X else X fi = X .\n";
             result += "end\n";
 
-        } else if (modName.atom.equals("IDENTICAL")) {
+        } else if (this.modName.atom.equals("IDENTICAL")) {
 
             result += "th IDENTICAL is\n";
             result += "   protecting TRUTH .\n";
@@ -680,7 +679,7 @@ public class Module
             result += "   op _=/==_ : Universal Universal -> Bool . \n";
             result += "end\n";
 
-        } else if (modName.atom.equals("BOOL")) {
+        } else if (this.modName.atom.equals("BOOL")) {
 
             result += "dth BOOL is\n";
             result += "   protecting TRUTH .\n";
@@ -698,16 +697,16 @@ public class Module
             result += "   eq B1 implies B2 = (not B1) or B2 .\n";
             result += "end\n";
 
-        } else if (modName.atom.equals("QID")) {
+        } else if (this.modName.atom.equals("QID")) {
 
             result += "dth QID is\n";
             result += "   protecting BOOL .\n";
             result += "   sort Id .\n";
             result += "end\n";
 
-        } else if (modName.atom.equals("NZNAT")) {
+        } else if (this.modName.atom.equals("NZNAT")) {
 
-        } else if (modName.atom.equals("NAT")) {
+        } else if (this.modName.atom.equals("NAT")) {
 
             result += "dth NAT is\n";
             result += "   protecting BOOL .\n";
@@ -747,7 +746,7 @@ public class Module
             result += "   eq N >= N = true .\n";
             result += "end\n";
 
-        } else if (modName.atom.equals("INT")) {
+        } else if (this.modName.atom.equals("INT")) {
 
             result += "dth INT is\n";
             result += "   protecting NAT .\n";
@@ -788,7 +787,7 @@ public class Module
             result += "   eq I * (- J) = - (I * J) .\n";
             result += "end\n";
 
-        } else if (modName.atom.equals("FLOAT")) {
+        } else if (this.modName.atom.equals("FLOAT")) {
 
             result += "dth FLOAT is \n";
             result += "   sort Float .\n";
@@ -1012,15 +1011,15 @@ public class Module
 
         // import equations
         for (Equation eq : module.equations) {
-            if (!equations.contains(eq)) {
-                equations.add(eq);
+            if (!this.equations.contains(eq)) {
+                this.equations.add(eq);
             }
         }
 
         // import generalEquations
         for (Equation eq : module.generalEquations) {
-            if (!generalEquations.contains(eq)) {
-                generalEquations.add(eq);
+            if (!this.generalEquations.contains(eq)) {
+                this.generalEquations.add(eq);
             }
         }
 
@@ -1029,34 +1028,34 @@ public class Module
         // handle alias
         for (String key : module.alias.keySet()) {
             List<Sort> list = module.alias.get(key);
-            List<Sort> res = alias.get(key);
+            List<Sort> res = this.alias.get(key);
             if (res == null) {
                 res = new ArrayList<>();
             }
             res.addAll(list);
-            alias.put(key, res);
+            this.alias.put(key, res);
         }
 
     }
 
     public void protectedImport(Module module) throws SignatureException {
-        protectImportList.add(module.modName);
+        this.protectImportList.add(module.modName);
         importModule(module);
     }
 
     public void usedImport(Module module) throws SignatureException {
-        useImportList.add(module.modName);
+        this.useImportList.add(module.modName);
         importModule(module);
     }
 
     public void extendedImport(Module module) throws SignatureException {
-        extendImportList.add(module.modName);
+        this.extendImportList.add(module.modName);
         importModule(module);
     }
 
     public Sort[] getSortByName(String sortName) {
         List<Sort> list = new ArrayList<>();
-        for (Sort sort : sorts) {
+        for (Sort sort : this.sorts) {
             if (sort.getName()
                     .equals(sortName)) {
                 list.add(sort);
@@ -1070,57 +1069,57 @@ public class Module
                                    Map<ModuleName, Integer> env)
         throws SignatureException {
 
-        if (modName.op == ModuleName.ANNOTATE) {
+        if (this.modName.op == ModuleName.ANNOTATE) {
             return this.clone();
         }
 
-        Module result = new Module(type, modName.addAnnotation(name));
+        Module result = new Module(this.type, this.modName.addAnnotation(name));
 
         // clone module parts
-        result.protectImportList = new ArrayList<>(protectImportList);
-        result.paraModules = new ArrayList<>(paraModules);
-        result.paraNames = new ArrayList<>(paraNames);
+        result.protectImportList = new ArrayList<>(this.protectImportList);
+        result.paraModules = new ArrayList<>(this.paraModules);
+        result.paraNames = new ArrayList<>(this.paraNames);
         result.levels = this.levels;
 
         // sorts
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             sort = sort.addAnnotation(name, env);
             result.addSort(sort);
         }
 
         // subsorts
-        result.addSubsorts(subsorts.addAnnotation(name, env));
+        result.addSubsorts(this.subsorts.addAnnotation(name, env));
 
         // variable
-        for (int i = 0; i < vars.size(); i++ ) {
-            Variable var = vars.elementAt(i);
+        for (int i = 0; i < this.vars.size(); i++ ) {
+            Variable var = this.vars.elementAt(i);
             var = var.addAnnotation(name, env);
             result.addVariable(var);
         }
 
         //operations
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             op = op.addAnnotation(name, env);
             result.addOperation(op);
         }
 
         // import equations
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             eq = eq.addAnnotation(name, result, env);
             if (!result.equations.contains(eq))
                 result.addEquation(eq);
         }
 
         // import general equations
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             eq = eq.addAnnotation(name, result, env);
             if (!result.generalEquations.contains(eq))
                 result.generalEquations.add(eq);
         }
 
-        if (bindings != null) {
+        if (this.bindings != null) {
             result.bindings = new Hashtable<>(this.bindings);
         }
 
@@ -1129,11 +1128,11 @@ public class Module
     }
 
     public Module removeAnnotation(String name) throws SignatureException {
-        Module result = new Module(type, modName.getOriginModuleName());
+        Module result = new Module(this.type, this.modName.getOriginModuleName());
 
         // sorts
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             sort = sort.removeAnnotation(name);
             if (!result.containsSort(sort)) {
                 result.addSort(sort);
@@ -1141,11 +1140,11 @@ public class Module
         }
 
         // subsorts
-        result.addSubsorts(subsorts.removeAnnotation(name));
+        result.addSubsorts(this.subsorts.removeAnnotation(name));
 
         // variable
-        for (int i = 0; i < vars.size(); i++ ) {
-            Variable var = vars.elementAt(i);
+        for (int i = 0; i < this.vars.size(); i++ ) {
+            Variable var = this.vars.elementAt(i);
             var = var.removeAnnotation(name);
             if (!result.containsVariable(var)) {
                 result.addVariable(var);
@@ -1153,8 +1152,8 @@ public class Module
         }
 
         //operations
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             op = op.removeAnnotation(name);
             if (!result.containsOperation(op)) {
                 result.addOperation(op);
@@ -1162,14 +1161,14 @@ public class Module
         }
 
         // equations
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             eq = eq.removeAnnotation(name, this);
             if (!result.containsEquation(eq))
                 result.addEquation(eq);
         }
 
         // general equations
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             eq = eq.removeAnnotation(name, this);
             if (!result.generalEquations.contains(eq))
                 result.generalEquations.add(eq);
@@ -1182,8 +1181,8 @@ public class Module
     protected boolean containsAnnotation(String name) throws SignatureException {
 
         // sorts
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             if (sort.getModuleName()
                     .hasNotation(name)) {
                 return true;
@@ -1191,8 +1190,8 @@ public class Module
         }
 
         //operations
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             if (op.modName.hasNotation(name)) {
                 return true;
             }
@@ -1212,7 +1211,7 @@ public class Module
             Module cmod = this.clone();
             for (int i = 0; i < mods.length; i++ ) {
 
-                String paraName = paraNames.get(i);
+                String paraName = this.paraNames.get(i);
 
                 boolean found = false;
                 for (Module mod : mods) {
@@ -1248,7 +1247,7 @@ public class Module
                 list.add(mod.modName);
             } else if (view.name == null || view.name.equals("")) {
 
-                if (!highOrder && levels == null) {
+                if (!highOrder && this.levels == null) {
                     Module source = new Module(view.source.type, view.source.modName);
                     Module target = new Module(view.source.type, view.target.modName);
                     view = new View(view.name, source, target);
@@ -1258,7 +1257,7 @@ public class Module
 
             } else {
 
-                if (!highOrder && levels == null) {
+                if (!highOrder && this.levels == null) {
                     Module source = new Module(view.source.type, view.source.modName);
                     Module target = new Module(view.source.type, view.target.modName);
                     view = new View(view.name, source, target);
@@ -1271,7 +1270,7 @@ public class Module
         ModuleName resModName = this.modName.instance(list);
 
         // import this module into the result module
-        Module result = new Module(type, resModName);
+        Module result = new Module(this.type, resModName);
 
         try {
             result.importModule(this);
@@ -1287,9 +1286,9 @@ public class Module
 //					      modName);
 //	}
 
-        if (mods.length != levels[0] || notations.length != levels[0]) {
-            throw new ModuleInstanceException("expect " + levels[0]
-                                              + " parameters when instantiate " + modName);
+        if (mods.length != this.levels[0] || notations.length != this.levels[0]) {
+            throw new ModuleInstanceException("expect " + this.levels[0]
+                                              + " parameters when instantiate " + this.modName);
         }
 
         View[] views = new View[mods.length];
@@ -1297,8 +1296,8 @@ public class Module
         HashMap<String, String> rename = new HashMap<>();
         int count = 0;
         for (int i = 0; i < mods.length; i++ ) {
-            Module parameter = paraModules.get(i);
-            String paraName = paraNames.get(i);
+            Module parameter = this.paraModules.get(i);
+            String paraName = this.paraNames.get(i);
 
             for (int j = 0; j < i; j++ ) {
                 try {
@@ -1336,16 +1335,16 @@ public class Module
             }
         }
 
-        if (bindings != null) {
+        if (this.bindings != null) {
 
             // check import list
-            Map<ModuleName, Module> newenv = new HashMap<>(bindings);
-            Map<ModuleName, Module> oldenv = new HashMap<>(bindings);
+            Map<ModuleName, Module> newenv = new HashMap<>(this.bindings);
+            Map<ModuleName, Module> oldenv = new HashMap<>(this.bindings);
 
             for (int i = 0; i < mods.length; i++ ) {
                 // get parameter and its name
-                Module parameter = paraModules.get(i);
-                String paraName = paraNames.get(i);
+                Module parameter = this.paraModules.get(i);
+                String paraName = this.paraNames.get(i);
 
                 if (parameter.isParameterized()) {
 
@@ -1385,9 +1384,9 @@ public class Module
 
             // do instantiation for higher order modules
 
-            View[] pviews = new View[protectImportList.size()];
-            for (int i = 0; i < protectImportList.size(); i++ ) {
-                ModuleName mname = protectImportList.get(i);
+            View[] pviews = new View[this.protectImportList.size()];
+            for (int i = 0; i < this.protectImportList.size(); i++ ) {
+                ModuleName mname = this.protectImportList.get(i);
                 try {
                     ArrayList<View> rec = new ArrayList<>();
                     Module tmp = getModule(mname, newenv, oldenv, rec);
@@ -1428,8 +1427,8 @@ public class Module
         for (int i = 0; i < mods.length; i++ ) {
 
             // get parameter and its name
-            Module parameter = paraModules.get(i);
-            String paraName = paraNames.get(i);
+            Module parameter = this.paraModules.get(i);
+            String paraName = this.paraNames.get(i);
             String newName = rename.get(paraName);
 
             if (mods[i].type > parameter.type) {
@@ -1484,7 +1483,7 @@ public class Module
 
                 if (!inputName) {
                     View tmpView = views[i];
-                    if (!highOrder && levels == null) {
+                    if (!highOrder && this.levels == null) {
                         tmpView =
                             new View(views[i].name,
                                      new Module(views[i].source.type, views[i].source.modName),
@@ -1514,21 +1513,21 @@ public class Module
             throw new ModuleInstanceException(e.getMessage());
         }
 
-        if (levels.length > 1) {
+        if (this.levels.length > 1) {
 
             // setup paraNames
-            for (int i = levels[0]; i < paraNames.size(); i++ ) {
+            for (int i = this.levels[0]; i < this.paraNames.size(); i++ ) {
 
-                String paraName = paraNames.get(i);
-                Module paraModule = paraModules.get(i);
+                String paraName = this.paraNames.get(i);
+                Module paraModule = this.paraModules.get(i);
 
                 result.paraNames.add(paraName);
 
                 // paraModule need to change
-                for (int j = 0; j < levels[0]; j++ ) {
+                for (int j = 0; j < this.levels[0]; j++ ) {
 
                     try {
-                        String str = paraNames.get(j);
+                        String str = this.paraNames.get(j);
                         if (paraModule.containsAnnotation(str)) {
 
                             paraModule = paraModule.clone();
@@ -1567,9 +1566,9 @@ public class Module
             result.bindings = this.bindings;
 
             // setup levels
-            result.levels = new int[levels.length - 1];
+            result.levels = new int[this.levels.length - 1];
             for (int i = 0; i < result.levels.length; i++ ) {
-                result.levels[i] = levels[i + 1] - levels[0];
+                result.levels[i] = this.levels[i + 1] - this.levels[0];
             }
 
         }
@@ -2257,10 +2256,10 @@ public class Module
 
         if (containsSort(from)) {
 
-            Module result = new Module(type, name);
+            Module result = new Module(this.type, name);
 
             // setup parameters
-            for (int i = 0; i < paraModules.size(); i++ ) {
+            for (int i = 0; i < this.paraModules.size(); i++ ) {
                 Module module = this.paraModules.get(i);
                 result.paraModules.add(module);
 
@@ -2272,8 +2271,8 @@ public class Module
             result.levels = this.levels;
 
             // sorts
-            for (int i = 0; i < sorts.size(); i++ ) {
-                Sort sort = sorts.elementAt(i);
+            for (int i = 0; i < this.sorts.size(); i++ ) {
+                Sort sort = this.sorts.elementAt(i);
                 if (sort.equals(from)) {
                     result.addSort(to);
                 } else {
@@ -2282,24 +2281,24 @@ public class Module
             }
 
             // subsorts
-            result.addSubsorts(subsorts.changeSort(from, to));
+            result.addSubsorts(this.subsorts.changeSort(from, to));
 
             // variable
-            for (int i = 0; i < vars.size(); i++ ) {
-                Variable var = vars.elementAt(i);
+            for (int i = 0; i < this.vars.size(); i++ ) {
+                Variable var = this.vars.elementAt(i);
                 var = var.changeSort(from, to);
                 result.addVariable(var);
             }
 
             //operations
-            for (int i = 0; i < operations.size(); i++ ) {
-                Operation op = operations.elementAt(i);
+            for (int i = 0; i < this.operations.size(); i++ ) {
+                Operation op = this.operations.elementAt(i);
                 op = op.changeSort(from, to);
                 result.addOperation(op);
             }
 
             // equations
-            for (Equation eq : equations) {
+            for (Equation eq : this.equations) {
                 eq = eq.changeSort(from, to, result);
                 if (!result.equations.contains(eq)) {
                     result.equations.add(eq);
@@ -2307,14 +2306,14 @@ public class Module
             }
 
             // dgd: general equations  was wrong in original looped over equations as above
-            for (Equation eq : generalEquations) {
+            for (Equation eq : this.generalEquations) {
                 eq = eq.changeSort(from, to, result);
                 if (!result.generalEquations.contains(eq)) {
                     result.generalEquations.add(eq);
                 }
             }
 
-            ArrayList<Sort> list = (ArrayList<Sort>) alias.get("QID");
+            ArrayList<Sort> list = (ArrayList<Sort>) this.alias.get("QID");
             if (list != null) {
                 for (int i = 0; i < list.size(); i++ ) {
                     Sort s = list.get(i);
@@ -2346,10 +2345,10 @@ public class Module
 
         if (containsOperation(from)) {
 
-            Module result = new Module(type, name);
+            Module result = new Module(this.type, name);
 
             // setup parameters
-            for (int i = 0; i < paraModules.size(); i++ ) {
+            for (int i = 0; i < this.paraModules.size(); i++ ) {
                 Module module = this.paraModules.get(i);
                 result.paraModules.add(module);
 
@@ -2361,23 +2360,23 @@ public class Module
             result.levels = this.levels;
 
             // sorts
-            for (int i = 0; i < sorts.size(); i++ ) {
-                Sort sort = sorts.elementAt(i);
+            for (int i = 0; i < this.sorts.size(); i++ ) {
+                Sort sort = this.sorts.elementAt(i);
                 result.addSort(sort);
             }
 
             // subsorts
-            result.addSubsorts(subsorts);
+            result.addSubsorts(this.subsorts);
 
             // variable
-            for (int i = 0; i < vars.size(); i++ ) {
-                Variable var = vars.elementAt(i);
+            for (int i = 0; i < this.vars.size(); i++ ) {
+                Variable var = this.vars.elementAt(i);
                 result.addVariable(var);
             }
 
             //operations
-            for (int i = 0; i < operations.size(); i++ ) {
-                Operation op = operations.elementAt(i);
+            for (int i = 0; i < this.operations.size(); i++ ) {
+                Operation op = this.operations.elementAt(i);
 
                 if (op.equals(from)) {
                     result.addOperation(to);
@@ -2399,7 +2398,7 @@ public class Module
             }
 
             // equations
-            for (Equation eq : equations) {
+            for (Equation eq : this.equations) {
                 eq = eq.changeOperation(from, to, this);
 
                 if (!result.equations.contains(eq)) {
@@ -2408,7 +2407,7 @@ public class Module
 
             }
 
-            for (Equation eq : generalEquations) {
+            for (Equation eq : this.generalEquations) {
                 eq = eq.changeOperation(from, to, this);
 
                 if (!result.generalEquations.contains(eq)) {
@@ -2418,8 +2417,8 @@ public class Module
             }
 
             // handle alias
-            for (String key : alias.keySet()) {
-                List<Sort> list = alias.get(key);
+            for (String key : this.alias.keySet()) {
+                List<Sort> list = this.alias.get(key);
 
                 List<Sort> res = new ArrayList<>();
                 for (int i = 0; i < list.size(); i++ ) {
@@ -2445,10 +2444,10 @@ public class Module
                                    ModuleName name)
         throws SignatureException {
 
-        Module result = new Module(type, name);
+        Module result = new Module(this.type, name);
 
         // setup parameters
-        for (int i = 0; i < paraModules.size(); i++ ) {
+        for (int i = 0; i < this.paraModules.size(); i++ ) {
             Module module = this.paraModules.get(i);
             result.paraModules.add(module);
 
@@ -2464,31 +2463,31 @@ public class Module
         result.levels = this.levels;
 
         // sorts
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             sort = sort.changeModuleName(from, to);
             result.addSort(sort);
         }
 
         // subsorts
-        result.addSubsorts(subsorts.changeModuleName(from, to));
+        result.addSubsorts(this.subsorts.changeModuleName(from, to));
 
         // variable
-        for (int i = 0; i < vars.size(); i++ ) {
-            Variable var = vars.elementAt(i);
+        for (int i = 0; i < this.vars.size(); i++ ) {
+            Variable var = this.vars.elementAt(i);
             var = var.changeModuleName(from, to);
             result.addVariable(var);
         }
 
         //operations
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             op = op.changeModuleName(from, to);
             result.addOperation(op);
         }
 
         // equations
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             eq = eq.changeModuleName(from, to, result);
             if (!result.equations.contains(eq)) {
                 result.equations.add(eq);
@@ -2496,7 +2495,7 @@ public class Module
 
         }
 
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             eq = eq.changeModuleName(from, to, result);
             if (!result.generalEquations.contains(eq)) {
                 result.generalEquations.add(eq);
@@ -2505,8 +2504,8 @@ public class Module
         }
 
         // handle alias
-        for (String key : alias.keySet()) {
-            List<Sort> list = alias.get(key);
+        for (String key : this.alias.keySet()) {
+            List<Sort> list = this.alias.get(key);
 
             List<Sort> res = new ArrayList<>();
             for (int i = 0; i < list.size(); i++ ) {
@@ -2525,10 +2524,10 @@ public class Module
                                            ModuleName name)
         throws SignatureException {
 
-        Module result = new Module(type, name);
+        Module result = new Module(this.type, name);
 
         // setup parameters
-        for (int i = 0; i < paraModules.size(); i++ ) {
+        for (int i = 0; i < this.paraModules.size(); i++ ) {
             Module module = this.paraModules.get(i);
             result.paraModules.add(module);
 
@@ -2537,38 +2536,38 @@ public class Module
         }
 
         // protect import list
-        for (int i = 0; i < protectImportList.size(); i++ ) {
-            ModuleName mname = protectImportList.get(i);
+        for (int i = 0; i < this.protectImportList.size(); i++ ) {
+            ModuleName mname = this.protectImportList.get(i);
             result.protectImportList.add(mname.changeAbsoluteModuleName(from, to));
 
         }
 
         // sorts
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             sort = sort.changeAbsoluteModuleName(from, to);
             result.addSort(sort);
         }
 
         // subsorts
-        result.addSubsorts(subsorts.changeAbsoluteModuleName(from, to));
+        result.addSubsorts(this.subsorts.changeAbsoluteModuleName(from, to));
 
         // variable
-        for (int i = 0; i < vars.size(); i++ ) {
-            Variable var = vars.elementAt(i);
+        for (int i = 0; i < this.vars.size(); i++ ) {
+            Variable var = this.vars.elementAt(i);
             var = var.changeAbsoluteModuleName(from, to);
             result.addVariable(var);
         }
 
         //operations
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             op = op.changeAbsoluteModuleName(from, to);
             result.addOperation(op);
         }
 
         // equations
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             eq = eq.changeAbsoluteModuleName(from, to, result);
             if (!result.equations.contains(eq)) {
                 result.equations.add(eq);
@@ -2576,7 +2575,7 @@ public class Module
 
         }
 
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             eq = eq.changeAbsoluteModuleName(from, to, result);
             if (!result.generalEquations.contains(eq)) {
                 result.generalEquations.add(eq);
@@ -2585,8 +2584,8 @@ public class Module
         }
 
         // handle alias
-        for (String key : alias.keySet()) {
-            List<Sort> list = alias.get(key);
+        for (String key : this.alias.keySet()) {
+            List<Sort> list = this.alias.get(key);
 
             List<Sort> res = new ArrayList<>();
             for (int i = 0; i < list.size(); i++ ) {
@@ -2609,7 +2608,7 @@ public class Module
         }
 
         Module mod = this;
-        for (String from : paraNames) {
+        for (String from : this.paraNames) {
             String to = "___P" + pcount;
             try {
                 mod = mod.changeParameterName(from, to);
@@ -2625,10 +2624,10 @@ public class Module
                                       String to)
         throws SignatureException {
 
-        Module result = new Module(type, modName);
+        Module result = new Module(this.type, this.modName);
 
         // setup parameters
-        for (int i = 0; i < paraModules.size(); i++ ) {
+        for (int i = 0; i < this.paraModules.size(); i++ ) {
             Module module = this.paraModules.get(i);
             result.paraModules.add(module);
 
@@ -2641,31 +2640,31 @@ public class Module
         }
 
         // sorts
-        for (int i = 0; i < sorts.size(); i++ ) {
-            Sort sort = sorts.elementAt(i);
+        for (int i = 0; i < this.sorts.size(); i++ ) {
+            Sort sort = this.sorts.elementAt(i);
             sort = sort.changeParameterName(from, to);
             result.addSort(sort);
         }
 
         // subsorts
-        result.addSubsorts(subsorts.changeParameterName(from, to));
+        result.addSubsorts(this.subsorts.changeParameterName(from, to));
 
         // variable
-        for (int i = 0; i < vars.size(); i++ ) {
-            Variable var = vars.elementAt(i);
+        for (int i = 0; i < this.vars.size(); i++ ) {
+            Variable var = this.vars.elementAt(i);
             var = var.changeParameterName(from, to);
             result.addVariable(var);
         }
 
         //operations
-        for (int i = 0; i < operations.size(); i++ ) {
-            Operation op = operations.elementAt(i);
+        for (int i = 0; i < this.operations.size(); i++ ) {
+            Operation op = this.operations.elementAt(i);
             op = op.changeParameterName(from, to);
             result.addOperation(op);
         }
 
         // equations
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             eq = eq.changeParameterName(from, to, result);
             if (!result.equations.contains(eq)) {
                 result.equations.add(eq);
@@ -2673,7 +2672,7 @@ public class Module
 
         }
 
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             eq = eq.changeParameterName(from, to, result);
             if (!result.generalEquations.contains(eq)) {
                 result.generalEquations.add(eq);
@@ -2682,8 +2681,8 @@ public class Module
         }
 
         // handle alias
-        for (String key : alias.keySet()) {
-            List<Sort> aliases = alias.get(key);
+        for (String key : this.alias.keySet()) {
+            List<Sort> aliases = this.alias.get(key);
 
             List<Sort> res = new ArrayList<>();
             for (int i = 0; i < aliases.size(); i++ ) {
@@ -2695,9 +2694,9 @@ public class Module
         }
 
         // copy level
-        if (levels != null) {
-            result.levels = new int[levels.length];
-            System.arraycopy(levels, 0, result.levels, 0, levels.length);
+        if (this.levels != null) {
+            result.levels = new int[this.levels.length];
+            System.arraycopy(this.levels, 0, result.levels, 0, this.levels.length);
         }
 
         return result;
@@ -2706,36 +2705,36 @@ public class Module
     @Override
     public Module clone() {
 
-        Module result = new Module(type, modName);
+        Module result = new Module(this.type, this.modName);
 
         // clone signature part
-        result.sorts = new Vector<>(sorts);
-        result.vars = new Vector<>(vars);
-        result.subsorts = (Subsort) subsorts.clone();
-        result.operations = new Vector<>(operations);
-        result.tokens = new Vector<>(tokens);
-        result.compatible = new Hashtable<>(compatible);
-        result.alias = new HashMap<>(alias);
-        result.parameters = parameters;
-        result.firsts = new ArrayList<>(firsts);
-        result.lasts = new ArrayList<>(lasts);
-        result.balancedBrackets = balancedBrackets;
-        result.explicitRetract = explicitRetract;
+        result.sorts = new Vector<>(this.sorts);
+        result.vars = new Vector<>(this.vars);
+        result.subsorts = (Subsort) this.subsorts.clone();
+        result.operations = new Vector<>(this.operations);
+        result.tokens = new Vector<>(this.tokens);
+        result.compatible = new Hashtable<>(this.compatible);
+        result.alias = new HashMap<>(this.alias);
+        result.parameters = this.parameters;
+        result.firsts = new ArrayList<>(this.firsts);
+        result.lasts = new ArrayList<>(this.lasts);
+        result.balancedBrackets = this.balancedBrackets;
+        result.explicitRetract = this.explicitRetract;
 
         // clone module parts
-        result.paraModules = new ArrayList<>(paraModules);
-        result.paraNames = new ArrayList<>(paraNames);
-        result.protectImportList = new ArrayList<>(protectImportList);
-        result.extendImportList = new ArrayList<>(extendImportList);
-        result.useImportList = new ArrayList<>(useImportList);
-        result.bindings = bindings;
-        result.levels = levels;
+        result.paraModules = new ArrayList<>(this.paraModules);
+        result.paraNames = new ArrayList<>(this.paraNames);
+        result.protectImportList = new ArrayList<>(this.protectImportList);
+        result.extendImportList = new ArrayList<>(this.extendImportList);
+        result.useImportList = new ArrayList<>(this.useImportList);
+        result.bindings = this.bindings;
+        result.levels = this.levels;
         result.equations = new ArrayList<>();
-        result.equations.addAll(equations);
+        result.equations.addAll(this.equations);
         result.generalEquations = new ArrayList<>();
-        result.generalEquations.addAll(generalEquations);
+        result.generalEquations.addAll(this.generalEquations);
 
-        result.props = new HashMap<>(props);
+        result.props = new HashMap<>(this.props);
 
         return result;
     }
@@ -2834,15 +2833,15 @@ public class Module
 
     public void setProperty(String name,
                             Object object) {
-        props.put(name, object);
+        this.props.put(name, object);
     }
 
     public Object getProperty(String name) {
-        return props.get(name);
+        return this.props.get(name);
     }
 
     public void removeProperty(String name) {
-        props.remove(name);
+        this.props.remove(name);
     }
 
     public Term getNormalForm(Term term) {
@@ -2897,7 +2896,7 @@ public class Module
 
                         Equation eqtmp = new Equation(l, r);
 
-                        if (!equations.contains(eq)) {
+                        if (!this.equations.contains(eq)) {
                             pool.addElement(eqtmp);
                         }
                     }
@@ -2906,7 +2905,7 @@ public class Module
 
                         Equation eqtmp = new Equation(cd, l, r);
 
-                        if (!equations.contains(eq)) {
+                        if (!this.equations.contains(eq)) {
                             pool.addElement(eqtmp);
                         }
                     }
@@ -2947,7 +2946,7 @@ public class Module
                     if ((cond == null || c == 1) && !l.equals(r) && !l.isSubterm(r)) {
                         Equation eqtmp = new Equation(l, r);
 
-                        if (!equations.contains(eq)) {
+                        if (!this.equations.contains(eq)) {
                             pool.addElement(eqtmp);
                         }
                     }
@@ -2955,7 +2954,7 @@ public class Module
                     if (cond == null && c != 1 && !l.equals(r) && !l.isSubterm(r)) {
                         Equation eqtmp = new Equation(cd, l, r);
 
-                        if (!equations.contains(eq)) {
+                        if (!this.equations.contains(eq)) {
                             pool.addElement(eqtmp);
                         }
                     }
@@ -3030,13 +3029,13 @@ public class Module
                     }
 
                     eq.info = "system-introduced";
-                    if (!equations.contains(eq)) {
+                    if (!this.equations.contains(eq)) {
 //                        HashSet<Variable> leftvars =
 //                            new HashSet(Arrays.asList(eq.left.getVariables()));
 //                        HashSet<Variable> rightVars =
 //                            new HashSet(Arrays.asList(eq.right.getVariables()));
 //                        if (leftvars.containsAll(rightVars)) {
-                            equations.add(eq);
+                        this.equations.add(eq);
 //                        } else if (rightVars.containsAll(leftvars)) {
 //                            Term t = eq.left;
 //                            eq.left = eq.right;
@@ -3156,14 +3155,14 @@ public class Module
         }
 
         if ((c == null || RewriteEngine.boolValue(c) == 1) && !l.equals(r) && !l.isSubterm(r)) {
-            if (!equations.contains(eq)) {
+            if (!this.equations.contains(eq)) {
                 return new Equation(l, r);
             }
         }
 
         if (c != null && RewriteEngine.boolValue(c) != 1 && !l.equals(r) && !l.isSubterm(r)) {
             Equation eqtmp = new Equation(c, l, r);
-            if (!equations.contains(eq)) {
+            if (!this.equations.contains(eq)) {
                 return eqtmp;
             }
         }
@@ -3190,7 +3189,7 @@ public class Module
     private Hashtable<Sort, Equation> getHiddenSortPresentation() {
         Hashtable<Sort, Equation> result = new Hashtable<>();
 
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             if (eq.left.sort.isHidden() && eq.right.sort.isHidden() && eq.condition == null
                 && eq.right.var != null) {
 
@@ -3933,7 +3932,7 @@ public class Module
         right.parent = null;
         right = getNormalForm(right);
 
-        engine.cleanCache();
+        this.engine.cleanCache();
 
         if (left.equals(this, right)) {
             return true;
@@ -3994,8 +3993,8 @@ public class Module
         Map<VarOrCode, Term> v2t = new HashMap<>();
         if (cterm != null) {
 
-            engine.cleanCache();
-            engine.turnoff2Eq = true;
+            this.engine.cleanCache();
+            this.engine.turnoff2Eq = true;
 
             cterm.parent = null;
             cterm.copy(this);
@@ -4032,8 +4031,8 @@ public class Module
             oldRight = right.copy(this);
             right = getNormalForm(right);
 
-            engine.cleanCache();
-            engine.turnoff2Eq = false;
+            this.engine.cleanCache();
+            this.engine.turnoff2Eq = false;
 
         } else {
 
@@ -4045,8 +4044,8 @@ public class Module
             oldRight = right.copy(this);
             right = mod.getNormalForm(right.subst(v2t, mod));
 
-            engine.cleanCache();
-            engine.turnoff2Eq = false;
+            this.engine.cleanCache();
+            this.engine.turnoff2Eq = false;
 
         }
 
@@ -4228,8 +4227,8 @@ public class Module
             oldRight = right.copy(this);
             right = getNormalForm(right);
 
-            engine.cleanCache();
-            engine.turnoff2Eq = false;
+            this.engine.cleanCache();
+            this.engine.turnoff2Eq = false;
         } else {
 
             left.parent = null;
@@ -4240,8 +4239,8 @@ public class Module
             oldRight = right.copy(this);
             right = mod.getNormalForm(right.subst(v2t, mod));
 
-            engine.cleanCache();
-            engine.turnoff2Eq = false;
+            this.engine.cleanCache();
+            this.engine.turnoff2Eq = false;
         }
 
         if (left.equals(this, right)) {
@@ -4362,7 +4361,7 @@ public class Module
             if (res == null) {
 
                 for (int i = 0; i < eqs.size(); i++ ) {
-                    equations.remove(eqs.elementAt(i));
+                    this.equations.remove(eqs.elementAt(i));
                 }
                 return false;
 
@@ -4394,7 +4393,7 @@ public class Module
         }
 
         for (int i = 0; i < eqs.size(); i++ ) {
-            equations.remove(eqs.elementAt(i));
+            this.equations.remove(eqs.elementAt(i));
         }
         return true;
 
@@ -4580,7 +4579,7 @@ public class Module
 
                 boolean assumeUsed = (l.helper.get("coind-assume") != null)
                                      || (r.helper.get("coind-assume") != null);
-                engine.cleanCache();
+                this.engine.cleanCache();
 
                 String msg;
                 if (assumeUsed) {
@@ -4946,14 +4945,14 @@ public class Module
 
         @Override
         public String toString() {
-            return left + "  ==  " + right;
+            return this.left + "  ==  " + this.right;
         }
 
     }
 
     public Equation getEquation(String name) {
 
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             if (eq.name != null && eq.name.equals(name)) {
                 return eq;
             }
@@ -4964,7 +4963,7 @@ public class Module
     }
 
     public Equation getGeneralEquation(String name) {
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             if (eq.name != null && eq.name.equals(name)) {
                 return eq;
             }
@@ -4974,9 +4973,9 @@ public class Module
     }
 
     public Equation[] getEquations() {
-        Equation[] result = new Equation[equations.size()];
-        for (int i = 0; i < equations.size(); i++ ) {
-            result[i] = equations.get(i);
+        Equation[] result = new Equation[this.equations.size()];
+        for (int i = 0; i < this.equations.size(); i++ ) {
+            result[i] = this.equations.get(i);
         }
 
         return result;
@@ -4987,14 +4986,14 @@ public class Module
         if (isBuiltIn()) {
 
             int index = 0;
-            for (Equation eq : equations) {
+            for (Equation eq : this.equations) {
                 if (number - 1 == index) {
                     return eq;
                 }
                 index++ ;
             }
 
-            for (Equation eq : generalEquations) {
+            for (Equation eq : this.generalEquations) {
                 if (number - 1 == index) {
                     return eq;
                 }
@@ -5004,7 +5003,7 @@ public class Module
         } else {
 
             int index = 0;
-            for (Equation eq : equations) {
+            for (Equation eq : this.equations) {
                 if (!eq.info.equals("system-default")) {
                     if (number - 1 == index) {
                         return eq;
@@ -5013,7 +5012,7 @@ public class Module
                 }
             }
 
-            for (Equation eq : generalEquations) {
+            for (Equation eq : this.generalEquations) {
                 if (!eq.info.equals("system-default")) {
                     if (number - 1 == index) {
                         return eq;
@@ -5022,7 +5021,7 @@ public class Module
                 }
             }
 
-            for (Equation eq : equations) {
+            for (Equation eq : this.equations) {
                 if (eq.info.equals("system-default")) {
                     if (number - 1 == index) {
                         return eq;
@@ -5041,7 +5040,7 @@ public class Module
         String result = "";
         int count = 1;
 
-        for (Equation eq : equations) {
+        for (Equation eq : this.equations) {
             if (mask || !eq.info.equals("system-default")) {
                 if (eq.name != null) {
                     result += "   " + eq + "\n";
@@ -5052,7 +5051,7 @@ public class Module
             }
         }
 
-        for (Equation eq : generalEquations) {
+        for (Equation eq : this.generalEquations) {
             if (!eq.info.equals("system-default")) {
                 if (eq.name != null) {
                     result += "   " + eq + "\n";
@@ -5064,7 +5063,7 @@ public class Module
         }
 
         if (all) {
-            for (Equation eq : equations) {
+            for (Equation eq : this.equations) {
                 if (eq.info.equals("system-default")) {
                     if (eq.name != null) {
                         result += "   " + eq + "\n";
@@ -5083,28 +5082,28 @@ public class Module
 
         String result = "";
 
-        result += modName;
+        result += this.modName;
         result += " is \n";
 
-        if (!protectImportList.isEmpty()) {
+        if (!this.protectImportList.isEmpty()) {
             result += "   protecting";
-            for (ModuleName element : protectImportList) {
+            for (ModuleName element : this.protectImportList) {
                 result += " " + element;
             }
             result += " .\n";
         }
 
-        if (!extendImportList.isEmpty()) {
+        if (!this.extendImportList.isEmpty()) {
             result += "   extending";
-            for (ModuleName element : extendImportList) {
+            for (ModuleName element : this.extendImportList) {
                 result += " " + element;
             }
             result += " .\n";
         }
 
-        if (!useImportList.isEmpty()) {
+        if (!this.useImportList.isEmpty()) {
             result += "   including";
-            for (ModuleName element : useImportList) {
+            for (ModuleName element : this.useImportList) {
                 result += " " + element;
             }
             result += " .\n";
@@ -5113,7 +5112,7 @@ public class Module
         // handle sorts
         String s = "";
         int count = 0;
-        for (Sort tmp : sorts) {
+        for (Sort tmp : this.sorts) {
             if (tmp.getInfo()
                    .equals("system-default")) {
                 continue;
@@ -5128,7 +5127,7 @@ public class Module
         }
 
         // handle subsorts
-        String stmp = toStringWithoutBuiltIn(subsorts);
+        String stmp = toStringWithoutBuiltIn(this.subsorts);
         StringTokenizer st = new StringTokenizer(stmp, "\n");
         while (st.hasMoreTokens()) {
             result += "   " + st.nextToken()
@@ -5137,7 +5136,7 @@ public class Module
         }
 
         // handle variables
-        for (Sort tmp : sorts) {
+        for (Sort tmp : this.sorts) {
             if (tmp.getInfo()
                    .equals("system-default")) {
                 continue;
@@ -5184,7 +5183,7 @@ public class Module
         }
 
         // handle non-constants
-        for (Operation tmp : operations) {
+        for (Operation tmp : this.operations) {
             if (tmp.info.equals("system-default") || tmp.isConstant()) {
                 continue;
             }
@@ -5192,14 +5191,14 @@ public class Module
         }
 
         // handle equations
-        for (Equation tmp : equations) {
+        for (Equation tmp : this.equations) {
             if (tmp.info.equals("system-default") || tmp.info.equals("system-introduced")) {
                 continue;
             }
             result += "   " + tmp + " .\n";
         }
 
-        for (Equation tmp : generalEquations) {
+        for (Equation tmp : this.generalEquations) {
             if (tmp.info.equals("system-default") || tmp.info.equals("system-introduced")) {
                 continue;
             }
@@ -5216,19 +5215,19 @@ public class Module
     }
 
     public void mask(Equation eq) {
-        mask.add(eq);
+        this.mask.add(eq);
     }
 
     public void maskAll() {
-        mask.addAll(equations);
+        this.mask.addAll(this.equations);
     }
 
     public void umask(Equation eq) {
-        mask.remove(eq);
+        this.mask.remove(eq);
     }
 
     public void umaskAll() {
-        mask.clear();
+        this.mask.clear();
     }
 
     private String caseAnalyse(Term left,
@@ -5243,10 +5242,10 @@ public class Module
 
             String name = null;
             if (this.isParameterized()) {
-                for (int i = 0; i < paraModules.size(); i++ ) {
-                    Module tmp = paraModules.get(i);
+                for (int i = 0; i < this.paraModules.size(); i++ ) {
+                    Module tmp = this.paraModules.get(i);
                     if (tmp.modName.equals(cm.base)) {
-                        name = paraNames.get(i);
+                        name = this.paraNames.get(i);
                         break;
                     }
                 }
@@ -5381,12 +5380,12 @@ public class Module
                         Term cterm = cm.cond;
                         cterm = cterm.subst(v2g, this);
 
-                        engine.cleanCache();
+                        this.engine.cleanCache();
                         RewriteEngine re = new RewriteEngine(this);
-                        engine.turnoff2Eq = true;
+                        this.engine.turnoff2Eq = true;
                         cterm.parent = null;
                         cterm = re.reduce(cterm);
-                        engine.turnoff2Eq = false;
+                        this.engine.turnoff2Eq = false;
 
                         Variable[] vars = cterm.getVariables();
                         for (Variable var : vars) {
@@ -5404,7 +5403,7 @@ public class Module
                             int k = mod.equations.size();
 
                             // need to check condition is not false
-                            engine.cleanCache();
+                            this.engine.cleanCache();
                             //Term condTerm = mod.getNormalForm(cond.copy(this));
                             Term condTerm = cm.cond.copy(this);
                             condTerm.cleanFlag();
@@ -5431,7 +5430,7 @@ public class Module
                                 continue;
                             }
 
-                            engine.cleanCache();
+                            this.engine.cleanCache();
 
                             mod = mod.toRules(condTerm);
                             for (; k < mod.equations.size(); k++ ) {
@@ -5771,7 +5770,7 @@ public class Module
             return true;
         }
 
-        for (ModuleName mname : protectImportList) {
+        for (ModuleName mname : this.protectImportList) {
             if (mname.containsToken(string)) {
                 return true;
             }
@@ -5852,8 +5851,8 @@ public class Module
 
             if (cterms[k] != null) {
 
-                engine.cleanCache();
-                engine.turnoff2Eq = true;
+                this.engine.cleanCache();
+                this.engine.turnoff2Eq = true;
 
                 cterms[k].parent = null;
                 cterms[k].copy(this);
@@ -5889,8 +5888,8 @@ public class Module
                 oldRight = rights[k].copy(this);
                 rights[k] = getNormalForm(rights[k]);
 
-                engine.cleanCache();
-                engine.turnoff2Eq = false;
+                this.engine.cleanCache();
+                this.engine.turnoff2Eq = false;
 
             } else {
 
@@ -5902,8 +5901,8 @@ public class Module
                 oldRight = rights[k].copy(this);
                 rights[k] = mod.getNormalForm(rights[k].subst(v2t, mod));
 
-                engine.cleanCache();
-                engine.turnoff2Eq = false;
+                this.engine.cleanCache();
+                this.engine.turnoff2Eq = false;
 
             }
 
