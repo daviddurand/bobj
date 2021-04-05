@@ -141,6 +141,8 @@ obj PROPC is
    eq p iff q = p xor q xor true .
 endo
 
+show PROPC rules .
+
 red 'a implies 'b iff not 'b implies not 'a . ***> should be: true
 red not('a or 'b) iff not 'a and not 'b .     ***> should be: true
 red 'c or 'c and 'd iff 'c .                  ***> should be: true
@@ -579,7 +581,7 @@ endo
 
 
 obj SET[X :: TRIV] is
-     protecting BSET[X] .
+      protecting BSET[X] .
      protecting INT .
      op _U_ : Set Set -> Set [assoc comm id: {}] .
      op _-_ : Set Set -> Set .
