@@ -133,7 +133,6 @@ public class RewriteEngine {
 
     public Term reduce(Term term) {
 
-        Term result = term;
         String index = term.toString();
         boolean flag = false;
         if (debug)
@@ -3412,11 +3411,10 @@ public class RewriteEngine {
             if (ht0 != null && ht1 != null) {
                 result = ht0;
                 for (VarOrCode var : ht1.keySet()) {
-                    Term var1 = result.get(var);
                     Term trm1 = ht1.get(var);
                     Term trm2 = null;
-                    if (var1 != null && var1.isVariable()) {
-                        trm2 = result.get(var1.var);
+                    if (result.containsKey(var)) {
+                        trm2 = result.get(var);
                     }
                     if (trm2 == null) {
                         result.put(var, trm1);

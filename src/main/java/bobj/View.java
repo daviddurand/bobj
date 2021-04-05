@@ -724,28 +724,18 @@ public class View
         if (this.trans.size() != 0) {
             for (Term left : this.trans.keySet()) {
                 Term right = this.trans.get(left);
-
                 Map<VarOrCode, Term> subst = term.getMatch(left, sig);
                 if (subst != null) {
                     Hashtable<VarOrCode, Term> newSubst = new Hashtable<>();
-
                     for (VarOrCode var : subst.keySet()) {
                         Term trm = subst.get(var);
                         trm = getImage(sig, trm);
-
-                        for (Variable vtmp : this.varMap.keySet()) {
-                            if (vtmp.equals(var)) {
-                                newSubst.put(this.varMap.get(vtmp), trm);
-                                break;
-                            }
-                        }
-
+                        if (this.varMap.containsKey(var))
+                            newSubst.put(this.varMap.get(var), trm);
                     }
-
                     return right.subst(newSubst, this.tmodule);
-
                 }
-            }
+           }
         }
 
         if (term.isVariable()) {
@@ -872,8 +862,7 @@ public class View
             List<Sort> list = module.alias.get(key);
             List<Sort> res = new ArrayList<>();
 
-            for (int i = 0; i < list.size(); i++ ) {
-                Sort sort = list.get(i);
+            for (Sort sort: list) {
                 res.add(getImage(sort));
             }
 
@@ -1158,16 +1147,16 @@ public class View
 
         for (Operation from : this.opMap.keySet()) {
             Operation to = this.opMap.get(from);
-            from = from.changeModuleName(this.source.modName, modName);
+            Operation from1 = from.changeModuleName(this.source.modName, modName);
             to = to.changeModuleName(this.target.modName, modName);
-            result.addOperationMap(from, to);
+            result.addOperationMap(from1, to);
         }
 
         for (Term left : this.trans.keySet()) {
             Term right = this.trans.get(left);
-            left = left.changeModuleName(this.source.modName, modName, newSource);
+            Term left1 = left.changeModuleName(this.source.modName, modName, newSource);
             right = right.changeModuleName(this.target.modName, modName, newTarget);
-            result.addTransformation(left, right);
+            result.addTransformation(left1, right);
         }
 
         return result;
@@ -1311,21 +1300,8 @@ public class View
         for (Sort from : this.sortMap.keySet()) {
             Sort to = this.sortMap.get(from);
 
-            boolean found = false;
-            for (ViewRenamable obj : map.keySet()) {
-                if (obj instanceof Sort) {
-                    Sort tmp = (Sort) obj;
-                    if (from.equals(tmp)) {
-                        found = true;
-                        break;
-                    }
-                }
 
-            }
-
-            if (found) {
-
-            } else {
+            if (!map.containsKey(from)) {
                 from = from.changeModuleName(this.source.modName, name1);
                 to = to.changeModuleName(this.target.modName, name2);
                 result.addSortMap(from, to);
@@ -1336,9 +1312,7 @@ public class View
         for (Operation from : this.opMap.keySet()) {
             Operation to = this.opMap.get(from);
 
-            if (map.containsKey(from)) {
-
-            } else {
+            if (!map.containsKey(from)){
 
                 for (Object tmp : map1.keySet()) {
                     if (tmp instanceof Sort) {
