@@ -992,14 +992,14 @@ public class View
                 list.add(modNames[i]);
             }
 
-//            ModuleName modName1 = source.modName;
-//            if (source.modName.subexps.size() > 0) {
-//                modName1 = (ModuleName) source.modName.subexps.get(0);
-//            }
-//            modName1.instance(list);
+            ModuleName modName1 = this.source.modName;
+            if (this.source.modName.subexps.size() > 0) {
+                modName1 = (ModuleName) this.source.modName.subexps.get(0);
+            }
+            ModuleName sourceModName = modName1.instance(list);
 
-//            ModuleName modName2 = (ModuleName) target.modName.subexps.get(0);
-//            modName2.instance(list);
+            ModuleName modName2 = (ModuleName) target.modName.subexps.get(0);
+            ModuleName targetModName = modName2.instance(list);
 
             // check the size of actual parameters
             if (mods.length != this.main.paraModules.size()
@@ -1372,10 +1372,8 @@ public class View
         }
 
         for (Term left : this.trans.keySet()) {
-            this.trans.get(left);
-//
-//            Iterator i = record.keySet()
-//                               .iterator();
+             Term right =this.trans.get(left);
+            // following commmented-out in in original
             //result.addTransformation(left, right);
 
         }
@@ -1428,9 +1426,17 @@ public class View
                 Operation newTo = view.getTarget(to);
                 if (newTo == null) {
 
-                    /* Iterator it = view.trans.keySet().iterator(); Term left=null, right=null;
-                     * while (it.hasNext()) { Term left = (Term)itor.next(); Term right =
-                     * (Term)view.trans.get(left); if (left.operation.equals(newTo)) { break; } } */
+//		    /*
+//		    Iterator it = view.trans.keySet().iterator();
+//		    Term left=null, right=null;
+//		    while (it.hasNext()) {
+//			Term left = (Term)itor.next();
+//			Term right = (Term)view.trans.get(left);
+//			if (left.operation.equals(newTo)) {
+//			    break;
+//			}
+//		    }
+//		    */
 
                     Term fromTerm = null, toTerm = null;
                     if (from.isConstant()) {
@@ -1487,21 +1493,30 @@ public class View
 
     }
 
-    /* public View changeNotation(String from, String to) {
-     *
-     * Module nsrc = source.changeParameterName(from, to); Module ntgt =
-     * target.changeParameterName(from, to);
-     *
-     * String nname = name; if (name.equals(target.modName().toString())) { nname =
-     * target.modName().toString(); }
-     *
-     * View result = new View(nname, nsrc, ntgt); result.nmain = main.changeParameterName(from, to);
-     * result.morphism = morphism; result.smodule = smodule.changeParameterName(from, to);
-     * result.tmodule = tmodule.changeParameterName(from, to); result.allowSortDef = allowSortDef;
-     *
-     * Map sortMap, opMap, varMap, trans; ArrayList views = new ArrayList(); HashMap record = new
-     * HashMap();
-     *
-     * } */
+
+//    /*
+//    public View changeNotation(String from, String to) {
+//        
+//        Module nsrc = source.changeParameterName(from, to);
+//	Module ntgt = target.changeParameterName(from, to);
+//        
+//        String nname = name;
+//	if (name.equals(target.modName().toString())) {
+//	    nname = target.modName().toString();
+//	}
+//
+//	View result = new View(nname, nsrc, ntgt);
+//	result.nmain = main.changeParameterName(from, to);
+//        result.morphism = morphism;
+//        result.smodule = smodule.changeParameterName(from, to);
+//	result.tmodule = tmodule.changeParameterName(from, to);
+//	result.allowSortDef = allowSortDef;
+//
+//    Map sortMap, opMap, varMap, trans;
+//    ArrayList views = new ArrayList();
+//    HashMap record = new HashMap();
+//  
+//    }
+//    */
 
 }
