@@ -1,4 +1,4 @@
-
+set trace on .
 obj BITS is
   sorts Bit Bits .
   ops 0 1 : -> Bit .
@@ -361,10 +361,8 @@ make LEXL-NATG is LEXL[view to NAT is op _<_ to _>_ . endv] endm
 show LEXL.
 
 make LEXL-NAT is LEXL[NAT] endm
-show LEXL.
 
 make LEXL-NATD is LEXL[NATD] endm
-show LEXL.
 
 make PHRASE is LEXL[QIDL] endm
 
