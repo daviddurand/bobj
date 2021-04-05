@@ -8326,7 +8326,7 @@ void LetDecl(Module module) :
     {
         try
         {
-            FastTermParser.debug = true;
+//            FastTermParser.debug = true;
             Term term = Term.parse(module, st);
             Operation op = new Operation(t1.image,
             new Sort [ 0 ],

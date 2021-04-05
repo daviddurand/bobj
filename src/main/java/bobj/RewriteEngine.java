@@ -22,7 +22,7 @@ public class RewriteEngine {
 
     private Term right;
 
-    static boolean trace = true;
+    static boolean trace = false;
 
     public static boolean turnoff2Eq = false;
 
