@@ -133,6 +133,7 @@ public class RewriteEngine {
 
     public Term reduce(Term term) {
 
+        Term result = simplifyBuiltin(term);
         String index = term.toString();
         boolean flag = false;
         if (debug)
