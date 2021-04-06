@@ -1566,7 +1566,7 @@ public class RewriteEngine {
     public Map<VarOrCode, Term> getMatch(Term input,
                                          Term pattern) {
         if (debug_match)
-            System.err.println("Getting one match for " + input + " to " + pattern);
+            System.err.println("==> Getting one match for " + input + " to " + pattern);
 
 //        System.err.println("\n------ match  -------");
 //        System.err.println("this = "+input);
@@ -1605,7 +1605,7 @@ public class RewriteEngine {
 
             if (!okay) {
                 if (debug_match)
-                    System.err.println("No match found.");
+                    System.err.println("<== No match found.");
                 return null;
             }
 
@@ -1619,10 +1619,8 @@ public class RewriteEngine {
                         } catch (Exception e) {
                         }
                     } else {
-                        if (debug)
-                            System.err.println("No match found.");
-                        if (debug)
-                            System.err.println("No match found.");
+                        if (debug_match)
+                            System.err.println("<== No match found.");
                         return null;
                     }
                 } else {
@@ -1653,8 +1651,8 @@ public class RewriteEngine {
             }
 
         } else if (input.operation == null) {
-            if (debug)
-                System.err.println("No match found.");
+            if (debug_match)
+                System.err.println("<== No match found.");
             return null;
 
         } else if (input.operation.equals(pattern.operation)
@@ -1739,8 +1737,8 @@ public class RewriteEngine {
                                    }
 
                                    if (res != null) {
-                                       if (debug)
-                                           System.err.println("Found: " + res);
+                                       if (debug_match)
+                                           System.err.println("<== Found: " + res);
                                        return res;
                                    }
 
@@ -1748,8 +1746,8 @@ public class RewriteEngine {
 
                            } catch (Exception e) {
                            }
-                           if (debug)
-                               System.err.println("No match found.");
+                           if (debug_match)
+                               System.err.println("<== No match found.");
                            return null;
 
                        } else if (okay && input.operation.isAssociative
@@ -1780,8 +1778,8 @@ public class RewriteEngine {
                                       }
 
                                       if (result != null) {
-                                          if (debug)
-                                              System.err.println("Found: " + result);
+                                          if (debug_match)
+                                              System.err.println("<== Found: " + result);
                                           return result;
                                       }
                                       //end of adding
@@ -1798,25 +1796,26 @@ public class RewriteEngine {
 
                                           // modify 11.21.2000
                                           if (res == null) {
-                                              if (debug)
-                                                  System.err.println("No Match found.");
+                                              if (debug_match)
+                                                  System.err.println("<== No Match found.");
                                               return null;
                                           }
                                           Vector<Term> rest = getCodeValue(res, "ac-rest");
                                           if (rest != null && rest.size() > 0) {
                                               removeCodeValue(res, "ac-rest");
-                                              if (debug)
-                                                  System.err.println("No Match found.");
+                                              if (debug_match)
+                                                  System.err.println("<== No Match found.");
                                               return null;
                                           }
-                                          if (debug)
-                                              System.err.println("Found: " + res);
+                                          // end modification
+                                          if (debug_match)
+                                              System.err.println("<== Found: " + res);
 
                                           return res;
                                       } catch (Exception ex) {
                                       }
-                                      if (debug)
-                                          System.err.println("No Match found.");
+                                      if (debug_match)
+                                          System.err.println("<== No Match found.");
                                       return null;
 
                                   } else
@@ -1845,8 +1844,8 @@ public class RewriteEngine {
                                            res = combineSubst(tab1, tab2);
                                    }
                                }
-                               if (debug)
-                                   System.err.println("Found: " + res);
+                               if (debug_match)
+                                   System.err.println("<== Found: " + res);
                                return res;
 
                            } else {
@@ -1888,25 +1887,19 @@ public class RewriteEngine {
                                        Vector<Map<VarOrCode, Term>> matchSet =
                                            getAllMatches(input, pattern);
                                        if (!matchSet.isEmpty()) {
-                                           if (debug)
-                                               System.err.println("Found: "
+                                           if (debug_match)
+                                               System.err.println("<== Found: "
                                                                   + matchSet.elementAt(0));
                                            return matchSet.elementAt(0);
                                        }
-                                       if (debug)
-                                           System.err.println("No match found.");
+                                       if (debug_match)
+                                           System.err.println("<== No match found.");
                                        return null;
                                    } else {
 
                                        for (VarOrCode var : tmp.keySet()) {
                                            Term trm1 = tmp.get(var);
-                                           Term trm2 = null;
-                                           for (VarOrCode vtmp : result.keySet()) {
-                                               if (vtmp.equals(var)) {
-                                                   trm2 = result.get(vtmp);
-                                                   break;
-                                               }
-                                           }
+                                           Term trm2 = result.get(var);
                                            if (trm2 == null) {
                                                result.put(var, trm1);
                                            } else if (!trm1.equals(trm2)) {
@@ -1914,13 +1907,13 @@ public class RewriteEngine {
                                                Vector<Map<VarOrCode, Term>> matchSet =
                                                    getAllMatches(input, pattern);
                                                if (!matchSet.isEmpty()) {
-                                                   if (debug)
-                                                       System.err.println("Found: "
+                                                   if (debug_match)
+                                                       System.err.println("<== Found: "
                                                                           + matchSet.elementAt(0));
                                                    return matchSet.elementAt(0);
                                                }
-                                               if (debug)
-                                                   System.err.println("No match found.");
+                                               if (debug_match)
+                                                   System.err.println("<== No match found.");
                                                return null;
                                            }
 
@@ -1956,8 +1949,8 @@ public class RewriteEngine {
                                                      input.parent.retract[i])) {
                                     result = getMatch(input, pattern.subterms[0]);
                                     if (result != null) {
-                                        if (debug)
-                                            System.err.println("Found: " + result);
+                                        if (debug_match)
+                                            System.err.println("<== Found: " + result);
                                         return result;
                                     }
 
@@ -1975,8 +1968,8 @@ public class RewriteEngine {
             } else {
                 result = null;
             }
-        if (debug)
-            System.err.println("Found: " + result);
+        if (debug_match)
+            System.err.println("<== Found: " + result);
 
         return result;
     }
@@ -1994,7 +1987,7 @@ public class RewriteEngine {
     private Vector<Map<VarOrCode, Term>> getAllMatches(Term input,
                                                        Term pattern) {
         if (debug)
-            System.err.println("Getting matches for " + input + " to " + pattern);
+            System.err.println("==> Getting matches for " + input + " to " + pattern);
 
         // a vector containing all found matches
         Vector<Map<VarOrCode, Term>> matchSet = new Vector<>();
@@ -2034,7 +2027,7 @@ public class RewriteEngine {
                         }
                     } else {
                         if (debug)
-                            System.err.println("Returning " + matchSet);
+                            System.err.println("<== Returning " + matchSet);
                         return matchSet;
                     }
                 } else {
@@ -2059,12 +2052,12 @@ public class RewriteEngine {
 
             matchSet.addElement(match);
             if (debug)
-                System.err.println("Returning " + matchSet);
+                System.err.println("<== Returning " + matchSet);
             return matchSet;
 
         } else if (input.operation == null) {
             if (debug)
-                System.err.println("Returning " + matchSet);
+                System.err.println("<== Returning " + matchSet);
             return matchSet;
 
         } else if (input.operation.equals(pattern.operation)
@@ -2141,7 +2134,7 @@ public class RewriteEngine {
                            } catch (Exception e) {
                            }
                            if (debug)
-                               System.err.println("Returning " + matchSet);
+                               System.err.println("<== Returning " + matchSet);
                            return matchSet;
 
                        } else if (okay && input.operation.isAssociative
@@ -2199,7 +2192,7 @@ public class RewriteEngine {
                                           ex.printStackTrace();
                                       }
                                       if (debug)
-                                          System.err.println("Returning " + matchSet);
+                                          System.err.println("<== Returning " + matchSet);
                                       return matchSet;
 
                                   } else
@@ -2227,7 +2220,7 @@ public class RewriteEngine {
                                res[1] = getAllMatches(data1, pat0);
                                combine(matchSet, res);
                                if (debug)
-                                   System.err.println("Returning " + matchSet);
+                                   System.err.println("<== Returning " + matchSet);
                                return matchSet;
 
                            } else if (pattern.subterms.length == 0) {
@@ -2245,7 +2238,7 @@ public class RewriteEngine {
                            }
                    }
         if (debug)
-            System.err.println("Returning " + matchSet);
+            System.err.println("<== Returning " + matchSet);
         return matchSet;
     }
 
@@ -2612,7 +2605,9 @@ public class RewriteEngine {
     private Map<VarOrCode, Term> getACOptimizedMatch(Vector<Term> data,
                                                      Vector<Term> pats,
                                                      Operation op) {
-
+        if (debug_match)
+            System.err.println("==> getACOptimizedMatch on operation: " + op + "; data, pats: "
+                               + data + ", " + pats + ".");
         // optimization
         if (pats.size() == 2 && data.size() >= 2) {
 
@@ -2642,6 +2637,9 @@ public class RewriteEngine {
                         }
                     }
                 }
+                if (debug_match)
+                    System.err.println("<== getACOptimizedMatch return: " + res + ".");
+
                 return res;
 
             } else {
@@ -2696,9 +2694,12 @@ public class RewriteEngine {
 
                             HashMap<VarOrCode, Term> res = new HashMap<>();
                             res.put(pat1.var, term);
+                            if (debug_match)
+                                System.err.println("<== getACOptimizedMatch return: " + res + ".");
                             return res;
-
                         } else {
+                            if (debug_match)
+                                System.err.println("<== getACOptimizedMatch: No match.");
                             return null;
                         }
                     }
@@ -2712,7 +2713,9 @@ public class RewriteEngine {
 
                         if (res != null) {
 
-                            Term tmp = res.get(pat1.var);
+                            Term tmp = null;
+                            if (pat1.isVariable())
+                                tmp = res.get(pat1.var);
 
                             Vector<Term> dcopy = new Vector<>(data);
                             dcopy.removeElementAt(i);
@@ -2732,8 +2735,14 @@ public class RewriteEngine {
 
                             if (tmp == null) {
                                 res.put(pat1.var, t);
+                                if (debug_match)
+                                    System.err.println("<== getACOptimizedMatch return: " + res
+                                                       + ".");
                                 return res;
                             } else if (tmp.equals(sig, t)) {
+                                if (debug_match)
+                                    System.err.println("<== getACOptimizedMatch return: " + res
+                                                       + ".");
                                 return res;
                             } else {
                                 res = null;
@@ -2849,11 +2858,15 @@ public class RewriteEngine {
                 }
 
                 if (target == null) {
+                    if (debug_match)
+                        System.err.println("<== getACOptimizedMatc: No match.");
                     return null;
                 } else {
                     Map<VarOrCode, Term> result = new HashMap<>();
                     result.put(sample.var, target);
                     result.put(new VarOrCode("ac-rest", vec), new Term());
+                    if (debug_match)
+                        System.err.println("<== getACOptimizedMatch return: " + result + ".");
                     return result;
                 }
             }
@@ -2861,6 +2874,8 @@ public class RewriteEngine {
             Vector<Map<VarOrCode, Term>> vec = fastACMatch(pats, data);
             if (vec.size() > 0) {
                 Map<VarOrCode, Term> result = vec.elementAt(0);
+                if (debug_match)
+                    System.err.println("<== getACOptimizedMatch return: " + result + ".");
                 return result;
             }
 
@@ -2870,7 +2885,8 @@ public class RewriteEngine {
 //            return result;
 //                */
         }
-
+        if (debug_match)
+            System.err.println("<== getACOptimizedMatch: No match.");
         return null;
     }
 
@@ -3001,6 +3017,8 @@ public class RewriteEngine {
 
     private Vector<Map<VarOrCode, Term>> fastACMatch(Vector<Term> patterns,
                                                      Vector<Term> data) {
+        if (debug_match)
+            System.err.println("==> fastACMatch patterns: " + patterns + ", data: " + data + ".");
 
         Vector<Map<VarOrCode, Term>> result = new Vector<>();
 
@@ -3042,6 +3060,8 @@ public class RewriteEngine {
                 }
             }
         }
+        if (debug_match)
+            System.err.println("<== fastACMatch result: " + result + ".");
 
         return result;
 
@@ -3049,6 +3069,9 @@ public class RewriteEngine {
 
     protected Map<VarOrCode, Term> combineSubst(Map<VarOrCode, Term> tab1,
                                                 Map<VarOrCode, Term> tab2) {
+        if (debug_match)
+            System.err.println("==> combineSubst tab1 : " + tab1 + ", tab2 : " + tab2 + ".");
+
 // TODO Check if early exit would be OK
         HashMap<VarOrCode, Term> result = new HashMap<>(tab1);
         for (VarOrCode var : tab2.keySet()) {
@@ -3057,9 +3080,13 @@ public class RewriteEngine {
             if (tmp == null) {
                 result.put(var, term);
             } else if (!tmp.equals(term)) {
+                if (debug_match)
+                    System.err.println("<== combineSubst: null.");
                 return null;
             }
         }
+        if (debug_match)
+            System.err.println("<== combineSubst: " + result + ".");
 
         return result;
     }
@@ -3168,7 +3195,9 @@ public class RewriteEngine {
                     Map<VarOrCode, Term> var2term = getACMatch(input, left);
 
                     if (var2term != null) {
-
+                        if (debug_match)
+                            System.out.println("AC mnatch found input: <" + input + "> left: <"
+                                               + left + ">.");
                         Vector<Term> dterms = getCodeValue(var2term, "secret");
 
                         Term term = null;
@@ -3618,73 +3647,73 @@ public class RewriteEngine {
                 recordTerms.remove(pat);
                 recordSubst.remove(pat);
 
-                    for (i = 0; i < candidate.size(); i++ ) {
+                for (i = 0; i < candidate.size(); i++ ) {
 
-                        Term term = candidate.elementAt(i);
-                        Map<VarOrCode, Term> ht = sub.elementAt(i);
+                    Term term = candidate.elementAt(i);
+                    Map<VarOrCode, Term> ht = sub.elementAt(i);
 
-                        // check if pat => term is compatible in ref
-                        HashMap<VarOrCode, Term> mid = new HashMap<>(ref);
-                        for (VarOrCode var : ht.keySet()) {
-                            Term trm1 = ht.get(var);
-                            Term trm2 = mid.get(var);
-                            if (trm2 == null) {
-                                mid.put(var, trm1);
-                            } else if (!trm1.equals(trm2)) {
-                                mid = null;
-                                break;
-                            }
-
+                    // check if pat => term is compatible in ref
+                    HashMap<VarOrCode, Term> mid = new HashMap<>(ref);
+                    for (VarOrCode var : ht.keySet()) {
+                        Term trm1 = ht.get(var);
+                        Term trm2 = mid.get(var);
+                        if (trm2 == null) {
+                            mid.put(var, trm1);
+                        } else if (!trm1.equals(trm2)) {
+                            mid = null;
+                            break;
                         }
-
-                        if (mid == null) {
-                            //System.out.println("compatible ");
-                            continue;
-                        } else {
-                            //System.out.println("not compatible ");
-                        }
-
-                        dterms.remove(term);
-
-                        // remove term from other records
-
-                        for (Term tmpPat : recordTerms.keySet()) {
-                            Vector<Term> matchs = recordTerms.get(tmpPat);
-                            Vector<Map<VarOrCode, Term>> subs = recordSubst.get(tmpPat);
-                            int k = matchs.indexOf(term);
-                            if (k != -1) {
-                                count[matchs.size()].remove(tmpPat);
-                                count[matchs.size() - 1].addElement(tmpPat);
-                                matchs.removeElementAt(k);
-                                subs.removeElementAt(k);
-                            }
-                        }
-
-                        result = dispatch(count, new HashMap<>(recordTerms),
-                                          new HashMap<>(recordSubst), dterms, mid);
-
-                        if (result != null) {
-                            for (VarOrCode var : ht.keySet()) {
-                                Term trm1 = ht.get(var);
-                                Term trm2 = result.get(var);
-                                if (trm2 == null) {
-                                    result.put(var, trm1);
-                                } else if (!trm1.equals(trm2)) {
-                                    result = null;
-                                    break;
-                                }
-                            }
-
-                            if (result != null) {
-                                result.put(new VarOrCode("secret", dterms), new Term());
-                                return result;
-                            } else {
-
-                            }
-                        }
-                        dterms.addElement(term);
 
                     }
+
+                    if (mid == null) {
+                        //System.out.println("compatible ");
+                        continue;
+                    } else {
+                        //System.out.println("not compatible ");
+                    }
+
+                    dterms.remove(term);
+
+                    // remove term from other records
+
+                    for (Term tmpPat : recordTerms.keySet()) {
+                        Vector<Term> matchs = recordTerms.get(tmpPat);
+                        Vector<Map<VarOrCode, Term>> subs = recordSubst.get(tmpPat);
+                        int k = matchs.indexOf(term);
+                        if (k != -1) {
+                            count[matchs.size()].remove(tmpPat);
+                            count[matchs.size() - 1].addElement(tmpPat);
+                            matchs.removeElementAt(k);
+                            subs.removeElementAt(k);
+                        }
+                    }
+
+                    result = dispatch(count, new HashMap<>(recordTerms), new HashMap<>(recordSubst),
+                                      dterms, mid);
+
+                    if (result != null) {
+                        for (VarOrCode var : ht.keySet()) {
+                            Term trm1 = ht.get(var);
+                            Term trm2 = result.get(var);
+                            if (trm2 == null) {
+                                result.put(var, trm1);
+                            } else if (!trm1.equals(trm2)) {
+                                result = null;
+                                break;
+                            }
+                        }
+
+                        if (result != null) {
+                            result.put(new VarOrCode("secret", dterms), new Term());
+                            return result;
+                        } else {
+
+                        }
+                    }
+                    dterms.addElement(term);
+
+                }
 
             } else {
                 return new HashMap<>();
