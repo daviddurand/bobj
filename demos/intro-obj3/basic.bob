@@ -1,4 +1,4 @@
-set trace on .
+*** set trace on .
 obj BITS is
   sorts Bit Bits .
   ops 0 1 : -> Bit .
