@@ -3618,7 +3618,6 @@ public class RewriteEngine {
                 recordTerms.remove(pat);
                 recordSubst.remove(pat);
 
-                if (candidate != null)
                     for (i = 0; i < candidate.size(); i++ ) {
 
                         Term term = candidate.elementAt(i);
